@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Game Hub</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#0b0b0b;font-family:Inter,Arial,sans-serif}
+body{color:white}
+body::before{content:"";position:fixed;inset:0;background:radial-gradient(circle at top,#1d1d1d 0%,#0b0b0b 60%);z-index:-2}
+body::after{content:"";position:fixed;inset:0;background:linear-gradient(rgba(255,255,255,.02),transparent);z-index:-1;pointer-events:none}
+#home{position:absolute;inset:0;overflow:auto;padding:32px 32px 50px;transition:opacity .3s ease,transform .3s ease}
+#controls{max-width:1200px;margin:0 auto 28px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+#search{flex:1;min-width:220px;height:48px;border:1px solid rgba(255,255,255,.1);border-radius:16px;background:rgba(255,255,255,.06);backdrop-filter:blur(18px);color:white;padding:0 17px;font-size:15px;outline:none}
+#search::placeholder{color:rgba(255,255,255,.45)}
+#search:focus{border-color:rgba(255,255,255,.22)}
+select{height:48px;border:1px solid rgba(255,255,255,.1);border-radius:16px;background:#181818;color:white;padding:0 15px;font-size:14px;outline:none;cursor:pointer}
+#count{color:rgba(255,255,255,.45);font-size:13px;padding:0 5px}
+#grid{max-width:1200px;margin:auto}
+.category-section{margin-bottom:38px}
+.category-header{display:flex;align-items:center;gap:14px;margin:0 0 17px}
+.category-header h2{font-size:15px;font-weight:600;letter-spacing:.2px;white-space:nowrap}
+.category-line{height:1px;flex:1;background:linear-gradient(90deg,rgba(255,255,255,.16),rgba(255,255,255,.02))}
+.category-count{font-size:11px;color:rgba(255,255,255,.35);white-space:nowrap}
+.category-section[data-category="Browser"] .category-header h2{color:#72a9ff}
+.category-section[data-category="Browser"] .category-line{background:linear-gradient(90deg,rgba(82,145,255,.35),rgba(255,255,255,.02))}
+.category-section[data-category="Games"] .category-header h2{color:#b184ff}
+.category-section[data-category="Games"] .category-line{background:linear-gradient(90deg,rgba(157,100,255,.35),rgba(255,255,255,.02))}
+.category-section[data-category="Ai"] .category-header h2{color:#6ee7a0}
+.category-section[data-category="Ai"] .category-line{background:linear-gradient(90deg,rgba(70,210,130,.35),rgba(255,255,255,.02))}
+.category-section[data-category="Movie"] .category-header h2{color:#ff8585}
+.category-section[data-category="Movie"] .category-line{background:linear-gradient(90deg,rgba(255,90,90,.35),rgba(255,255,255,.02))}
+.category-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:22px}
+.card{height:170px;position:relative;border-radius:30px;background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(18px);overflow:hidden;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px;cursor:pointer;user-select:none;transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+.card::before{content:"";position:absolute;width:240px;height:240px;background:radial-gradient(rgba(255,255,255,.13),transparent 70%);top:-120px;left:-80px;opacity:0;transition:opacity .25s ease}
+.card:hover{transform:translateY(-8px) scale(1.025);border-color:rgba(255,255,255,.16);box-shadow:0 20px 45px rgba(0,0,0,.45)}
+.card:hover::before{opacity:1}
+.card img{width:68px;height:68px;border-radius:20px;padding:8px;background:white;box-shadow:0 8px 20px rgba(0,0,0,.35);object-fit:cover;transition:transform .25s ease;z-index:1}
+.card:hover img{transform:scale(1.08)}
+.card span{color:white;font-size:21px;font-weight:600;opacity:.95;z-index:1}
+.tags{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;z-index:1}
+.genre{font-size:10px;font-weight:600;padding:4px 9px;border-radius:999px}
+.card.browser .genre{color:#8bb8ff;background:rgba(70,130,255,.11);border:1px solid rgba(90,150,255,.14)}
+.card.games .genre{color:#c09aff;background:rgba(150,90,255,.11);border:1px solid rgba(160,100,255,.14)}
+.card.ai .genre{color:#7ee8a7;background:rgba(60,200,120,.11);border:1px solid rgba(70,210,130,.14)}
+.card.movie .genre{color:#ff9696;background:rgba(255,80,80,.11);border:1px solid rgba(255,90,90,.14)}
+.card.browser:hover{border-color:rgba(80,145,255,.24);box-shadow:0 20px 45px rgba(30,90,180,.12)}
+.card.games:hover{border-color:rgba(155,90,255,.24);box-shadow:0 20px 45px rgba(110,50,180,.12)}
+.card.ai:hover{border-color:rgba(60,210,130,.24);box-shadow:0 20px 45px rgba(30,160,90,.12)}
+.card.movie:hover{border-color:rgba(255,80,80,.24);box-shadow:0 20px 45px rgba(180,40,40,.12)}
+#empty{display:none;text-align:center;color:rgba(255,255,255,.45);padding:80px 20px;font-size:15px}
+#viewer{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;transform:scale(1.015);transition:opacity .3s ease,transform .3s ease}
+#viewer.active{opacity:1;pointer-events:auto;transform:scale(1)}
+iframe{width:100%;height:100%;border:none;background:black}
+#topBar{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-20px);width:calc(100% - 32px);max-width:920px;height:68px;border-radius:22px;background:rgba(20,20,20,.72);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(18px);display:flex;align-items:center;padding:0 14px;z-index:9999;opacity:0;transition:opacity .22s ease,transform .22s ease}
+#topBar.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#leftSide{display:flex;align-items:center;gap:14px;min-width:0}
+#backBtn,#newTabBtn{height:44px;padding:0 16px;border:none;border-radius:14px;background:rgba(255,255,255,.08);color:white;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s ease,transform .2s ease;white-space:nowrap}
+#backBtn:hover,#newTabBtn:hover{background:rgba(255,255,255,.15);transform:scale(1.04)}
+#topIcon{width:34px;height:34px;border-radius:10px;background:white;padding:4px;object-fit:cover}
+#info{display:flex;flex-direction:column;min-width:0}
+#title{color:white;font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#url{color:rgba(255,255,255,.55);font-size:13px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#loading{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#000;color:rgba(255,255,255,.7);z-index:9998;font-size:14px}
+#loading.show{display:flex}
+@media(max-width:700px){
+#home{padding:20px 16px 35px}
+.category-cards{grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:15px}
+.card{height:155px;border-radius:24px}
+.card img{width:58px;height:58px}
+.card span{font-size:18px}
+#topBar{width:calc(100% - 18px);height:auto;min-height:68px}
+#leftSide{flex-wrap:wrap;padding:10px 0}
+}
+</style>
+</head>
+<body>
+<div id="home">
+<div id="controls">
+<input id="search" type="search" placeholder="Search games, names, genres, or URLs...">
+<select id="sort">
+<option value="default">Sort: Default</option>
+<option value="az">Name: A-Z</option>
+<option value="za">Name: Z-A</option>
+<option value="genre">Genre: A-Z</option>
+<option value="genreza">Genre: Z-A</option>
+<option value="type">Type</option>
+</select>
+<select id="filter">
+<option value="all">All Genres</option>
+<option value="Browser">Browser</option>
+<option value="Games">Games</option>
+<option value="Ai">AI</option>
+<option value="Movie">Movie</option>
+</select>
+<span id="count"></span>
+</div>
+<div id="grid"></div>
+<div id="empty">No results found.</div>
+</div>
+<div id="viewer">
+<div id="topBar">
+<div id="leftSide">
+<button id="backBtn" onclick="goHome()">← Back</button>
+<button id="newTabBtn" onclick="openCurrentInNewTab()">↗ New Tab</button>
+<img id="topIcon" alt="">
+<div id="info">
+<div id="title"></div>
+<div id="url"></div>
+</div>
+</div>
+</div>
+<iframe id="frame" allowfullscreen></iframe>
+</div>
+<div id="loading">Loading...</div>
+<script>
+const regularSites=[
+{name:"Otonic",link:"https://algebra.engineering.calculus.technology.chemistry.mindboggle.us/",genres:["Browser"]},
+{name:"Movie",link:"https://quantil.jsdelivr.net/gh/groffstock/gustplus@main/vid2.svg",genres:["Movie"],cover:"https://placehold.co/128x128/222222/ffffff?text=Movie"},
+{name:"ss",link:"https://hshddhdh63636.b-cdn.net/",genres:["Browser","Ai"],cover:"https://placehold.co/128x128/222222/ffffff?text=SS"},
+{name:"Nexus",link:"https://bit.ly/nexlinkfinder",genres:["Browser"],cover:"https://placehold.co/128x128/222222/ffffff?text=Nexus"}
+];
+const githubSites=[
+{name:"Gn-Math",link:"https://raw.githubusercontent.com/genizy/npm/refs/heads/main/dist/index.html",cover:"https://i.pinimg.com/736x/54/1b/67/541b67102d4a549376395faf7f7d56d6.jpg",genres:["Games"]},
+{name:"Chainsaw",link:"https://raw.githubusercontent.com/L3br00n/Chainsaw/refs/heads/main/index.html",cover:"https://play-lh.googleusercontent.com/i9xbLcEaopi3Lblcw4xdCoEFpZJVPtt_-J7lE6M0QTJHmHOwoHQDM-lzYv3k2dR-oz3UXZ_GzWtMWAgdNGS3x=w240-h480-rw",genres:["Games"]},
+{name:"UGS",link:"https://raw.githubusercontent.com/dbrown612345-lang/Ultimate-Game-stash/refs/heads/main/games.html",cover:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3HwfyklA3lx6SiF5YtGyuKXntXPYgEQbTjAdwTyA7Tg&s=10",genres:["Games"]}
+];
+const sites=[
+...regularSites.map(site=>({...site,type:"regular"})),
+...githubSites.map(site=>({...site,type:"github"}))
+];
+const home=document.getElementById("home");
+const grid=document.getElementById("grid");
+const empty=document.getElementById("empty");
+const viewer=document.getElementById("viewer");
+const frame=document.getElementById("frame");
+const topBar=document.getElementById("topBar");
+const title=document.getElementById("title");
+const urlText=document.getElementById("url");
+const topIcon=document.getElementById("topIcon");
+const search=document.getElementById("search");
+const sort=document.getElementById("sort");
+const filter=document.getElementById("filter");
+const count=document.getElementById("count");
+const loading=document.getElementById("loading");
+let currentSite=null;
+function getDomain(url){
+try{return new URL(url).hostname}catch{return url}
+}
+function getFavicon(site){
+if(site.cover)return site.cover;
+const domain=getDomain(site.link);
+return "https://www.google.com/s2/favicons?sz=128&domain="+encodeURIComponent(domain);
+}
+function escapeText(value){
+return String(value).replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[char]));
+}
+function getCategories(){
+return [...new Set(sites.flatMap(site=>site.genres))];
+}
+function render(){
+const query=search.value.trim().toLowerCase();
+let list=sites.filter(site=>{
+const matchesSearch=!query||site.name.toLowerCase().includes(query)||site.link.toLowerCase().includes(query)||site.genres.some(g=>g.toLowerCase().includes(query))||getDomain(site.link).toLowerCase().includes(query);
+const matchesFilter=filter.value==="all"||site.genres.includes(filter.value);
+return matchesSearch&&matchesFilter;
+});
+if(sort.value==="az")list.sort((a,b)=>a.name.localeCompare(b.name));
+if(sort.value==="za")list.sort((a,b)=>b.name.localeCompare(a.name));
+if(sort.value==="genre")list.sort((a,b)=>a.genres[0].localeCompare(b.genres[0])||a.name.localeCompare(b.name));
+if(sort.value==="genreza")list.sort((a,b)=>b.genres[0].localeCompare(a.genres[0])||a.name.localeCompare(b.name));
+if(sort.value==="type")list.sort((a,b)=>a.type.localeCompare(b.type)||a.name.localeCompare(b.name));
+grid.innerHTML="";
+const categories=getCategories();
+categories.forEach(category=>{
+const categorySites=list.filter(site=>site.genres.includes(category));
+if(!categorySites.length)return;
+const section=document.createElement("section");
+section.className="category-section";
+section.dataset.category=category;
+const header=document.createElement("div");
+header.className="category-header";
+const heading=document.createElement("h2");
+heading.textContent=category;
+const line=document.createElement("div");
+line.className="category-line";
+const categoryCount=document.createElement("span");
+categoryCount.className="category-count";
+categoryCount.textContent=categorySites.length+" site"+(categorySites.length===1?"":"s");
+header.appendChild(heading);
+header.appendChild(line);
+header.appendChild(categoryCount);
+const cards=document.createElement("div");
+cards.className="category-cards";
+categorySites.forEach(site=>{
+const card=document.createElement("div");
+card.className="card "+site.genres.map(g=>g.toLowerCase()).join(" ");
+card.dataset.genres=site.genres.join(",");
+card.dataset.type=site.type;
+const tags=site.genres.map(g=>`<div class="genre">${escapeText(g)}</div>`).join("");
+card.innerHTML=`<img src="${escapeText(getFavicon(site))}" alt="" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22128%22 height=%22128%22%3E%3Crect width=%22128%22 height=%22128%22 rx=%2224%22 fill=%22%23222222%22/%3E%3C/svg%3E'"><span>${escapeText(site.name)}</span><div class="tags">${tags}</div>`;
+card.onclick=()=>openSite(site);
+cards.appendChild(card);
+});
+section.appendChild(header);
+section.appendChild(cards);
+grid.appendChild(section);
+});
+empty.style.display=list.length?"none":"block";
+count.textContent=list.length+" site"+(list.length===1?"":"s");
+}
+async function openSite(site){
+currentSite=site;
+const domain=getDomain(site.link);
+title.textContent=site.name;
+urlText.textContent=domain;
+topIcon.src=getFavicon(site);
+home.style.opacity="0";
+home.style.transform="scale(1.03)";
+loading.classList.add("show");
+setTimeout(()=>home.style.display="none",250);
+viewer.classList.add("active");
+topBar.classList.add("show");
+if(site.type==="regular"){
+frame.src=site.link;
+loading.classList.remove("show");
+}else{
+try{
+const response=await fetch(site.link);
+if(!response.ok)throw new Error("HTTP "+response.status);
+let code=await response.text();
+const rawUrl=new URL(site.link);
+const base=rawUrl.href.substring(0,rawUrl.href.lastIndexOf("/")+1);
+if(/<head[\s>]/i.test(code))code=code.replace(/<head([^>]*)>/i,`<head$1><base href="${base}">`);
+else code=`<base href="${base}">`+code;
+const doc=frame.contentDocument||frame.contentWindow.document;
+doc.open();
+doc.write(code);
+doc.close();
+loading.classList.remove("show");
+}catch(error){
+const doc=frame.contentDocument||frame.contentWindow.document;
+doc.open();
+doc.write(`<html><body style="background:#0b0b0b;color:white;font-family:Arial;display:flex;align-items:center;justify-content:center;height:100vh"><div style="text-align:center"><h2>Unable to load</h2><p style="opacity:.6">${escapeText(error.message)}</p></div></body></html>`);
+doc.close();
+loading.classList.remove("show");
+}
+}
+}
+async function openCurrentInNewTab(){
+if(!currentSite)return;
+const newTab=window.open("about:blank","_blank");
+if(!newTab)return;
+newTab.document.open();
+newTab.document.write(`<html><head><title>${escapeText(currentSite.name)}</title></head><body style="margin:0;background:#000;overflow:hidden"></body></html>`);
+newTab.document.close();
+if(currentSite.type==="regular"){
+newTab.document.body.innerHTML=`<iframe src="${escapeText(currentSite.link)}" style="width:100vw;height:100vh;border:0" allowfullscreen></iframe>`;
+}else{
+try{
+const response=await fetch(currentSite.link);
+if(!response.ok)throw new Error("HTTP "+response.status);
+let code=await response.text();
+const rawUrl=new URL(currentSite.link);
+const base=rawUrl.href.substring(0,rawUrl.href.lastIndexOf("/")+1);
+if(/<head[\s>]/i.test(code))code=code.replace(/<head([^>]*)>/i,`<head$1><base href="${base}">`);
+else code=`<base href="${base}">`+code;
+newTab.document.open();
+newTab.document.write(code);
+newTab.document.close();
+}catch(error){
+newTab.document.open();
+newTab.document.write(`<html><body style="background:#0b0b0b;color:white;font-family:Arial;display:flex;align-items:center;justify-content:center;height:100vh"><div style="text-align:center"><h2>Unable to load</h2><p style="opacity:.6">${escapeText(error.message)}</p></div></body></html>`);
+newTab.document.close();
+}
+}
+}
+function goHome(){
+viewer.classList.remove("active");
+topBar.classList.remove("show");
+loading.classList.remove("show");
+currentSite=null;
+setTimeout(()=>{
+frame.src="about:blank";
+home.style.display="block";
+requestAnimationFrame(()=>{
+home.style.opacity="1";
+home.style.transform="scale(1)";
+});
+},250);
+}
+search.addEventListener("input",render);
+sort.addEventListener("change",render);
+filter.addEventListener("change",render);
+document.addEventListener("keydown",e=>{
+if(e.key==="Escape"&&viewer.classList.contains("active"))goHome();
+if(e.key.toLowerCase()==="m"&&viewer.classList.contains("active"))topBar.classList.toggle("show");
+});
+render();
+</script>
+</body>
+</html>
