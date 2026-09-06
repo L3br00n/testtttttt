@@ -1,303 +1,1725 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Game Hub</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100%;overflow:hidden;background:#0b0b0b;font-family:Inter,Arial,sans-serif}
-body{color:white}
-body::before{content:"";position:fixed;inset:0;background:radial-gradient(circle at top,#1d1d1d 0%,#0b0b0b 60%);z-index:-2}
-body::after{content:"";position:fixed;inset:0;background:linear-gradient(rgba(255,255,255,.02),transparent);z-index:-1;pointer-events:none}
-#home{position:absolute;inset:0;overflow:auto;padding:32px 32px 50px;transition:opacity .3s ease,transform .3s ease}
-#controls{max-width:1200px;margin:0 auto 28px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-#search{flex:1;min-width:220px;height:48px;border:1px solid rgba(255,255,255,.1);border-radius:16px;background:rgba(255,255,255,.06);backdrop-filter:blur(18px);color:white;padding:0 17px;font-size:15px;outline:none}
-#search::placeholder{color:rgba(255,255,255,.45)}
-#search:focus{border-color:rgba(255,255,255,.22)}
-select{height:48px;border:1px solid rgba(255,255,255,.1);border-radius:16px;background:#181818;color:white;padding:0 15px;font-size:14px;outline:none;cursor:pointer}
-#count{color:rgba(255,255,255,.45);font-size:13px;padding:0 5px}
-#grid{max-width:1200px;margin:auto}
-.category-section{margin-bottom:38px}
-.category-header{display:flex;align-items:center;gap:14px;margin:0 0 17px}
-.category-header h2{font-size:15px;font-weight:600;letter-spacing:.2px;white-space:nowrap}
-.category-line{height:1px;flex:1;background:linear-gradient(90deg,rgba(255,255,255,.16),rgba(255,255,255,.02))}
-.category-count{font-size:11px;color:rgba(255,255,255,.35);white-space:nowrap}
-.category-section[data-category="Browser"] .category-header h2{color:#72a9ff}
-.category-section[data-category="Browser"] .category-line{background:linear-gradient(90deg,rgba(82,145,255,.35),rgba(255,255,255,.02))}
-.category-section[data-category="Games"] .category-header h2{color:#b184ff}
-.category-section[data-category="Games"] .category-line{background:linear-gradient(90deg,rgba(157,100,255,.35),rgba(255,255,255,.02))}
-.category-section[data-category="Ai"] .category-header h2{color:#6ee7a0}
-.category-section[data-category="Ai"] .category-line{background:linear-gradient(90deg,rgba(70,210,130,.35),rgba(255,255,255,.02))}
-.category-section[data-category="Movie"] .category-header h2{color:#ff8585}
-.category-section[data-category="Movie"] .category-line{background:linear-gradient(90deg,rgba(255,90,90,.35),rgba(255,255,255,.02))}
-.category-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:22px}
-.card{height:170px;position:relative;border-radius:30px;background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(18px);overflow:hidden;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px;cursor:pointer;user-select:none;transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
-.card::before{content:"";position:absolute;width:240px;height:240px;background:radial-gradient(rgba(255,255,255,.13),transparent 70%);top:-120px;left:-80px;opacity:0;transition:opacity .25s ease}
-.card:hover{transform:translateY(-8px) scale(1.025);border-color:rgba(255,255,255,.16);box-shadow:0 20px 45px rgba(0,0,0,.45)}
-.card:hover::before{opacity:1}
-.card img{width:68px;height:68px;border-radius:20px;padding:8px;background:white;box-shadow:0 8px 20px rgba(0,0,0,.35);object-fit:cover;transition:transform .25s ease;z-index:1}
-.card:hover img{transform:scale(1.08)}
-.card span{color:white;font-size:21px;font-weight:600;opacity:.95;z-index:1}
-.tags{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;z-index:1}
-.genre{font-size:10px;font-weight:600;padding:4px 9px;border-radius:999px}
-.card.browser .genre{color:#8bb8ff;background:rgba(70,130,255,.11);border:1px solid rgba(90,150,255,.14)}
-.card.games .genre{color:#c09aff;background:rgba(150,90,255,.11);border:1px solid rgba(160,100,255,.14)}
-.card.ai .genre{color:#7ee8a7;background:rgba(60,200,120,.11);border:1px solid rgba(70,210,130,.14)}
-.card.movie .genre{color:#ff9696;background:rgba(255,80,80,.11);border:1px solid rgba(255,90,90,.14)}
-.card.browser:hover{border-color:rgba(80,145,255,.24);box-shadow:0 20px 45px rgba(30,90,180,.12)}
-.card.games:hover{border-color:rgba(155,90,255,.24);box-shadow:0 20px 45px rgba(110,50,180,.12)}
-.card.ai:hover{border-color:rgba(60,210,130,.24);box-shadow:0 20px 45px rgba(30,160,90,.12)}
-.card.movie:hover{border-color:rgba(255,80,80,.24);box-shadow:0 20px 45px rgba(180,40,40,.12)}
-#empty{display:none;text-align:center;color:rgba(255,255,255,.45);padding:80px 20px;font-size:15px}
-#viewer{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;transform:scale(1.015);transition:opacity .3s ease,transform .3s ease}
-#viewer.active{opacity:1;pointer-events:auto;transform:scale(1)}
-iframe{width:100%;height:100%;border:none;background:black}
-#topBar{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-20px);width:calc(100% - 32px);max-width:920px;height:68px;border-radius:22px;background:rgba(20,20,20,.72);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(18px);display:flex;align-items:center;padding:0 14px;z-index:9999;opacity:0;transition:opacity .22s ease,transform .22s ease}
-#topBar.show{opacity:1;transform:translateX(-50%) translateY(0)}
-#leftSide{display:flex;align-items:center;gap:14px;min-width:0}
-#backBtn,#newTabBtn{height:44px;padding:0 16px;border:none;border-radius:14px;background:rgba(255,255,255,.08);color:white;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s ease,transform .2s ease;white-space:nowrap}
-#backBtn:hover,#newTabBtn:hover{background:rgba(255,255,255,.15);transform:scale(1.04)}
-#topIcon{width:34px;height:34px;border-radius:10px;background:white;padding:4px;object-fit:cover}
-#info{display:flex;flex-direction:column;min-width:0}
-#title{color:white;font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#url{color:rgba(255,255,255,.55);font-size:13px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#loading{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#000;color:rgba(255,255,255,.7);z-index:9998;font-size:14px}
-#loading.show{display:flex}
-@media(max-width:700px){
-#home{padding:20px 16px 35px}
-.category-cards{grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:15px}
-.card{height:155px;border-radius:24px}
-.card img{width:58px;height:58px}
-.card span{font-size:18px}
-#topBar{width:calc(100% - 18px);height:auto;min-height:68px}
-#leftSide{flex-wrap:wrap;padding:10px 0}
-}
-</style>
-</head>
-<body>
-<div id="home">
-<div id="controls">
-<input id="search" type="search" placeholder="Search games, names, genres, or URLs...">
-<select id="sort">
-<option value="default">Sort: Default</option>
-<option value="az">Name: A-Z</option>
-<option value="za">Name: Z-A</option>
-<option value="genre">Genre: A-Z</option>
-<option value="genreza">Genre: Z-A</option>
-<option value="type">Type</option>
-</select>
-<select id="filter">
-<option value="all">All Genres</option>
-<option value="Browser">Browser</option>
-<option value="Games">Games</option>
-<option value="Ai">AI</option>
-<option value="Movie">Movie</option>
-</select>
-<span id="count"></span>
-</div>
-<div id="grid"></div>
-<div id="empty">No results found.</div>
-</div>
-<div id="viewer">
-<div id="topBar">
-<div id="leftSide">
-<button id="backBtn" onclick="goHome()">← Back</button>
-<button id="newTabBtn" onclick="openCurrentInNewTab()">↗ New Tab</button>
-<img id="topIcon" alt="">
-<div id="info">
-<div id="title"></div>
-<div id="url"></div>
-</div>
-</div>
-</div>
-<iframe id="frame" allowfullscreen></iframe>
-</div>
-<div id="loading">Loading...</div>
-<script>
-const regularSites=[
-{name:"Otonic",link:"https://algebra.engineering.calculus.technology.chemistry.mindboggle.us/",genres:["Browser"]},
-{name:"Movie",link:"https://quantil.jsdelivr.net/gh/groffstock/gustplus@main/vid2.svg",genres:["Movie"],cover:"https://placehold.co/128x128/222222/ffffff?text=Movie"},
-{name:"ss",link:"https://hshddhdh63636.b-cdn.net/",genres:["Browser","Ai"],cover:"https://placehold.co/128x128/222222/ffffff?text=SS"},
-{name:"Nexus",link:"https://bit.ly/nexlinkfinder",genres:["Browser"],cover:"https://placehold.co/128x128/222222/ffffff?text=Nexus"}
+    <head>
+        <link rel="canonical" href="https://snakierdoorcode.github.io/TheUniversalStashSite/" />
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+        <title>Trash Vault</title>
+        <link
+            rel="icon"
+            type="image/png"
+            href="https://cdn.jsdelivr.net/gh/SnakierdoorCode/TheUniversalStashSite@main/Icons/UniversalStash.png"
+        />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+            :root {
+                --bg: #08090f;
+                --bg1: #0e101a;
+                --bg2: #13161f;
+                --rim: rgba(255, 255, 255, 0.06);
+                --rim2: rgba(255, 255, 255, 0.035);
+                --txt: #c8d4e8;
+                --muted: #4e5a70;
+                --muted2: #68788f;
+                --w: #f0f4ff;
+                --rip: #d45c7a;
+                --port: #4caf82;
+                --other: #c49a3c;
+                --sky: #9eb8ff;
+                --card-w: 180px;
+            }
+            [data-theme="purple"] {
+                --bg: #0b0914;
+                --bg1: #120e22;
+                --bg2: #1a1530;
+                --rim: rgba(157, 124, 255, 0.1);
+                --rim2: rgba(157, 124, 255, 0.05);
+                --txt: #d3cbfa;
+                --muted: #5c5380;
+                --muted2: #7f73b3;
+                --w: #f5f2ff;
+            }
+            [data-theme="amoled"] {
+                --bg: #000;
+                --bg1: #0a0a0a;
+                --bg2: #121212;
+                --rim: rgba(255, 255, 255, 0.08);
+                --rim2: rgba(255, 255, 255, 0.04);
+                --txt: #a3a3a3;
+                --muted: #404040;
+                --muted2: #737373;
+                --w: #fff;
+            }
+            html {
+                scroll-behavior: smooth;
+            }
+            body {
+                background: var(--bg);
+                color: var(--txt);
+                font-family: "DM Sans", sans-serif;
+                font-size: 15px;
+                min-height: 100vh;
+                overflow-x: hidden;
+            }
+            canvas#s {
+                position: fixed;
+                inset: 0;
+                z-index: 0;
+                pointer-events: none;
+                opacity: 0.45;
+            }
+            #root {
+                position: relative;
+                z-index: 1;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+            header {
+                display: flex;
+                align-items: center;
+                padding: 0 28px;
+                height: 58px;
+                background: rgba(8, 9, 15, 0.92);
+                backdrop-filter: blur(16px);
+                border-bottom: 1px solid var(--rim);
+                position: sticky;
+                top: 0;
+                z-index: 200;
+                gap: 12px;
+            }
+            .logo-wrap {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                text-decoration: none;
+                flex-shrink: 0;
+            }
+            .logo-img {
+                width: 34px;
+                height: 34px;
+                object-fit: contain;
+                filter: brightness(1.05);
+            }
+            .logo-text {
+                font-family: "Bebas Neue", sans-serif;
+                font-size: 1.45rem;
+                letter-spacing: 0.055em;
+                color: var(--w);
+                white-space: nowrap;
+                line-height: 1;
+            }
+            .header-search {
+                margin-left: 16px;
+                position: relative;
+                flex-shrink: 0;
+            }
+            .header-search svg {
+                position: absolute;
+                left: 10px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--muted);
+                width: 13px;
+                height: 13px;
+                pointer-events: none;
+            }
+            .header-search input {
+                background: var(--bg1);
+                border: 1px solid var(--rim);
+                border-radius: 7px;
+                color: var(--txt);
+                font-family: "DM Sans", sans-serif;
+                font-size: 0.85rem;
+                padding: 7px 14px 7px 32px;
+                outline: none;
+                width: 220px;
+                transition:
+                    border-color 0.15s,
+                    width 0.2s;
+            }
+            .header-search input::placeholder {
+                color: var(--muted);
+            }
+            .header-search input:focus {
+                border-color: rgba(255, 255, 255, 0.16);
+                width: 260px;
+            }
+            nav {
+                display: flex;
+                gap: 1px;
+                align-items: center;
+                margin-left: auto;
+            }
+            .nb {
+                background: none;
+                border: none;
+                cursor: pointer;
+                color: var(--muted2);
+                font-family: "DM Mono", monospace;
+                font-size: 0.65rem;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                padding: 6px 14px;
+                border-radius: 5px;
+                transition:
+                    color 0.15s,
+                    background 0.15s;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+            .nb svg {
+                width: 13px;
+                height: 13px;
+            }
+            .nb:hover {
+                color: var(--w);
+                background: rgba(255, 255, 255, 0.05);
+            }
+            .nb.on {
+                color: var(--w);
+                background: rgba(255, 255, 255, 0.07);
+            }
+            main {
+                flex: 1;
+            }
+            section {
+                display: none;
+                padding: 28px 28px 72px;
+            }
+            section.on {
+                display: block;
+            }
+            .slabel {
+                font-family: "DM Mono", monospace;
+                font-size: 0.62rem;
+                letter-spacing: 0.16em;
+                text-transform: uppercase;
+                color: var(--muted);
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 14px;
+            }
+            .slabel::after {
+                content: "";
+                flex: 1;
+                height: 1px;
+                background: var(--rim2);
+            }
+            .ct {
+                font-family: "DM Mono", monospace;
+                font-size: 0.62rem;
+                letter-spacing: 0.1em;
+                color: var(--muted);
+            }
+            #feat-row,
+            #games-grid,
+            #movies-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(var(--card-w), 1fr));
+                gap: 12px;
+            }
+            #feat-row {
+                margin-bottom: 36px;
+            }
+            .card,
+            .feat-card {
+                background: var(--bg1);
+                border: 1px solid var(--rim2);
+                border-radius: 10px;
+                overflow: hidden;
+                cursor: pointer;
+                position: relative;
+                transition:
+                    transform 0.2s cubic-bezier(0.2, 1, 0.4, 1),
+                    box-shadow 0.2s,
+                    border-color 0.2s;
+                animation: ci 0.32s ease both;
+            }
+            .card:hover,
+            .feat-card:hover {
+                transform: translateY(-4px);
+                border-color: rgba(255, 255, 255, 0.14);
+                box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5);
+            }
+            @keyframes ci {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            .feat-star {
+                position: absolute;
+                top: 8px;
+                right: 8px;
+                z-index: 2;
+                background: rgba(196, 154, 60, 0.92);
+                border-radius: 3px;
+                padding: 2px 6px;
+                font-family: "DM Mono", monospace;
+                font-size: 0.5rem;
+                letter-spacing: 0.1em;
+                color: #08090f;
+                text-transform: uppercase;
+                font-weight: 700;
+            }
+            .card-thumb-wrap {
+                width: 100%;
+                padding-top: 100%;
+                position: relative;
+                background: var(--bg2);
+                border-bottom: 1px solid var(--rim2);
+                overflow: hidden;
+            }
+            .card-thumb-wrap img {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                object-position: center;
+                display: block;
+            }
+            .card-ph {
+                position: absolute;
+                inset: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.6rem;
+                color: var(--muted2);
+                text-align: center;
+                padding: 15px;
+            }
+            .card-body {
+                padding: 9px 11px 11px;
+            }
+            .card-name {
+                font-size: 0.82rem;
+                font-weight: 500;
+                color: var(--w);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                margin-bottom: 5px;
+                letter-spacing: 0.01em;
+            }
+            .card-foot {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+            .badge {
+                font-family: "DM Mono", monospace;
+                font-size: 0.55rem;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                padding: 2px 7px;
+                border-radius: 3px;
+            }
+            .br {
+                background: rgba(212, 92, 122, 0.12);
+                color: var(--rip);
+                border: 1px solid rgba(212, 92, 122, 0.2);
+            }
+            .bp {
+                background: rgba(76, 175, 130, 0.1);
+                color: var(--port);
+                border: 1px solid rgba(76, 175, 130, 0.18);
+            }
+            .bo {
+                background: rgba(196, 154, 60, 0.1);
+                color: var(--other);
+                border: 1px solid rgba(196, 154, 60, 0.18);
+            }
+            .pt-badge {
+                font-family: "DM Mono", monospace;
+                font-size: 0.6rem;
+                letter-spacing: 0.04em;
+                color: rgba(158, 184, 255, 0.85);
+                margin-top: 5px;
+                display: flex;
+                align-items: center;
+                gap: 4px;
+            }
+            .pt-none {
+                color: var(--muted);
+            }
+            .movie-rating {
+                font-family: "DM Mono", monospace;
+                font-size: 0.58rem;
+                color: #d7b85a;
+                margin-left: auto;
+            }
+            .movie-type {
+                font-family: "DM Mono", monospace;
+                font-size: 0.55rem;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: var(--muted2);
+            }
+            #mw {
+                position: fixed;
+                inset: 0;
+                z-index: 500;
+                background: rgba(5, 6, 12, 0.88);
+                backdrop-filter: blur(12px);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.2s;
+            }
+            #mw.on {
+                opacity: 1;
+                pointer-events: all;
+            }
+            #modal {
+                background: var(--bg1);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+                border-radius: 14px;
+                width: 92vw;
+                max-width: 420px;
+                overflow: hidden;
+                transform: translateY(12px) scale(0.97);
+                transition: transform 0.24s cubic-bezier(0.2, 1, 0.4, 1);
+                box-shadow: 0 32px 70px rgba(0, 0, 0, 0.65);
+                position: relative;
+            }
+            #mw.on #modal {
+                transform: translateY(0) scale(1);
+            }
+            #mi {
+                width: 100%;
+                aspect-ratio: 16/7;
+                object-fit: cover;
+                object-position: center;
+                display: block;
+                background: var(--bg2);
+            }
+            #mph {
+                width: 100%;
+                aspect-ratio: 16/7;
+                background: var(--bg2);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 2.5rem;
+                color: var(--muted2);
+            }
+            #mb {
+                padding: 20px 22px 22px;
+            }
+            #mbadge {
+                margin-bottom: 9px;
+                display: block;
+                width: fit-content;
+            }
+            #mtitle {
+                font-family: "Bebas Neue", sans-serif;
+                font-size: 1.55rem;
+                letter-spacing: 0.05em;
+                color: var(--w);
+                margin-bottom: 8px;
+                line-height: 1.1;
+            }
+            #mdesc {
+                font-size: 0.85rem;
+                color: var(--muted2);
+                line-height: 1.65;
+                margin-bottom: 14px;
+            }
+            #mcredit {
+                font-family: "DM Mono", monospace;
+                font-size: 0.68rem;
+                letter-spacing: 0.06em;
+                color: var(--muted);
+            }
+            #mcredit span {
+                color: rgba(180, 200, 240, 0.6);
+            }
+            #mc {
+                position: absolute;
+                top: 10px;
+                right: 12px;
+                background: rgba(0, 0, 0, 0.45);
+                border: 1px solid var(--rim);
+                border-radius: 50%;
+                width: 28px;
+                height: 28px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                color: var(--muted2);
+                font-size: 0.8rem;
+            }
+            #mc:hover {
+                color: var(--w);
+                background: rgba(255, 255, 255, 0.1);
+            }
+            #movie-drawer {
+                position: fixed;
+                inset: 0;
+                background: var(--bg1);
+                z-index: 700;
+                box-shadow: 0 -20px 50px rgba(0, 0, 0, 0.8);
+                transform: translateY(100%);
+                transition: transform 0.3s cubic-bezier(0.2, 1, 0.4, 1);
+                display: flex;
+                flex-direction: column;
+            }
+            #movie-drawer.on {
+                transform: translateY(0);
+            }
+            .movie-bar {
+                min-height: 58px;
+                background: var(--bg2);
+                padding: 0 20px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                border-bottom: 1px solid var(--rim);
+                gap: 12px;
+            }
+            .movie-meta {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                gap: 2px;
+                min-width: 0;
+            }
+            .movie-title {
+                font-family: "Bebas Neue", sans-serif;
+                font-size: 1.35rem;
+                letter-spacing: 0.04em;
+                color: var(--w);
+                line-height: 1.1;
+            }
+            .movie-sub {
+                font-family: "DM Mono", monospace;
+                font-size: 0.62rem;
+                letter-spacing: 0.04em;
+                color: var(--muted2);
+            }
+            .movie-ctrls {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                flex-shrink: 0;
+            }
+            .movie-btn {
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid var(--rim);
+                color: var(--txt);
+                padding: 5px 12px;
+                font-family: "DM Mono", monospace;
+                font-size: 0.65rem;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+            .movie-btn:hover {
+                background: rgba(255, 255, 255, 0.12);
+                color: var(--w);
+            }
+            .movie-frame-wrap {
+                flex: 1;
+                background: #000;
+                position: relative;
+            }
+            .movie-frame-wrap iframe {
+                width: 100%;
+                height: 100%;
+                border: none;
+                display: block;
+            }
+            .pane {
+                max-width: 520px;
+            }
+            .pane h2 {
+                font-family: "Bebas Neue", sans-serif;
+                font-size: 1.2rem;
+                letter-spacing: 0.1em;
+                color: var(--w);
+                margin-bottom: 20px;
+            }
+            .gbox {
+                background: var(--bg1);
+                border: 1px solid var(--rim2);
+                border-radius: 10px;
+                padding: 4px 20px;
+                margin-bottom: 14px;
+            }
+            .row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 14px 0;
+                border-bottom: 1px solid var(--rim2);
+            }
+            .row:last-child {
+                border-bottom: none;
+            }
+            .row.col {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .rl {
+                font-size: 0.85rem;
+                color: var(--w);
+            }
+            .rs {
+                font-size: 0.75rem;
+                color: var(--muted);
+                margin-top: 2px;
+            }
+            input.cu,
+            select.cu {
+                width: 100%;
+                background: var(--bg2);
+                border: 1px solid var(--rim);
+                border-radius: 6px;
+                color: var(--txt);
+                font-family: "DM Mono", monospace;
+                font-size: 0.78rem;
+                padding: 8px 12px;
+                outline: none;
+            }
+            button.sv {
+                margin-top: 6px;
+                background: rgba(255, 255, 255, 0.06);
+                border: 1px solid var(--rim);
+                border-radius: 6px;
+                color: var(--txt);
+                font-family: "DM Mono", monospace;
+                font-size: 0.62rem;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                padding: 6px 16px;
+                cursor: pointer;
+            }
+            button.sv:hover {
+                background: rgba(255, 255, 255, 0.1);
+            }
+            .tog {
+                position: relative;
+                width: 40px;
+                height: 21px;
+                cursor: pointer;
+                flex-shrink: 0;
+            }
+            .tog input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+            .tt {
+                position: absolute;
+                inset: 0;
+                background: rgba(255, 255, 255, 0.06);
+                border: 1px solid var(--rim);
+                border-radius: 100px;
+            }
+            .tt::after {
+                content: "";
+                position: absolute;
+                width: 13px;
+                height: 13px;
+                border-radius: 50%;
+                background: var(--muted2);
+                top: 3px;
+                left: 3px;
+                transition: 0.18s;
+            }
+            .tog input:checked ~ .tt::after {
+                background: var(--w);
+                transform: translateX(19px);
+            }
+            .cr {
+                display: flex;
+                align-items: center;
+                gap: 13px;
+                padding: 13px 0;
+            }
+            .cav {
+                width: 38px;
+                height: 38px;
+                border-radius: 50%;
+                background: var(--bg2);
+                border: 1px solid var(--rim);
+                flex-shrink: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.2rem;
+                overflow: hidden;
+            }
+            .cav img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            .cn {
+                font-size: 0.88rem;
+                font-weight: 500;
+                color: var(--w);
+            }
+            .crole {
+                font-size: 0.78rem;
+                color: var(--muted2);
+                margin-top: 2px;
+            }
+            .clink {
+                font-family: "DM Mono", monospace;
+                font-size: 0.62rem;
+                color: var(--muted);
+                margin-top: 2px;
+            }
+            .spin {
+                width: 24px;
+                height: 24px;
+                margin: 44px auto;
+                border: 2px solid var(--rim);
+                border-top-color: var(--muted2);
+                border-radius: 50%;
+                animation: sp 0.7s linear infinite;
+            }
+            @keyframes sp {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+            .empty {
+                text-align: center;
+                padding: 56px 20px;
+                color: var(--muted);
+                font-family: "DM Mono", monospace;
+                font-size: 0.68rem;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+            }
+            .ei {
+                font-size: 2rem;
+                margin-bottom: 12px;
+                opacity: 0.3;
+            }
+            #gd-drawer {
+                position: fixed;
+                inset: 0;
+                background: var(--bg1);
+                z-index: 600;
+                box-shadow: 0 -20px 50px rgba(0, 0, 0, 0.8);
+                transform: translateY(100%);
+                transition: transform 0.3s cubic-bezier(0.2, 1, 0.4, 1);
+                display: flex;
+                flex-direction: column;
+            }
+            #gd-drawer.on {
+                transform: translateY(0);
+            }
+            .gd-bar {
+                min-height: 58px;
+                background: var(--bg2);
+                padding: 0 20px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                border-bottom: 1px solid var(--rim);
+            }
+            .gd-meta {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                gap: 2px;
+                min-width: 0;
+            }
+            .gd-title {
+                font-family: "Bebas Neue", sans-serif;
+                font-size: 1.35rem;
+                letter-spacing: 0.04em;
+                color: var(--w);
+                line-height: 1.1;
+            }
+            .gd-credit {
+                font-family: "DM Mono", monospace;
+                font-size: 0.68rem;
+                letter-spacing: 0.02em;
+                color: var(--muted2);
+            }
+            .gd-credit span {
+                color: rgba(180, 200, 240, 0.65);
+            }
+            .gd-ctrls {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .gd-btn {
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid var(--rim);
+                color: var(--txt);
+                padding: 5px 12px;
+                font-family: "DM Mono", monospace;
+                font-size: 0.65rem;
+                text-transform: uppercase;
+                letter-spacing: 0.08em;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+            .gd-btn:hover {
+                background: rgba(255, 255, 255, 0.12);
+                color: var(--w);
+            }
+            .gd-frame-wrap {
+                flex: 1;
+                background: #000;
+                position: relative;
+            }
+            .gd-frame-wrap iframe {
+                width: 100%;
+                height: 100%;
+                border: none;
+                display: block;
+            }
+            @media (max-width: 560px) {
+                header {
+                    padding: 10px 14px;
+                    height: auto;
+                    flex-wrap: wrap;
+                    gap: 8px;
+                }
+                .header-search {
+                    margin-left: 0;
+                    order: 3;
+                    width: 100%;
+                }
+                .header-search input {
+                    width: 100%;
+                }
+                .logo-text {
+                    font-size: 1.1rem;
+                }
+                .nb {
+                    padding: 6px 9px;
+                }
+                .nb span {
+                    display: none;
+                }
+                section {
+                    padding: 16px 12px 48px;
+                }
+                :root {
+                    --card-w: 140px;
+                }
+                #feat-row {
+                    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                }
+                .gd-bar,
+                .movie-bar {
+                    padding: 8px 10px;
+                }
+                .gd-title,
+                .movie-title {
+                    font-size: 1.1rem;
+                }
+                .gd-btn,
+                .movie-btn {
+                    padding: 5px 8px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="s"></canvas>
+        <div id="root">
+            <header>
+                <a class="logo-wrap" href="#" id="logo-link"
+                    ><img
+                        class="logo-img"
+                        id="logo-img"
+                        src="https://cdn.jsdelivr.net/gh/SnakierdoorCode/TheUniversalStashSite@main/Icons/UniversalStash.png"
+                        alt=""
+                        onerror="this.style.display='none'"
+                    /><span class="logo-text">Trash Vault</span></a
+                >
+                <div class="header-search" id="hswrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="m21 21-4.35-4.35" /></svg
+                    ><input type="text" id="gsearch" placeholder="Search games…" />
+                </div>
+                <nav>
+                    <button class="nb on" data-s="games">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <rect x="2" y="6" width="20" height="12" rx="3" />
+                            <path d="M8 12h4m-2-2v4M14 11h2" /></svg
+                        ><span>Games</span></button
+                    ><button class="nb" data-s="movies">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <rect x="2" y="4" width="20" height="16" rx="2" />
+                            <path d="m10 9 5 3-5 3V9z" /></svg
+                        ><span>Movies</span></button
+                    ><button class="nb" data-s="settings">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <circle cx="12" cy="12" r="3" />
+                            <path
+                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+                            /></svg
+                        ><span>Settings</span></button
+                    ><button class="nb" data-s="credits">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg
+                        ><span>Credits</span>
+                    </button>
+                </nav>
+            </header>
+            <main>
+                <section id="games" class="on">
+                    <div class="slabel" id="feat-label">Featured<span class="ct" id="fcount"></span></div>
+                    <div id="feat-row"></div>
+                    <div class="slabel" id="all-label">All Games<span class="ct" id="gcount"></span></div>
+                    <div id="games-grid"></div>
+                </section>
+                <section id="movies">
+                    <div class="slabel">All Movies<span class="ct" id="mcount"></span></div>
+                    <div id="movies-grid"></div>
+                </section>
+                <section id="settings">
+                    <div class="pane">
+                        <h2>Settings</h2>
+                        <div class="gbox">
+                            <div class="row">
+                                <div>
+                                    <div class="rl">Interface Theme</div>
+                                    <div class="rs">Choose display aesthetic</div>
+                                </div>
+                                <div style="width: 160px">
+                                    <select class="cu" id="ustheme">
+                                        <option value="default">Default Dark</option>
+                                        <option value="purple">Midnight Purple</option>
+                                        <option value="amoled">Amoled Black</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="gbox">
+                            <div class="row col">
+                                <div>
+                                    <div class="rl">Games JSON</div>
+                                    <div class="rs">CDN url to games.json</div>
+                                </div>
+                                <input class="cu" id="gcdn" type="text" placeholder="https://…/games.json" /><button
+                                    class="sv"
+                                    onclick="saveCDN('games')"
+                                >
+                                    Save & Reload
+                                </button>
+                            </div>
+                            <div class="row col">
+                                <div>
+                                    <div class="rl">Movies JSON</div>
+                                    <div class="rs">CDN url to movies.json</div>
+                                </div>
+                                <input class="cu" id="mccdn" type="text" placeholder="https://…/movies.json" /><button
+                                    class="sv"
+                                    onclick="saveCDN('movies')"
+                                >
+                                    Save & Reload
+                                </button>
+                            </div>
+                        </div>
+                        <div class="gbox">
+                            <div class="row">
+                                <div>
+                                    <div class="rl">Auto-refresh</div>
+                                    <div class="rs">Re-fetch every 5 min</div>
+                                </div>
+                                <label class="tog"
+                                    ><input type="checkbox" id="togr" checked /><span class="tt"></span
+                                ></label>
+                            </div>
+                            <div class="row">
+                                <div>
+                                    <div class="rl">Type badges</div>
+                                    <div class="rs">Show RIP / PORT labels on cards</div>
+                                </div>
+                                <label class="tog"
+                                    ><input type="checkbox" id="togb" checked /><span class="tt"></span
+                                ></label>
+                            </div>
+                            <div class="row">
+                                <div>
+                                    <div class="rl">Show Playtime</div>
+                                    <div class="rs">Display tracked playtime on game cards.</div>
+                                </div>
+                                <label class="tog"><input type="checkbox" id="togp" /><span class="tt"></span></label>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section id="credits">
+                    <div class="pane">
+                        <h2>Credits</h2>
+                        <div class="gbox" id="credits-list">
+                            <div class="cr">
+                                <div class="cav">
+                                    <img
+                                        src="https://cdn.jsdelivr.net/gh/SnakierdoorCode/TheUniversalStashSite@main/Icons/UniversalStash.png"
+                                        alt=""
+                                    />
+                                </div>
+                                <div>
+                                    <div class="cn">L3br0n</div>
+                                    <div class="crole">Creator / Developer</div>
+                                    <div class="clink">HF</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+        <div id="mw">
+            <div id="modal">
+                <button id="mc">✕</button>
+                <div id="miw"></div>
+                <div id="mb">
+                    <span id="mbadge"></span>
+                    <div id="mtitle"></div>
+                    <div id="mdesc"></div>
+                    <div id="mcredit"></div>
+                </div>
+            </div>
+        </div>
+        <div id="gd-drawer">
+            <div class="gd-bar">
+                <div class="gd-meta">
+                    <div class="gd-title" id="gd-title">Game Title</div>
+                    <div class="gd-credit" id="gd-credit">credit: <span>unknown</span></div>
+                </div>
+                <div class="gd-ctrls">
+                    <button class="gd-btn" onclick="toggleDrawerFullscreen()">Fullscreen</button
+                    ><button
+                        class="gd-btn"
+                        onclick="closeDrawer()"
+                        style="background: rgba(212, 92, 122, 0.15); border-color: rgba(212, 92, 122, 0.3)"
+                    >
+                        Close
+                    </button>
+                </div>
+            </div>
+            <div class="gd-frame-wrap" id="gd-frame-wrap"></div>
+        </div>
+        <div id="movie-drawer">
+            <div class="movie-bar">
+                <div class="movie-meta">
+                    <div class="movie-title" id="movie-title">Movie Title</div>
+                    <div class="movie-sub" id="movie-sub">Movie</div>
+                </div>
+                <div class="movie-ctrls">
+                    <button class="movie-btn" onclick="toggleMovieFullscreen()">Fullscreen</button
+                    ><button
+                        class="movie-btn"
+                        onclick="closeMovieDrawer()"
+                        style="background: rgba(212, 92, 122, 0.15); border-color: rgba(212, 92, 122, 0.3)"
+                    >
+                        Close
+                    </button>
+                </div>
+            </div>
+            <div class="movie-frame-wrap" id="movie-frame-wrap"></div>
+        </div>
+        <script>
+            (function () {
+                const c = document.getElementById("s"),
+                    ctx = c.getContext("2d");
+                let W,
+                    H,
+                    S = [];
+                function init() {
+                    W = c.width = innerWidth;
+                    H = c.height = innerHeight;
+                    S = [];
+                    for (let i = 0; i < 160; i++)
+                        S.push({
+                            x: Math.random() * W,
+                            y: Math.random() * H,
+                            r: Math.random() * 1.1 + 0.15,
+                            a: Math.random(),
+                            d: (Math.random() - 0.5) * 0.009,
+                        });
+                }
+                function draw() {
+                    ctx.clearRect(0, 0, W, H);
+                    S.forEach((s) => {
+                        s.a += s.d;
+                        if (s.a < 0 || s.a > 1) s.d *= -1;
+                        ctx.beginPath();
+                        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(185,210,255,${s.a})`;
+                        ctx.fill();
+                    });
+                    requestAnimationFrame(draw);
+                }
+                window.addEventListener("resize", init);
+                init();
+                draw();
+            })();
+            let GD = [];
+            let MD = [];
+            let currentPlaySession = null;
+            const cfg = () => ({
+                gcdn:
+                    localStorage.getItem("us_gcdn") ||
+                    "https://raw.githubusercontent.com/SnakierdoorCode/TheUniversalStashSite/main/games.json",
+                mccdn:
+                    localStorage.getItem("us_mccdn") ||
+                    "",
+                badges: localStorage.getItem("us_badges") !== "false",
+                autoref: localStorage.getItem("us_autoref") !== "false",
+                theme: localStorage.getItem("us_theme") || "default",
+                showplaytime: localStorage.getItem("us_showplaytime") === "true",
+            });
+            function loadPlaytime() {
+                try {
+                    return JSON.parse(localStorage.getItem("us_playtime") || "{}");
+                } catch (e) {
+                    return {};
+                }
+            }
+            function savePlaytime(pt) {
+                localStorage.setItem("us_playtime", JSON.stringify(pt));
+            }
+            function addPlaytime(name, seconds) {
+                if (!name || seconds <= 0) return;
+                const pt = loadPlaytime();
+                pt[name] = (pt[name] || 0) + seconds;
+                savePlaytime(pt);
+            }
+            function formatPlaytime(sec) {
+                if (!sec || sec < 30) return null;
+                const h = Math.floor(sec / 3600),
+                    m = Math.floor((sec % 3600) / 60);
+                if (h > 0) return h + "h " + m + "m";
+                if (m > 0) return m + "m";
+                return "<1m";
+            }
+            function playtimeHTML(name) {
+                if (!cfg().showplaytime) return "";
+                const f = formatPlaytime(loadPlaytime()[name]);
+                return f
+                    ? `<div class="pt-badge">⏱ ${f} played</div>`
+                    : `<div class="pt-badge pt-none">⏱ not played yet</div>`;
+            }
+            function endPlaySessionIfAny() {
+                if (currentPlaySession) {
+                    const elapsed = Math.floor((Date.now() - currentPlaySession.start) / 1000);
+                    addPlaytime(currentPlaySession.name, elapsed);
+                    currentPlaySession = null;
+                    return true;
+                }
+                return false;
+            }
+            window.addEventListener("beforeunload", endPlaySessionIfAny);
+            document.addEventListener("visibilitychange", () => {
+                if (document.hidden) endPlaySessionIfAny();
+            });
+            const fetchJ = async (u) => {
+                const r = await fetch(u + (u.includes("?") ? "&" : "?") + "_=" + Date.now());
+                if (!r.ok) throw 0;
+                return r.json();
+            };
+            const bc = (t) => ({ rip: "badge br", port: "badge bp" })[t] || "badge bo";
+            const bl = (t) => (t || "other").toUpperCase();
+            const esc = (s) =>
+                String(s || "")
+                    .replace(/'/g, "\\'")
+                    .replace(/\\/g, "\\\\")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;");
+            function processUrl(url) {
+                if (!url) return "";
+                return url;
+            }
+            function makeThumb(item) {
+                if (item.image)
+                    return `<div class="card-thumb-wrap"><img src="${item.image}" alt="${item.name || ""}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><div class="card-ph" style="display:none">${item.icon || item.name || "?"}</div></div>`;
+                return `<div class="card-thumb-wrap"><div class="card-ph">${item.icon || item.name || "?"}</div></div>`;
+            }
+            function renderFeatured(data) {
+                const row = document.getElementById("feat-row"),
+                    items = data.filter((d) => d.featured);
+                document.getElementById("fcount").textContent = items.length ? items.length + " titles" : "";
+                if (!items.length) {
+                    row.innerHTML = `<div class="empty" style="padding:24px 0"><div class="ei">◌</div>mark items with "featured":true</div>`;
+                    return;
+                }
+                const showB = cfg().badges;
+                row.innerHTML = items
+                    .map((item, i) => {
+                        const t = (item.type || "other").toLowerCase(),
+                            delay = Math.min(i * 0.04, 0.4).toFixed(2),
+                            badge = showB ? `<span class="${bc(t)}">${bl(t)}</span>` : "";
+                        return `<div class="feat-card" style="animation-delay:${delay}s" onclick="openM('${esc(item.name)}','games')"><div class="feat-star">★ featured</div>${makeThumb(item)}<div class="card-body"><div class="card-name">${item.name || ""}</div><div class="card-foot">${badge}</div>${playtimeHTML(item.name)}</div></div>`;
+                    })
+                    .join("");
+            }
+            function renderGrid(gid, cid, data, filter) {
+                const g = document.getElementById(gid),
+                    q = (filter || "").toLowerCase(),
+                    pool = gid === "games-grid" && !q ? data.filter((d) => !d.featured) : data,
+                    items = q
+                        ? data.filter(
+                              (d) =>
+                                  (d.name || "").toLowerCase().includes(q) ||
+                                  (d.description || "").toLowerCase().includes(q)
+                          )
+                        : pool;
+                document.getElementById(cid).textContent = items.length ? items.length + " titles" : "";
+                if (!items.length) {
+                    g.innerHTML = `<div class="empty"><div class="ei">◌</div>nothing here yet</div>`;
+                    return;
+                }
+                const showB = cfg().badges,
+                    src = gid === "games-grid" ? "games" : "movies";
+                g.innerHTML = items
+                    .map((item, i) => {
+                        const t = (item.type || "other").toLowerCase(),
+                            delay = Math.min(i * 0.03, 0.45).toFixed(2),
+                            badge = showB ? `<span class="${bc(t)}">${bl(t)}</span>` : "",
+                            pt = src === "games" ? playtimeHTML(item.name) : "",
+                            movieInfo =
+                                src === "movies" ? `<span class="movie-rating">★ ${item.rating || "N/A"}</span>` : "";
+                        return `<div class="card" style="animation-delay:${delay}s" onclick="openM('${esc(item.name)}','${src}')">${makeThumb(item)}<div class="card-body"><div class="card-name">${item.name || ""}</div><div class="card-foot">${badge}${src === "movies" && item.genre ? `<span class="movie-type">${item.genre}</span>` : ""}${movieInfo}</div>${pt}</div></div>`;
+                    })
+                    .join("");
+            }
+            function refreshGameCards() {
+                renderFeatured(GD);
+                renderGrid("games-grid", "gcount", GD, document.getElementById("gsearch").value);
+            }
+            window.openM = async function (name, src) {
+                const item = (src === "games" ? GD : MD).find((d) => d.name === name);
+                if (!item) return;
+                if (item.url) {
+                    const processed = processUrl(item.url);
+                    if (item.external) {
+                        window.open(processed, "_blank", "noopener");
+                        return;
+                    }
+                    if (src === "movies") {
+                        openMovie(item);
+                        return;
+                    }
+                    endPlaySessionIfAny();
+                    currentPlaySession = { name: item.name, start: Date.now() };
+                    document.getElementById("gd-title").textContent = item.name || "";
+                    document.getElementById("gd-credit").innerHTML = item.credit
+                        ? `credit: <span>${item.credit}</span>`
+                        : "";
+                    const wrap = document.getElementById("gd-frame-wrap");
+                    wrap.innerHTML = `<iframe id="gd-iframe" allowfullscreen="true" allow="autoplay; fullscreen; gamepad" style="width:100%;height:100%;border:none;display:block"></iframe>`;
+                    const f = document.getElementById("gd-iframe");
+                    try {
+                        const r = await fetch(processed + (processed.includes("?") ? "&" : "?") + "_=" + Date.now());
+                        if (!r.ok) throw new Error("HTTP " + r.status);
+                        let h = await r.text();
+                        try {
+                            const u = new URL(processed),
+                                base = u.href.substring(0, u.href.lastIndexOf("/") + 1);
+                            if (/<head[\s>]/i.test(h)) h = h.replace(/<head([^>]*)>/i, `<head$1><base href="${base}">`);
+                            else h = `<base href="${base}">` + h;
+                        } catch (e) {}
+                        const doc = f.contentDocument || f.contentWindow.document;
+                        doc.open();
+                        doc.write(h);
+                        doc.close();
+                    } catch (e) {
+                        const doc = f.contentDocument || f.contentWindow.document;
+                        doc.open();
+                        doc.write(
+                            `<!DOCTYPE html><html><head><title>Unable to Load</title></head><body style="background:#000;color:#fff;padding:2rem;font-family:Arial,sans-serif"><h2>Unable to load</h2><p style="opacity:.6">Failed to load this game.</p><p style="opacity:.45">${String(e.message || "Unknown error")}</p></body></html>`
+                        );
+                        doc.close();
+                    }
+                    document.getElementById("gd-drawer").classList.add("on");
+                    return;
+                }
+                const t = (item.type || "other").toLowerCase();
+                document.getElementById("miw").innerHTML = item.image
+                    ? `<img id="mi" src="${item.image}" alt="${item.name || ""}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/><div id="mph" style="display:none">${item.icon || item.name || "?"}</div>`
+                    : `<div id="mph">${item.icon || item.name || "?"}</div>`;
+                document.getElementById("mbadge").className = bc(t);
+                document.getElementById("mbadge").textContent = bl(t);
+                document.getElementById("mtitle").textContent = item.name || "";
+                document.getElementById("mdesc").textContent = item.description || "";
+                document.getElementById("mcredit").innerHTML = item.credit ? `credit: <span>${item.credit}</span>` : "";
+                document.getElementById("mw").classList.add("on");
+            };
+            function openMovie(item) {
+                const drive = item.url,
+                    embed = drive.replace("/view", "/preview");
+                document.getElementById("movie-title").textContent = item.name || "Movie";
+                document.getElementById("movie-sub").textContent =
+                    `${item.genre || "Movie"}${item.rating ? " • ★ " + item.rating : ""}`;
+                document.getElementById("movie-frame-wrap").innerHTML =
+                    `<iframe id="movie-iframe" src="${embed}" allow="autoplay;fullscreen" allowfullscreen="true" referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+                document.getElementById("movie-drawer").classList.add("on");
+            }
+            window.closeMovieDrawer = function () {
+                document.getElementById("movie-drawer").classList.remove("on");
+                document.getElementById("movie-frame-wrap").innerHTML = "";
+            };
+            window.toggleMovieFullscreen = function () {
+                const wrap = document.getElementById("movie-frame-wrap");
+                if (!document.fullscreenElement) wrap.requestFullscreen().catch(() => {});
+                else document.exitFullscreen();
+            };
+            window.closeDrawer = function () {
+                const ended = endPlaySessionIfAny();
+                document.getElementById("gd-drawer").classList.remove("on");
+                document.getElementById("gd-frame-wrap").innerHTML = "";
+                if (ended) refreshGameCards();
+            };
+            window.toggleDrawerFullscreen = function () {
+                const wrap = document.getElementById("gd-frame-wrap");
+                if (!document.fullscreenElement) wrap.requestFullscreen().catch(() => {});
+                else document.exitFullscreen();
+            };
+            window.changeTheme = function (t) {
+                if (t === "default") document.documentElement.removeAttribute("data-theme");
+                else document.documentElement.setAttribute("data-theme", t);
+                localStorage.setItem("us_theme", t);
+            };
+            document.getElementById("mc").onclick = () => document.getElementById("mw").classList.remove("on");
+            document.getElementById("mw").onclick = (e) => {
+                if (e.target === document.getElementById("mw")) document.getElementById("mw").classList.remove("on");
+            };
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape") {
+                    document.getElementById("mw").classList.remove("on");
+                    closeDrawer();
+                    closeMovieDrawer();
+                }
+            });
+            const showSpin = (id) => {
+                document.getElementById(id).innerHTML = '<div class="spin"></div>';
+            };
+            async function loadG() {
+                showSpin("games-grid");
+                showSpin("feat-row");
+                const u = cfg().gcdn;
+                if (u) {
+                    try {
+                        GD = await fetchJ(u);
+                    } catch (e) {
+                        GD = [];
+                    }
+                } else GD = [];
+                renderFeatured(GD);
+                renderGrid("games-grid", "gcount", GD, document.getElementById("gsearch").value);
+            }
+            const MOVIE_TABLE = [
+    {
+        name: "The Dark Knight",
+        url: "https://drive.google.com/file/d/1CZvw1MgSLVQR9Z9L8qpl8j1oI7DnMDWr/view",
+        image: "https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw%40%40._V1_SL1024_.jpg",
+        rating: "9.0",
+        genre: "Action",
+        type: "movie",
+        featured: false,
+        credit: "Christopher Nolan",
+        description: "Batman raises the stakes in his war on crime when he joins forces with Commissioner Gordon and Harvey Dent to dismantle Gotham's criminal organizations, only to face the chaos unleashed by the Joker.",
+    },
+    {
+        name: "Batman Begins",
+        url: "https://drive.google.com/file/d/1ZegfkrD50sGDUVJ-4d9IiBpR0MTmdphx/view",
+        image: "https://www.filmtv.it/imgbank/GALLERYXL/R202012/03211941.jpg",
+        rating: "8.2",
+        genre: "Action",
+        type: "movie",
+        featured: false,
+        credit: "Christopher Nolan",
+        description: "After witnessing his parents' murder, Bruce Wayne trains to become Batman and returns to Gotham to fight the corruption threatening his city.",
+    },
+    {
+        name: "Black Panther",
+        url: "https://drive.google.com/file/d/1wdUOiz7tI3R5vTz779h7CesAW5h0kUh1/view",
+        image: "https://br.web.img2.acsta.net/pictures/17/07/24/10/50/537727.jpg",
+        rating: "7.3",
+        genre: "Action",
+        type: "movie",
+        featured: false,
+        credit: "Ryan Coogler",
+        description: "T'Challa returns home to the technologically advanced nation of Wakanda to take his place as king, but a powerful enemy from his past challenges his rule and threatens his people.",
+    },
+    {
+        name: "The Dark Knight Rises",
+        url: "https://drive.google.com/file/d/1ssHaJjHmu-V5fTC4_AoyABD_KYB1dkNX/view",
+        image: "https://www.moviemeter.nl/images/cover/80000/80594.jpg",
+        rating: "8.4",
+        genre: "Action",
+        type: "movie",
+        featured: false,
+        credit: "Christopher Nolan",
+        description: "Eight years after taking the blame for Harvey Dent's death, Batman is forced to return when the ruthless Bane rises and threatens to destroy Gotham City.",
+    },
+    {
+        name: "Captain America: Civil War",
+        url: "https://drive.google.com/file/d/1zcOWY_OTVctnY1sHg1KRjhDVls_3ebWs/view",
+        image: "https://www.vintagemovieposters.co.uk/wp-content/uploads/2021/12/IMG_4500-scaled.jpeg",
+        rating: "7.8",
+        genre: "Action",
+        type: "movie",
+        featured: false,
+        credit: "Anthony Russo & Joe Russo",
+        description: "Political pressure to hold the Avengers accountable divides the team into opposing factions led by Captain America and Iron Man.",
+    },
+    {
+        name: "The Karate Kid",
+        url: "https://drive.google.com/file/d/1tMJAooF8bG9ghav9CU4GPYF3t07ySMXL/view",
+        image: "https://www.cinemaclock.com/images/posters/1000x1500/72/the-karate-kid-2010-poster.jpg",
+        rating: "6.2",
+        genre: "Drama",
+        type: "movie",
+        featured: false,
+        credit: "Harald Zwart",
+        description: "After moving to China, a bullied teenager learns martial arts from a skilled mentor and gains the confidence to stand up for himself.",
+    },
+    {
+        name: "Space Jam: A New Legacy",
+        url: "https://drive.google.com/file/d/17hubcXZlc8AQCick-5kdB11mpEQlM1Zw/view",
+        image: "https://www.impawards.com/2021/posters/space_jam_a_new_legacy_ver9_xxlg.jpg",
+        rating: "4.4",
+        genre: "Adventure",
+        type: "movie",
+        featured: false,
+        credit: "Malcolm D. Lee",
+        description: "Basketball champion LeBron James is trapped in a digital world and must team up with the Looney Tunes to win a high-stakes basketball game and save his son.",
+    },
+    {
+        name: "Space Jam",
+        url: "https://drive.google.com/file/d/1QK9RHd2T-ijthIL7A6NQvRztPkTx8NtN/view",
+        image: "https://www.originalfilmart.com/cdn/shop/products/space_jam_1996_original_film_art_2864e460-dfe2-40aa-8467-5378541d1c0d_1200x.jpg?v=1560044187",
+        rating: "6.5",
+        genre: "Comedy",
+        type: "movie",
+        featured: false,
+        credit: "Joe Pytka",
+        description: "Michael Jordan teams up with the Looney Tunes after aliens challenge the cartoon characters to a basketball game that will determine their fate.",
+    },
+    {
+        name: "Spider-Man: Homecoming",
+        url: "https://drive.google.com/file/d/1jGHx1i3EqHKmQmE42APmxUk4bYHrINQ_/view",
+        image: "https://posterspy.com/wp-content/uploads/2023/06/SPIDER-MAN-HOMECOMING.jpg",
+        rating: "7.4",
+        genre: "Action",
+        type: "movie",
+        featured: false,
+        credit: "Jon Watts",
+        description: "Peter Parker begins to balance life as a high school student with being Spider-Man while facing the dangerous Vulture and trying to prove himself as a hero.",
+    },
+    {
+        name: "Spider-Man: Far From Home",
+        url: "https://drive.google.com/file/d/1vPNUTkubVVmguVfwstRQm5xgbkRRii6z/view",
+        image: "https://www.chroniquedisney.fr/imgFiliale/marvel/2019-spider-man-far-home-01-big.jpg",
+        rating: "7.4",
+        genre: "Action",
+        type: "movie",
+        featured: false,
+        credit: "Jon Watts",
+        description: "Peter Parker joins his classmates on a European vacation, but his trip is interrupted when Nick Fury recruits him to help battle mysterious elemental creatures.",
+    },
+    {
+        name: "Spider-Man: No Way Home",
+        url: "https://drive.google.com/file/d/1mUF4PcT0_ZKofV0KHHdjxgTQdhF2BliQ/view",
+        image: "https://images-cdn.ubuy.co.in/634f35ef0ec80709590f5375-2021-movie-tom-holland-spider-man-no.jpg",
+        rating: "8.2",
+        genre: "Action",
+        type: "movie",
+        featured: false,
+        credit: "Jon Watts",
+        description: "After Spider-Man's identity is exposed, Peter asks Doctor Strange for help, but a spell goes wrong and brings dangerous villains from other universes into his world.",
+    },
+    {
+        name: "Spider-Man: Into the Spider-Verse",
+        url: "https://drive.google.com/file/d/1V3Bq0lrDQUxJay5DDs3gK69ZvRNb1j2u/view",
+        image: "https://fr.web.img4.acsta.net/pictures/18/12/07/09/48/4257839.jpg",
+        rating: "8.4",
+        genre: "Animation",
+        type: "movie",
+        featured: false,
+        credit: "Bob Persichetti, Peter Ramsey & Rodney Rothman",
+        description: "Miles Morales becomes Spider-Man and encounters other Spider-People from different dimensions who join him to stop a threat capable of destroying their realities.",
+    },
+    {
+        name: "Spider-Man: Across the Spider-Verse",
+        url: "https://drive.google.com/file/d/1Sd1l_LhKRp_2OE5gRJJyPubnZjJccLgQ/view",
+        image: "https://www.geekmagazine.com.br/wp-content/uploads/2023/05/101d5cec-905d-4cc3-962c-8a8b2877c21a-3497-00000254881bb24e_file.webp",
+        rating: "8.5",
+        genre: "Animation",
+        type: "movie",
+        featured: false,
+        credit: "Joaquim Dos Santos, Kemp Powers & Justin K. Thompson",
+        description: "Miles Morales travels across the multiverse and meets a team of Spider-People who must confront a powerful threat while struggling with conflicting ideas about destiny.",
+    },
+    {
+        name: "Spider-Man",
+        url: "https://drive.google.com/file/d/1sqWGrmbGc5lBmoFbtfMSIaqb60eXppvF/view",
+        image: "https://m.media-amazon.com/images/M/MV5BZDEyN2NhMjgtMjdhNi00MmNlLWE5YTgtZGE4MzNjMTRlMGEwXkEyXkFqcGdeQXVyNDUyOTg3Njg%40._V1_FMjpg_UX1000_.jpg",
+        rating: "7.4",
+        genre: "Action",
+        type: "movie",
+        featured: false,
+        credit: "Sam Raimi",
+        description: "After being bitten by a genetically altered spider, Peter Parker develops superhuman abilities and uses them to protect New York while facing the Green Goblin.",
+    },
+    {
+        name: "Spider-Man 2",
+        url: "https://drive.google.com/file/d/1yV7ZmEkfOVOLdV51wN6vSeDf3_tQqBvf/view",
+        image: "https://www.the-numbers.com/images/movies/opusdata/Spider-Man-2.jpg",
+        rating: "7.4",
+        genre: "Action",
+        type: "movie",
+        featured: false,
+        credit: "Sam Raimi",
+        description: "Peter Parker struggles to balance his personal life with his responsibilities as Spider-Man while battling the brilliant but dangerous Doctor Octavius.",
+    },
+    {
+        name: "Spider-Man 3",
+        url: "https://drive.google.com/file/d/1ExTfRPC3YGmCSg8W2uFSYkUMw7a1vcTR/view",
+        image: "https://miro.medium.com/1%2AU4e93wx9ZQ68dPMfSTVl3A.jpeg",
+        rating: "6.3",
+        genre: "Action",
+        type: "movie",
+        featured: false,
+        credit: "Sam Raimi",
+        description: "Peter Parker's life becomes complicated when a mysterious black symbiote bonds with him, while new enemies including Sandman and Venom emerge.",
+    },
+    {
+        name: "The Amazing Spider-Man",
+        url: "https://drive.google.com/file/d/1Xf8xZcY3kneGFln8NPsQMt7CLtmGhEeD/view",
+        image: "https://2.bp.blogspot.com/-6jum4A2mmz8/T4zr66OwLpI/AAAAAAAADQ8/NVcOdgB0Orw/s1600/tasmimxpstrpic.jpg",
+        rating: "6.9",
+        genre: "Action",
+        type: "movie",
+        featured: false,
+        credit: "Marc Webb",
+        description: "Peter Parker discovers his powers and uncovers secrets surrounding his parents while battling the mysterious scientist Dr. Curt Connors.",
+    },
+    {
+        name: "The Amazing Spider-Man 2",
+        url: "https://drive.google.com/file/d/1hnYa-Pkxqu6Qhhp56QXE34Rnctia_3yw/view",
+        image: "https://cdn.district.in/movies-assets/images/cinema/The-Amazing-Spider-Man-2-cc4378b0-c51e-11f0-b0f8-1fc8eb13a1ff.jpg?im=Resize%2Cwidth%3D400",
+        rating: "6.6",
+        genre: "Action",
+        type: "movie",
+        featured: false,
+        credit: "Marc Webb",
+        description: "Peter Parker faces Electro and the rise of the Green Goblin while trying to protect the people he loves and uncovering more about his father's past.",
+    },
+    {
+        name: "X2: X-Men United",
+        url: "https://drive.google.com/file/d/16fA19e1MhAZaUaosRHey_c1VAZoM1iB8/view",
+        image: "https://cdn11.bigcommerce.com/s-ydriczk/images/stencil/1280w/products/84557/93513/X-Men-2-X2-Version-B-original-movie-poster-buy-now-at-starstills__20537.1568909170.jpg?c=2",
+        rating: "7.4",
+        genre: "Action",
+        type: "movie",
+        featured: false,
+        credit: "Bryan Singer",
+        description: "The X-Men must join forces with their former enemies when a military attack threatens mutantkind and a dangerous plan against mutants begins to unfold.",
+    },
+    {
+        name: "X-Men",
+        url: "https://drive.google.com/file/d/1BIJIiG8fdpyudl-1vXHIU3TBb3XMXJaa/view",
+        image: "https://i.ebayimg.com/images/g/hxYAAOSwJdBbK4NW/s-l1600.jpg",
+        rating: "7.3",
+        genre: "Action",
+        type: "movie",
+        featured: false,
+        credit: "Bryan Singer",
+        description: "Mutants with extraordinary abilities must protect humanity while facing Magneto, who believes mutants should rule over ordinary humans.",
+    },
 ];
-const githubSites=[
-{name:"Gn-Math",link:"https://raw.githubusercontent.com/genizy/npm/refs/heads/main/dist/index.html",cover:"https://i.pinimg.com/736x/54/1b/67/541b67102d4a549376395faf7f7d56d6.jpg",genres:["Games"]},
-{name:"Chainsaw",link:"https://raw.githubusercontent.com/L3br00n/Chainsaw/refs/heads/main/index.html",cover:"https://play-lh.googleusercontent.com/i9xbLcEaopi3Lblcw4xdCoEFpZJVPtt_-J7lE6M0QTJHmHOwoHQDM-lzYv3k2dR-oz3UXZ_GzWtMWAgdNGS3x=w240-h480-rw",genres:["Games"]},
-{name:"UGS",link:"https://raw.githubusercontent.com/dbrown612345-lang/Ultimate-Game-stash/refs/heads/main/games.html",cover:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3HwfyklA3lx6SiF5YtGyuKXntXPYgEQbTjAdwTyA7Tg&s=10",genres:["Games"]}
-];
-const sites=[
-...regularSites.map(site=>({...site,type:"regular"})),
-...githubSites.map(site=>({...site,type:"github"}))
-];
-const home=document.getElementById("home");
-const grid=document.getElementById("grid");
-const empty=document.getElementById("empty");
-const viewer=document.getElementById("viewer");
-const frame=document.getElementById("frame");
-const topBar=document.getElementById("topBar");
-const title=document.getElementById("title");
-const urlText=document.getElementById("url");
-const topIcon=document.getElementById("topIcon");
-const search=document.getElementById("search");
-const sort=document.getElementById("sort");
-const filter=document.getElementById("filter");
-const count=document.getElementById("count");
-const loading=document.getElementById("loading");
-let currentSite=null;
-function getDomain(url){
-try{return new URL(url).hostname}catch{return url}
-}
-function getFavicon(site){
-if(site.cover)return site.cover;
-const domain=getDomain(site.link);
-return "https://www.google.com/s2/favicons?sz=128&domain="+encodeURIComponent(domain);
-}
-function escapeText(value){
-return String(value).replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[char]));
-}
-function getCategories(){
-return [...new Set(sites.flatMap(site=>site.genres))];
-}
-function render(){
-const query=search.value.trim().toLowerCase();
-let list=sites.filter(site=>{
-const matchesSearch=!query||site.name.toLowerCase().includes(query)||site.link.toLowerCase().includes(query)||site.genres.some(g=>g.toLowerCase().includes(query))||getDomain(site.link).toLowerCase().includes(query);
-const matchesFilter=filter.value==="all"||site.genres.includes(filter.value);
-return matchesSearch&&matchesFilter;
-});
-if(sort.value==="az")list.sort((a,b)=>a.name.localeCompare(b.name));
-if(sort.value==="za")list.sort((a,b)=>b.name.localeCompare(a.name));
-if(sort.value==="genre")list.sort((a,b)=>a.genres[0].localeCompare(b.genres[0])||a.name.localeCompare(b.name));
-if(sort.value==="genreza")list.sort((a,b)=>b.genres[0].localeCompare(a.genres[0])||a.name.localeCompare(b.name));
-if(sort.value==="type")list.sort((a,b)=>a.type.localeCompare(b.type)||a.name.localeCompare(b.name));
-grid.innerHTML="";
-const categories=getCategories();
-categories.forEach(category=>{
-const categorySites=list.filter(site=>site.genres.includes(category));
-if(!categorySites.length)return;
-const section=document.createElement("section");
-section.className="category-section";
-section.dataset.category=category;
-const header=document.createElement("div");
-header.className="category-header";
-const heading=document.createElement("h2");
-heading.textContent=category;
-const line=document.createElement("div");
-line.className="category-line";
-const categoryCount=document.createElement("span");
-categoryCount.className="category-count";
-categoryCount.textContent=categorySites.length+" site"+(categorySites.length===1?"":"s");
-header.appendChild(heading);
-header.appendChild(line);
-header.appendChild(categoryCount);
-const cards=document.createElement("div");
-cards.className="category-cards";
-categorySites.forEach(site=>{
-const card=document.createElement("div");
-card.className="card "+site.genres.map(g=>g.toLowerCase()).join(" ");
-card.dataset.genres=site.genres.join(",");
-card.dataset.type=site.type;
-const tags=site.genres.map(g=>`<div class="genre">${escapeText(g)}</div>`).join("");
-card.innerHTML=`<img src="${escapeText(getFavicon(site))}" alt="" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22128%22 height=%22128%22%3E%3Crect width=%22128%22 height=%22128%22 rx=%2224%22 fill=%22%23222222%22/%3E%3C/svg%3E'"><span>${escapeText(site.name)}</span><div class="tags">${tags}</div>`;
-card.onclick=()=>openSite(site);
-cards.appendChild(card);
-});
-section.appendChild(header);
-section.appendChild(cards);
-grid.appendChild(section);
-});
-empty.style.display=list.length?"none":"block";
-count.textContent=list.length+" site"+(list.length===1?"":"s");
-}
-async function openSite(site){
-currentSite=site;
-const domain=getDomain(site.link);
-title.textContent=site.name;
-urlText.textContent=domain;
-topIcon.src=getFavicon(site);
-home.style.opacity="0";
-home.style.transform="scale(1.03)";
-loading.classList.add("show");
-setTimeout(()=>home.style.display="none",250);
-viewer.classList.add("active");
-topBar.classList.add("show");
-if(site.type==="regular"){
-frame.src=site.link;
-loading.classList.remove("show");
-}else{
-try{
-const response=await fetch(site.link);
-if(!response.ok)throw new Error("HTTP "+response.status);
-let code=await response.text();
-const rawUrl=new URL(site.link);
-const base=rawUrl.href.substring(0,rawUrl.href.lastIndexOf("/")+1);
-if(/<head[\s>]/i.test(code))code=code.replace(/<head([^>]*)>/i,`<head$1><base href="${base}">`);
-else code=`<base href="${base}">`+code;
-const doc=frame.contentDocument||frame.contentWindow.document;
-doc.open();
-doc.write(code);
-doc.close();
-loading.classList.remove("show");
-}catch(error){
-const doc=frame.contentDocument||frame.contentWindow.document;
-doc.open();
-doc.write(`<html><body style="background:#0b0b0b;color:white;font-family:Arial;display:flex;align-items:center;justify-content:center;height:100vh"><div style="text-align:center"><h2>Unable to load</h2><p style="opacity:.6">${escapeText(error.message)}</p></div></body></html>`);
-doc.close();
-loading.classList.remove("show");
-}
-}
-}
-async function openCurrentInNewTab(){
-if(!currentSite)return;
-const newTab=window.open("about:blank","_blank");
-if(!newTab)return;
-newTab.document.open();
-newTab.document.write(`<html><head><title>${escapeText(currentSite.name)}</title></head><body style="margin:0;background:#000;overflow:hidden"></body></html>`);
-newTab.document.close();
-if(currentSite.type==="regular"){
-newTab.document.body.innerHTML=`<iframe src="${escapeText(currentSite.link)}" style="width:100vw;height:100vh;border:0" allowfullscreen></iframe>`;
-}else{
-try{
-const response=await fetch(currentSite.link);
-if(!response.ok)throw new Error("HTTP "+response.status);
-let code=await response.text();
-const rawUrl=new URL(currentSite.link);
-const base=rawUrl.href.substring(0,rawUrl.href.lastIndexOf("/")+1);
-if(/<head[\s>]/i.test(code))code=code.replace(/<head([^>]*)>/i,`<head$1><base href="${base}">`);
-else code=`<base href="${base}">`+code;
-newTab.document.open();
-newTab.document.write(code);
-newTab.document.close();
-}catch(error){
-newTab.document.open();
-newTab.document.write(`<html><body style="background:#0b0b0b;color:white;font-family:Arial;display:flex;align-items:center;justify-content:center;height:100vh"><div style="text-align:center"><h2>Unable to load</h2><p style="opacity:.6">${escapeText(error.message)}</p></div></body></html>`);
-newTab.document.close();
-}
-}
-}
-function goHome(){
-viewer.classList.remove("active");
-topBar.classList.remove("show");
-loading.classList.remove("show");
-currentSite=null;
-setTimeout(()=>{
-frame.src="about:blank";
-home.style.display="block";
-requestAnimationFrame(()=>{
-home.style.opacity="1";
-home.style.transform="scale(1)";
-});
-},250);
-}
-search.addEventListener("input",render);
-sort.addEventListener("change",render);
-filter.addEventListener("change",render);
-document.addEventListener("keydown",e=>{
-if(e.key==="Escape"&&viewer.classList.contains("active"))goHome();
-if(e.key.toLowerCase()==="m"&&viewer.classList.contains("active"))topBar.classList.toggle("show");
-});
-render();
-</script>
-</body>
+
+            async function loadM() {
+                showSpin("movies-grid");
+                let remote = [];
+                const u = cfg().mccdn;
+                if (u) {
+                    try {
+                        remote = await fetchJ(u);
+                    } catch (e) {
+                        remote = [];
+                    }
+                }
+                MD = [
+                    ...MOVIE_TABLE,
+                    ...remote.filter((item) => !MOVIE_TABLE.some((movie) => movie.name === item.name)),
+                ];
+                renderGrid("movies-grid", "mcount", MD, "");
+            }
+            window.saveCDN = function (type) {
+                const map = { games: "gcdn", movies: "mccdn" },
+                    val = document.getElementById(map[type]).value.trim();
+                localStorage.setItem("us_" + map[type], val);
+                if (type === "games") loadG();
+                else loadM();
+            };
+            document.getElementById("gsearch").addEventListener("input", (e) => {
+                const q = e.target.value,
+                    featRow = document.getElementById("feat-row"),
+                    featLabel = document.getElementById("feat-label");
+                if (q) {
+                    featRow.style.display = "none";
+                    featLabel.style.display = "none";
+                } else {
+                    featRow.style.display = "";
+                    featLabel.style.display = "";
+                    renderFeatured(GD);
+                }
+                renderGrid("games-grid", "gcount", GD, q);
+            });
+            document.querySelectorAll(".nb").forEach((b) => {
+                b.addEventListener("click", () => {
+                    document.querySelectorAll(".nb").forEach((x) => x.classList.remove("on"));
+                    document.querySelectorAll("section").forEach((x) => x.classList.remove("on"));
+                    b.classList.add("on");
+                    document.getElementById(b.dataset.s).classList.add("on");
+                    const isGames = b.dataset.s === "games";
+                    document.getElementById("hswrap").style.display = isGames ? "" : "none";
+                    if (isGames) {
+                        document.getElementById("gsearch").value = "";
+                        document.getElementById("feat-row").style.display = "";
+                        document.getElementById("feat-label").style.display = "";
+                        renderFeatured(GD);
+                        renderGrid("games-grid", "gcount", GD, "");
+                    }
+                    if (b.dataset.s === "movies") renderGrid("movies-grid", "mcount", MD, "");
+                });
+            });
+            document
+                .getElementById("togr")
+                .addEventListener("change", (e) => localStorage.setItem("us_autoref", e.target.checked));
+            document.getElementById("togb").addEventListener("change", (e) => {
+                localStorage.setItem("us_badges", e.target.checked);
+                renderFeatured(GD);
+                renderGrid("games-grid", "gcount", GD, document.getElementById("gsearch").value);
+                renderGrid("movies-grid", "mcount", MD, "");
+            });
+            document.getElementById("togp").addEventListener("change", (e) => {
+                localStorage.setItem("us_showplaytime", e.target.checked);
+                refreshGameCards();
+            });
+            function applyS() {
+                const c = cfg();
+                document.getElementById("gcdn").value = c.gcdn;
+                document.getElementById("mccdn").value = c.mccdn;
+                document.getElementById("togr").checked = c.autoref;
+                document.getElementById("togb").checked = c.badges;
+                document.getElementById("togp").checked = c.showplaytime;
+                document.getElementById("ustheme").value = c.theme;
+                changeTheme(c.theme);
+            }
+            document.getElementById("ustheme").addEventListener("change", (e) => changeTheme(e.target.value));
+            setInterval(
+                () => {
+                    if (cfg().autoref) {
+                        loadG();
+                        loadM();
+                    }
+                },
+                5 * 60 * 1000
+            );
+            const BUILTIN_GAMES = [
+                {
+                    name: "Gn-Math",
+                    url: "https://raw.githubusercontent.com/genizy/npm/refs/heads/main/dist/index.html",
+                    image: "https://i.pinimg.com/736x/54/1b/67/541b67102d4a549376395faf7f7d56d6.jpg",
+                    type: "port",
+                    featured: false,
+                    credit: "Genizy",
+                },
+                {
+                    name: "More Games",
+                    url: "https://raw.githubusercontent.com/L3br00n/mroetest/refs/heads/main/index.html",
+                    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRi_tMSQQelerNYJ3MYZvastSMka_ZeQNkScS4UAk_Zfw&s=10",
+                    type: "port",
+                    featured: false,
+                    credit: "Genizy",
+                },
+                {
+                    name: "Chainsaw",
+                    url: "https://raw.githubusercontent.com/L3br00n/Chainsaw/refs/heads/main/index.html",
+                    image: "https://play-lh.googleusercontent.com/i9xbLcEaopi3Lblcw4xdCoEFpZJVPtt_-J7lE6M0QTJHmHOwoHQDM-lzYv3k2dR-oz3UXZ_GzWtMWAgdNGS3x=w240-h480-rw",
+                    type: "port",
+                    featured: false,
+                    credit: "L3br00n",
+                },
+                {
+                    name: "UGS",
+                    url: "https://raw.githubusercontent.com/dbrown612345-lang/Ultimate-Game-stash/refs/heads/main/games.html",
+                    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS3HwfyklA3lx6SiF5YtGyuKXntXPYgEQbTjAdwTyA7Tg&s=10",
+                    type: "port",
+                    featured: false,
+                    credit: "Ultimate Game Stash",
+                },
+                {
+                    name: "Ruby",
+                    url: "https://raw.githubusercontent.com/L3br00n/Ruby/refs/heads/main/index.html",
+                    image: "https://placehold.co/512x512/15131f/d45c7a?text=Ruby",
+                    type: "port",
+                    featured: true,
+                    credit: "L3br00n",
+                },
+            ];
+            const originalLoadG = loadG;
+            loadG = async function () {
+                showSpin("games-grid");
+                showSpin("feat-row");
+                const u = cfg().gcdn;
+                let remote = [];
+                if (u) {
+                    try {
+                        remote = await fetchJ(u);
+                    } catch (e) {
+                        remote = [];
+                    }
+                }
+                GD = [
+                    ...BUILTIN_GAMES,
+                    ...remote.filter((item) => !BUILTIN_GAMES.some((builtin) => builtin.name === item.name)),
+                ];
+                renderFeatured(GD);
+                renderGrid("games-grid", "gcount", GD, document.getElementById("gsearch").value);
+            };
+            applyS();
+            loadG();
+            loadM();
+        </script>
+    </body>
 </html>
