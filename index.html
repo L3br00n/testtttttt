@@ -374,6 +374,30 @@ textarea.ro{height:150px;border:1px solid var(--bgB);border-radius:7px;backgroun
 .linkbtn{background:none;border:none;color:#9a9a9a;font-size:inherit;cursor:pointer;padding:0 2px;text-decoration:underline;font-family:inherit}
 .linkbtn:hover{color:var(--white)}
 .tool{flex:1;overflow-y:auto;padding:26px 24px 60px}
+.note-box{display:flex;align-items:flex-start;gap:9px;padding:7px 9px;border-radius:9px;cursor:pointer;font-size:12.5px;line-height:1.5}
+.note-box:hover{background:var(--bg6)}
+.note-box input{margin-top:2px;accent-color:var(--hot);flex-shrink:0}
+.note-box.done span{color:var(--dim);text-decoration:line-through}
+.tool-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px;margin-top:20px}
+.tcard{border:1px solid var(--ln1);border-radius:14px;background:var(--bg1);padding:16px 17px}
+.tcard h3{margin:0 0 4px;font-size:14px;font-weight:600;letter-spacing:-.1px}
+.tcard .hint{margin:0 0 11px}
+.tcard textarea{width:100%;min-height:104px;resize:vertical;padding:11px 12px;border-radius:10px;border:1px solid var(--ln2);background:var(--bg4);color:var(--tx2);font:12.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;outline:none}
+.tcard textarea:focus{border-color:var(--ln6)}
+.tout{margin-top:10px;padding:11px 12px;border-radius:10px;border:1px solid var(--ln2);background:var(--bg0);font:12.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;word-break:break-all;white-space:pre-wrap;min-height:20px}
+.credit-hero{text-align:center;padding:34px 0 10px}
+.credit-hero .big{font-size:40px;font-weight:700;letter-spacing:-1.4px;margin:0}
+.credit-hero .sub{color:var(--mut2);font-size:12.5px;margin-top:7px}
+.credit-name{display:inline-flex;align-items:center;gap:11px;padding:13px 20px;border-radius:14px;border:1px solid var(--ln2);background:var(--bg2);margin-top:6px}
+.credit-name .who{font-size:17px;font-weight:640}
+.credit-name .note{font-size:12px;color:var(--mut2)}
+.credit-name.cool{border-color:var(--hot);background:var(--hotBg)}
+.credit-name.cool .note{color:var(--hotTx)}
+.credit-sec{margin-top:26px}
+.credit-sec .sec-title{margin-bottom:10px}
+.credit-row{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid var(--bg6);font-size:12.5px}
+.credit-row .k{color:var(--mut2);min-width:132px}
+.credit-row .v{color:var(--tx2);flex:1}
 .mv-wait{flex:1;display:grid;place-items:center;color:var(--dim);font-size:12.5px}
 .mv-bar{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--ln1);background:var(--bg0);font-size:11.5px;color:var(--mut2)}
 .mv-bar b{color:var(--tx3);font-weight:500}
@@ -432,6 +456,14 @@ textarea.ro{height:150px;border:1px solid var(--bgB);border-radius:7px;backgroun
 .keyrow .kk{display:flex;gap:4px;flex-shrink:0}
 kbd{font:11px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--ln1);border:1px solid var(--ln5);border-bottom-width:2px;border-radius:5px;padding:4px 6px;color:var(--tx2);min-width:20px;text-align:center}
 .keyrow .kd{color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nomotion *,.nomotion *::before,.nomotion *::after{
+  transition-duration:0s!important;animation-duration:0s!important;animation-iteration-count:1!important;
+}
+.tab.dragging{opacity:.35}
+.tab.dropbefore{box-shadow:-2px 0 0 var(--hot)}
+.tab.dropafter{box-shadow:2px 0 0 var(--hot)}
+.tab[draggable=true]{cursor:grab}
+.tab[draggable=true]:active{cursor:grabbing}
 .fxbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:0 2px 11px}
 .fxt{font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--dim);margin-right:2px}
 .fx-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 8px 5px 11px;border-radius:999px;background:var(--ln1);border:1px solid var(--ln5);color:#d8d8d8;font-size:12px;cursor:pointer;font-family:inherit;transition:border-color .15s,background .15s}
@@ -616,6 +648,8 @@ body.dense .card .sub{font-size:10px}
 <div class="view" id="viewStats"><div class="tool" id="statsBody"></div></div>
 <div class="view" id="viewKeys"><div class="tool" id="keysBody"></div></div>
 <div class="view" id="viewMovies"><div class="tool proxy" id="moviesBody"></div></div>
+<div class="view" id="viewTools"><div class="tool" id="toolsBody"></div></div>
+<div class="view" id="viewCredits"><div class="tool" id="creditsBody"></div></div>
 
 </div>
 
@@ -673,8 +707,40 @@ body.dense .card .sub{font-size:10px}
     </div>
 
     <div class="row2">
-      <div class="field">
-        <div class="label-row"><label>Temperature</label><span class="value" id="tempValue">0.7</span></div>
+<div class="field">
+      <div class="label-row"><label>Accent colour</label><span class="value">overrides the theme</span></div>
+      <div class="api-row">
+        <input type="color" id="accentPick" style="width:44px;height:34px;padding:2px;border:1px solid var(--line);border-radius:8px;background:none;cursor:pointer">
+        <button class="small-btn" id="accentClear">Use theme accent</button>
+      </div>
+      <div class="hint">Tints the highlights without touching the rest of the palette.</div>
+    </div>
+
+    <div class="field">
+      <div class="label-row"><label>Text size</label><span class="value" id="uiScaleHint">100%</span></div>
+      <input type="range" id="uiScale" min="80" max="140" step="5" value="100">
+      <div class="hint">Zooms the whole window, games included. 100% is the original size.</div>
+    </div>
+
+    <div class="field">
+      <div class="label-row"><label>Comfort</label></div>
+      <div class="api-row">
+        <button class="small-btn" id="motionToggle">Animations: on</button>
+        <button class="small-btn" id="resetTabs">Reset tab order</button>
+      </div>
+      <div class="hint">Motion off removes transitions and the tab flash. Reset puts Chat and Games back at the front.</div>
+    </div>
+
+    <div class="field">
+      <div class="label-row"><label>Library</label></div>
+      <div class="api-row">
+        <button class="small-btn" id="gridToggle">Featured row: on</button>
+        <button class="small-btn" id="moodToggle">Mood chips: on</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="label-row"><label>Temperature</label><span class="value" id="tempValue">0.7</span></div>
         <input type="range" id="temperature" min="0" max="2" step=".1" value=".7">
       </div>
       <div class="field">
@@ -705,6 +771,7 @@ body.dense .card .sub{font-size:10px}
     <div class="sec-head" style="margin-bottom:11px"><div class="sec-title">theme</div></div>
     <div class="field">
       <div class="label-row"><label>Theme</label><span class="value" id="themeName"></span></div>
+      <input type="text" class="sess-search" id="themeFind" placeholder="search themes" style="width:100%;margin-bottom:9px">
       <div class="theme-swatches" id="themeSwatches"></div>
       <div class="api-row" style="margin-top:10px">
         <select id="themeSelect" style="flex:1"></select>
@@ -898,7 +965,7 @@ const PACK_GZ="H4sIAAAAAAAC/+y963IjTXYg9io13TMC+JG438nuHgEELyAJ3gBev+7gV0AVgMKtQ
    ============================================================ */
 const GROQ_URL="https://api.groq.com/openai/v1/chat/completions";
 const MODELS_URL="https://api.groq.com/openai/v1/models";
-const LS={key:"nexusApiKey",settings:"nexusSettings",sessions:"nexusSessions",active:"nexusActive",favs:"nexusFavs",play:"nexusPlay",hidden:"orbitHidden",hiddenSrc:"orbitHiddenSrc",density:"orbitDensity",fx:"orbitFilters",online:"orbitOnline",notes:"orbitNotes",theme:"orbitThemes",themeId:"orbitTheme"};
+const LS={key:"nexusApiKey",settings:"nexusSettings",sessions:"nexusSessions",active:"nexusActive",favs:"nexusFavs",play:"nexusPlay",hidden:"orbitHidden",hiddenSrc:"orbitHiddenSrc",density:"orbitDensity",fx:"orbitFilters",online:"orbitOnline",notes:"orbitNotes",books:"orbitBooks",notesSel:"orbitBook",tabOrder:"orbitTabOrder",theme:"orbitThemes",themeId:"orbitTheme",accent:"orbitAccent",scale:"orbitScale",motion:"orbitMotion",carousel:"orbitCarousel",moods:"orbitMoods"};
 
 const DEFAULT_KEY="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";
 
@@ -1089,19 +1156,50 @@ function gamePack(){
   return packPromise;
 }
 
+/* a dozen of the collected games are only a wrapper: one offsite iframe or a
+   redirect to a host we do not control. served from our own origin they just
+   paint black, so pull the real address out and load that directly. */
+function remoteTarget(html){
+  if(!html)return "";
+  const f=html.match(/<iframe[^>]+src\s*=\s*["']((?:https?:)?\/\/[^"']+)["']/i);
+  if(f)return f[1].indexOf("//")===0?"https:"+f[1]:f[1];
+  const r=html.match(/(?:window\.)?location(?:\.href)?\s*=\s*["']((?:https?:)?\/\/[^"']+)["']/i);
+  if(r)return r[1].indexOf("//")===0?"https:"+r[1]:r[1];
+  const m=html.match(/<meta[^>]+http-equiv\s*=\s*["']?refresh["']?[^>]+content\s*=\s*["'][^"']*url\s*=\s*((?:https?:)?\/\/[^"'\s]+)/i);
+  if(m)return m[1].indexOf("//")===0?"https:"+m[1]:m[1];
+  /* window.location.href = someVar, where someVar was given the address above */
+  const v=html.match(/location(?:\.href)?\s*=\s*([A-Za-z_$][\w$]*)/);
+  if(v){
+    const a=html.match(new RegExp("(?:const|let|var)\\s+"+v[1]+"\\s*=\\s*[\"']((?:https?:)?//[^\"']+)[\"']"));
+    if(a)return a[1].indexOf("//")===0?"https:"+a[1]:a[1];
+  }
+  return "";
+}
 function withBase(html,url){
+  let base;
   try{
     const u=new URL(url);
-    const base=u.href.substring(0,u.href.lastIndexOf("/")+1);
-    if(/<head[\s>]/i.test(html))return html.replace(/<head([^>]*)>/i,`<head$1><base href="${base}">`);
-    return `<base href="${base}">`+html;
+    base=u.href.substring(0,u.href.lastIndexOf("/")+1);
   }catch(e){return html}
+  /* these stubs reference assets two ways: "js/main.js" and "/js/main.js".
+     the first resolves against the base below; the second would resolve against
+     whatever is embedding the game - this file - so it 404s to a black screen.
+     drop that leading slash and let the base handle both. */
+  html=html.replace(/\b(src|href)(\s*=\s*)(["'])\/(?!\/)/g,"$1$2$3");
+  const tag='<base href="'+base+'">';
+  if(/<base\s[^>]*>/i.test(html))return html.replace(/<base\s[^>]*>/i,tag);
+  if(/<head[\s>]/i.test(html))return html.replace(/<head([^>]*)>/i,"<head$1>"+tag);
+  return tag+html;
 }
 
 async function gameHtml(g){
   const p=await gamePack();
-  if(p&&p[g.slug])return p[g.slug];
-  const fetchUrl=g.src||g.url;
+  /* g.src is the collection key ("ruby", "gn-math") not an address - using it here
+     made the url unparseable, the base tag was skipped, and every asset 404d
+     to a black screen. g.url is the real one. */
+  const fetchUrl=g.url||g.src;
+  /* the embedded copies need the same base treatment as the fetched ones */
+  if(p&&p[g.slug])return withBase(p[g.slug],fetchUrl);
   try{
     const res=await fetch(fetchUrl,{cache:"force-cache"});
     if(!res.ok)throw new Error("http "+res.status);
@@ -1132,6 +1230,8 @@ const ICON={
   notes:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3.5h9L19 8.5v12H5Z"/><path d="M14 3.5v5h5"/><path d="M8.5 13h7M8.5 16.5h5"/></svg>',
   stats:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
   keys:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M7 10h.01M11 10h.01M15 10h.01M8 14h8"/></svg>',
+  tools:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14.5 5.5a4 4 0 0 1 5 5l-8 8-5.6 1.6L7.5 14Z"/><path d="M12.5 7.5l4 4"/></svg>',
+  credits:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c0-3.6 3.1-5.5 7-5.5s7 1.9 7 5.5"/></svg>',
   movies:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5"/><path d="M7.5 4.5v15M16.5 4.5v15M2.5 12h19M2.5 8.2h5M2.5 15.8h5M16.5 8.2h5M16.5 15.8h5"/></svg>',
   dots:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>',
   link:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1"/></svg>',
@@ -1147,7 +1247,9 @@ function svgIcon(name,extra){return (ICON[name]||"").replace("<svg ",`<svg ${ext
    5. TABS
    ============================================================ */
 let tabs=[{id:"chat",type:"chat"},{id:"games",type:"games"},{id:"launcher",type:"tool",label:"Proxy"},{id:"notes",type:"tool",label:"Notes"},{id:"stats",type:"tool",label:"Stats"},{id:"keys",type:"tool",label:"Shortcuts"},
-{id:"movies",type:"tool",label:"Movies"}];
+{id:"movies",type:"tool",label:"Movies"},
+{id:"tools",type:"tool",label:"Tools"},
+{id:"credits",type:"tool",label:"Credits"}];
 let activeId="chat";
 const panes={};
 const tabbar=$("tabbar");
@@ -1174,9 +1276,28 @@ function tabIcon(tab){
   return box;
 }
 
+let dragId=null;
+function applyTabOrder(){
+  try{
+    const order=JSON.parse(localStorage.getItem(LS.tabOrder)||"[]");
+    if(!Array.isArray(order)||!order.length)return;
+    const byId={};
+    tabs.forEach(t=>byId[t.id]=t);
+    const known=order.map(id=>byId[id]).filter(Boolean);
+    /* anything the saved order does not mention keeps its relative position */
+    const missing=tabs.filter(t=>known.indexOf(t)<0);
+    const pinned=missing.filter(t=>t.type!=="game");
+    const games=missing.filter(t=>t.type==="game");
+    tabs=known.slice(0,2).concat(known.slice(2).filter(t=>t.type==="game"),pinned,known.slice(2).filter(t=>t.type!=="game"),games);
+  }catch(e){}
+}
+function saveTabOrder(){
+  try{localStorage.setItem(LS.tabOrder,JSON.stringify(tabs.map(t=>t.id)))}catch(e){}
+}
 function renderTabs(){
   tabbar.innerHTML="";
   tabs.forEach(t=>{
+    t.el=undefined;
     const el=document.createElement("div");
     el.className="tab"+(t.id===activeId?" active":"")+(t.flash?" flash":"");
     if(t.flash)delete t.flash;
@@ -1203,6 +1324,40 @@ function renderTabs(){
       el.appendChild(x);
     }
     el.onclick=()=>setTab(t.id);
+    el.draggable=true;
+    el.title+=" - drag to rearrange";
+    el.addEventListener("dragstart",e=>{
+      dragId=t.id;
+      el.classList.add("dragging");
+      try{ e.dataTransfer.setData("text/plain",t.id); e.dataTransfer.effectAllowed="move"; }catch(err){}
+    });
+    el.addEventListener("dragend",()=>{
+      dragId=null;
+      Array.prototype.forEach.call(tabbar.querySelectorAll(".tab"),function(x){x.classList.remove("dragging","dropbefore","dropafter")});
+    });
+    el.addEventListener("dragover",e=>{
+      if(!dragId||dragId===t.id)return;
+      e.preventDefault();
+      try{e.dataTransfer.dropEffect="move"}catch(err){}
+      const r=el.getBoundingClientRect();
+      const after=(e.clientX-r.left)>r.width/2;
+      Array.prototype.forEach.call(tabbar.querySelectorAll(".tab"),function(x){x.classList.remove("dropbefore","dropafter")});
+      el.classList.add(after?"dropafter":"dropbefore");
+    });
+    el.addEventListener("drop",e=>{
+      e.preventDefault();
+      if(!dragId||dragId===t.id)return;
+      const from=tabs.findIndex(x=>x.id===dragId);
+      if(from<0)return;
+      const moved=tabs.splice(from,1)[0];
+      let to=tabs.findIndex(x=>x.id===t.id);
+      const r=el.getBoundingClientRect();
+      if((e.clientX-r.left)>r.width/2)to++;
+      tabs.splice(to,0,moved);
+      saveTabOrder();
+      renderTabs();
+      setTab(moved.id);
+    });
     tabbar.appendChild(el);
   });
   const add=document.createElement("div");
@@ -1227,6 +1382,8 @@ function setTab(id){
     if(t.id==="stats")renderStats();
     if(t.id==="keys")renderKeys();
     if(t.id==="movies")renderMovies();
+    if(t.id==="tools")renderTools();
+    if(t.id==="credits")renderCredits();
   }
   if(t.type==="games"){
     $("viewGames").classList.add("active");
@@ -1346,6 +1503,35 @@ async function loadGameInto(p){
     p.root.appendChild(f);
     p.iframe=f;p.loaded=true;
     l.innerHTML='<div style="max-width:420px">too big to bundle, so this one streams from the source.<br><span style="color:#333">needs a connection.</span></div>';
+    return;
+  }
+
+  const remote=remoteTarget(html);
+  if(remote){
+    /* the wrapper has no game of its own - go straight to where it points */
+    const f=document.createElement("iframe");
+    f.className="pane-frame";
+    f.setAttribute("allow","autoplay; fullscreen; gamepad; clipboard-read; clipboard-write");
+    f.title=g.name;
+    f.src=remote;
+    p.root.appendChild(f);
+    p.iframe=f;
+    p.loaded=true;
+    l.innerHTML="";
+    const box=document.createElement("div");
+    box.style.cssText="max-width:420px;text-align:center";
+    const t=document.createElement("div");
+    t.textContent=g.name+" is hosted elsewhere, so it needs a connection.";
+    const b=document.createElement("button");
+    b.className="small-btn";
+    b.style.marginTop="12px";
+    b.textContent="open it in a new tab";
+    b.onclick=()=>window.open(remote,"_blank","noopener");
+    box.append(t,b);
+    l.appendChild(box);
+    f.addEventListener("load",()=>{if(seq===p.seq)l.classList.add("hidden")});
+    f.addEventListener("error",()=>{if(seq===p.seq)l.classList.remove("hidden")});
+    status(g.name);
     return;
   }
 
@@ -1810,6 +1996,18 @@ function resetEverything(){
   if(!confirm("Erase every chat, favorite, playtime and exclusion stored in this browser?\n\nThis cannot be undone."))return;
   [LS.key,LS.settings,LS.sessions,LS.active,LS.favs,LS.play,LS.hidden,LS.hiddenSrc,LS.density].forEach(k=>localStorage.removeItem(k));
   location.reload();
+}
+function carouselHidden(){try{return localStorage.getItem(LS.carousel)==="off"}catch(e){return false}}
+function moodsHidden(){try{return localStorage.getItem(LS.moods)==="off"}catch(e){return false}}
+function applyChrome(){
+  const car=$("carousel");
+  if(car)car.classList.toggle("hidden",carouselHidden());
+  const g=$("gridToggle");
+  if(g)g.textContent="Featured row: "+(carouselHidden()?"off":"on");
+  const m=$("moods");
+  if(m)m.classList.toggle("hidden",moodsHidden());
+  const mb=$("moodToggle");
+  if(mb)mb.textContent="Mood chips: "+(moodsHidden()?"off":"on");
 }
 function renderMoods(){
   const box=$("moods");
@@ -3330,6 +3528,8 @@ function populateModels(){
 }
 
 function openSettings(){
+  applyMotion();
+  applyChrome();
   renderSettingsThemes();
   themeEditor();
   $("apiKey").value=apiKey;
@@ -3362,6 +3562,43 @@ $("settingsOverlay").onclick=e=>{if(e.target===$("settingsOverlay"))closeSetting
 $("modelButton").onclick=()=>{populateModels();$("modelsOverlay").classList.add("show")};
 $("closeModels").onclick=()=>{$("modelsOverlay").classList.remove("show")};
 $("modelsOverlay").onclick=e=>{if(e.target===$("modelsOverlay"))$("modelsOverlay").classList.remove("show")};
+$("themeFind").oninput=()=>paintThemeSwatches();
+$("accentPick").oninput=e=>{
+  try{localStorage.setItem(LS.accent,e.target.value)}catch(err){}
+  paintAccent();
+};
+$("accentClear").onclick=()=>{
+  try{localStorage.removeItem(LS.accent)}catch(err){}
+  paintAccent();
+};
+$("uiScale").value=uiScale();
+$("uiScale").oninput=e=>{
+  const v=Number(e.target.value);
+  try{localStorage.setItem(LS.scale,v)}catch(err){}
+  $("uiScaleHint").textContent=v+"%";
+  applyScale();
+};
+$("motionToggle").onclick=()=>{
+  try{localStorage.setItem(LS.motion,motionOff()?"on":"off")}catch(err){}
+  applyMotion();
+};
+$("resetTabs").onclick=()=>{
+  if(!confirm("Put the tabs back in their original order?"))return;
+  try{localStorage.removeItem(LS.tabOrder)}catch(err){}
+  applyTabOrder();
+  renderTabs();
+  toast("tab order reset");
+};
+$("gridToggle").onclick=()=>{
+  const on=carouselHidden();
+  try{localStorage.setItem(LS.carousel,on?"on":"off")}catch(err){}
+  applyChrome();
+};
+$("moodToggle").onclick=()=>{
+  const on=moodsHidden();
+  try{localStorage.setItem(LS.moods,on?"on":"off")}catch(err){}
+  applyChrome();
+};
 $("temperature").oninput=e=>{$("tempValue").textContent=e.target.value};
 $("maxTokens").oninput=e=>{$("tokensValue").textContent=e.target.value};
 $("persona").oninput=e=>{$("personaLen").textContent=e.target.value.length+" chars"};
@@ -3575,7 +3812,22 @@ const BUILTIN_THEMES=[
   deriveTheme("Nord","#2e3440","#3b4252","#4c566a","#eceff4","#8f9bb3","#88c0d0","#ebcb8b"),
   deriveTheme("Solarized","#002b36","#073642","#0f4b5a","#eee8d5","#7d9a9f","#cb4b16","#b58900"),
   deriveTheme("Dracula","#1e1f29","#282a36","#3b3d४".replace("४","4"),"#f8f8f2","#8b95b8","#ff79c6","#f1fa8c"),
-  deriveTheme("Paper","#f4f2ee","#e8e5df","#d2cec6","#22242a","#6f7280","#c2410c","#a16207")
+  deriveTheme("Paper","#f4f2ee","#e8e5df","#d2cec6","#22242a","#6f7280","#c2410c","#a16207"),
+  deriveTheme("Incognito","#0a0705","#160f09","#2b1c0f","#f6ead9","#a08a72","#ff7a18","#e3b23c"),
+  deriveTheme("Catppuccin","#1e1e2e","#181825","#313244","#cdd6f4","#9399b2","#cba6f7","#f9e2af"),
+  deriveTheme("Tokyo","#1a1b26","#24283b","#414868","#c0caf5","#7982a9","#7aa2f7","#e0af68"),
+  deriveTheme("Gruvbox","#282828","#32302f","#504945","#ebdbb2","#a89984","#fabd2f","#8ec07c"),
+  deriveTheme("One Dark","#282c34","#21252b","#3e4451","#abb2bf","#7c848e","#61afef","#e5c07b"),
+  deriveTheme("Monokai","#272822","#1e1f1c","#49483e","#f8f8f2","#75715e","#f92672","#e6db74"),
+  deriveTheme("Ayu","#0b0e14","#11151d","#1c2128","#e6e1cf","#8b9199","#ffcc66","#5ccfe6"),
+  deriveTheme("Nord Light","#f2f4f8","#e5e9f0","#d8dee9","#2e3440","#7b88a1","#5e81ac","#b48ead"),
+  deriveTheme("Solar Light","#fdf6e3","#eee8d5","#ddd6c1","#586e75","#93a1a1","#cb4b16","#268bd2"),
+  deriveTheme("Bloom","#12090f","#1e1018","#331824","#ffeaf4","#b98fa6","#ff5c8a","#f2c14e"),
+  deriveTheme("Cyan","#031417","#072126","#0f3b44","#dff6f8","#7fa9b1","#2ec4b6","#ffd166"),
+  deriveTheme("Ink","#14161c","#1c1f27","#2b3040","#e8ebf5","#8b93a7","#6ea8fe","#f2c14e"),
+  deriveTheme("Amber","#0c0803","#171004","#2f220c","#ffeccd","#a8926a","#ffab2e","#5ac8b0"),
+  deriveTheme("Vapor","#170f24","#221633","#3a2750","#f4e9ff","#a48cb8","#ff7ad9","#7ef9d3"),
+  deriveTheme("Slate Light","#f5f6f8","#e7e9ee","#ccd1da","#1e2228","#69707d","#3d5afe","#8e6b00"),
 ];
 
 BUILTIN_THEMES.forEach(function(t){
@@ -3596,6 +3848,69 @@ function allThemes(){
 function findTheme(id){
   return allThemes().filter(function(t){return t.id===id})[0]||BUILTIN_THEMES[0];
 }
+function hexToRgb(h){
+  h=String(h||"").replace("#","");
+  if(h.length===3)h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  const n=parseInt(h,16);
+  return isNaN(n)?{r:255,g:255,b:255}:{r:(n>>16)&255,g:(n>>8)&255,b:n&255};
+}
+function rgbToHex(r,g,b){
+  const p=v=>("0"+Math.max(0,Math.min(255,Math.round(v))).toString(16)).slice(-2);
+  return "#"+p(r)+p(g)+p(b);
+}
+function mix(a,b,amt){
+  const A=hexToRgb(a),B=hexToRgb(b);
+  return rgbToHex(A.r+(B.r-A.r)*amt,A.g+(B.g-A.g)*amt,A.b+(B.b-A.b)*amt);
+}
+function savedAccent(){try{return localStorage.getItem(LS.accent)||""}catch(e){return ""}}
+function paintAccent(){
+  const root=document.documentElement;
+  const cur=savedAccent();
+  if(cur){
+    /* keep the theme's own accent for the derived shades it defines */
+    const base=findTheme(currentThemeId());
+    const hot=(base.v&&base.v["--hot"])||BUILTIN_BLACK["--hot"]||"#ff5c8a";
+    root.style.setProperty("--hot",cur);
+    root.style.setProperty("--hot2",mix(cur,"#ffffff",.16));
+    root.style.setProperty("--hot3",mix(cur,base.v&&base.v["--bg"]?base.v["--bg"]:"#000000",.55));
+  }else{
+    /* the theme set these inline, so put its own values back rather than removing them */
+    const b=findTheme(currentThemeId());
+    const v=(b&&b.v)||BUILTIN_BLACK;
+    root.style.setProperty("--hot",v["--hot"]||"#ff5c8a");
+    root.style.setProperty("--hot2",v["--hot2"]||v["--hot"]||"#ff5c8a");
+    root.style.setProperty("--hot3",v["--hot3"]||v["--hot"]||"#ff5c8a");
+  }
+  const pick=$("accentPick");
+  if(pick){
+    const b=findTheme(currentThemeId());
+    pick.value=cur||((b.v&&b.v["--hot"])||BUILTIN_BLACK["--hot"]||"#ff5c8a");
+  }
+}
+function uiScale(){
+  let v=100;
+  try{v=Number(localStorage.getItem(LS.scale))||100}catch(e){}
+  v=Math.max(80,Math.min(140,v));
+  return v;
+}
+function applyScale(){
+  const v=uiScale();
+  const z=v/100;
+  const app=document.querySelector(".app");
+  if(app){
+    app.style.zoom=z;
+    app.style.height=(100/z)+"vh";
+  }
+  document.body.style.minWidth=(100/z)+"%";
+  const h=$("uiScaleHint");
+  if(h)h.textContent=v+"%";
+}
+function motionOff(){try{return localStorage.getItem(LS.motion)==="off"}catch(e){return false}}
+function applyMotion(){
+  document.documentElement.classList.toggle("nomotion",motionOff());
+  const b=$("motionToggle");
+  if(b)b.textContent="Animations: "+(motionOff()?"off":"on");
+}
 function applyTheme(id,save){
   const t=findTheme(id);
   const root=document.documentElement;
@@ -3612,6 +3927,7 @@ function applyTheme(id,save){
   if(save!==false){try{localStorage.setItem(LS.themeId,id)}catch(e){}}
   const meta=$("themeName");
   if(meta)meta.textContent=t.name;
+  paintAccent();
   paintThemeSwatches();
   const sel=$("themeSelect");
   if(sel)sel.value=id;
@@ -3620,8 +3936,10 @@ function currentThemeId(){return localStorage.getItem(LS.themeId)||"black"}
 function paintThemeSwatches(){
   const box=$("themeSwatches");
   if(!box)return;
+  const q=($("themeFind")&&$("themeFind").value||"").trim().toLowerCase();
+  const hits=allThemes().filter(function(t){return !q||t.name.toLowerCase().indexOf(q)>-1});
   box.innerHTML="";
-  allThemes().forEach(function(t){
+  hits.forEach(function(t){
     const b=document.createElement("button");
     b.className="swatch"+(t.id===currentThemeId()?" on":"");
     b.title=t.name;
@@ -3634,6 +3952,12 @@ function paintThemeSwatches(){
     b.onclick=function(){applyTheme(t.id)};
     box.appendChild(b);
   });
+  if(!hits.length){
+    const e=document.createElement("div");
+    e.className="excl-empty";
+    e.textContent="no theme matches that.";
+    box.appendChild(e);
+  }
 }
 const BUILTIN_BLACK={"--bg":"#050505","--bgA":"#1a1a1a","--ln1":"#1c1c1c","--tx1":"#eee","--mut2":"#8a8a8a","--hot":"#ff4b2b"};
 function deleteMyTheme(id){
@@ -3833,44 +4157,125 @@ function renderProxy(){
 }
 
 /* ---------------- notes ---------------- */
-let notes=localStorage.getItem(LS.notes)||"";
+let books=(function(){
+  try{
+    const r=JSON.parse(localStorage.getItem(LS.books)||"null");
+    if(r&&typeof r==="object"&&Object.keys(r).length)return r;
+  }catch(e){}
+  return {main:(localStorage.getItem(LS.notes)||"")};
+})();
+let bookSel=localStorage.getItem(LS.notesSel)||"main";
+if(!books[bookSel])bookSel=Object.keys(books)[0];
 let noteTimer=null;
+function currentNote(){return books[bookSel]||""}
+function setNote(v){
+  books[bookSel]=v;
+  clearTimeout(noteTimer);
+  noteTimer=setTimeout(saveNotes,300);
+}
+function saveNotes(){
+  try{
+    localStorage.setItem(LS.books,JSON.stringify(books));
+    localStorage.setItem(LS.notesSel,bookSel);
+    localStorage.setItem(LS.notes,currentNote());
+  }catch(e){}
+}
+function noteMeta(t){
+  t=t||currentNote();
+  const w=t.trim()?t.trim().split(/\s+/).length:0;
+  return w+" word"+(w===1?"":"s")+" · "+t.length+" characters"+(w?" · "+Math.max(1,Math.round(w/200))+" min read":"");
+}
 function renderNotes(){
   const box=$("notesBody");
   box.innerHTML="";
   const inner=document.createElement("div");
   inner.className="tool-inner";
+
   const head=document.createElement("div");
   head.className="tool-head";
-  head.innerHTML="<h2>Notes</h2><p>scratchpad, saved as you type</p>";
+  head.innerHTML="<h2>Notes</h2><p>notebooks, saved as you type</p>";
   inner.appendChild(head);
+
+  /* notebook strip */
+  const strip=document.createElement("div");
+  strip.className="chiprow";
+  strip.style.marginTop="14px";
+  Object.keys(books).forEach(function(name){
+    const b=document.createElement("button");
+    b.className="chip"+(name===bookSel?" on":"");
+    b.textContent=name;
+    b.onclick=function(){
+      if(name===bookSel)return;
+      bookSel=name;saveNotes();renderNotes();
+    };
+    b.ondblclick=function(){
+      if(Object.keys(books).length<2)return;
+      const nn=prompt("New notebook name","notes "+(Object.keys(books).length+1));
+      if(!nn)return;
+      books[nn.trim()]=books[name];
+      if(name===bookSel){bookSel=nn.trim();books[name]="";}
+      delete books[name];
+      saveNotes();renderNotes();
+    };
+    b.title="double click to rename or split";
+    strip.appendChild(b);
+  });
+  const addB=document.createElement("button");
+  addB.className="chip";
+  addB.textContent="+ notebook";
+  addB.onclick=function(){
+    const nn=prompt("Name it","notes "+(Object.keys(books).length+1));
+    if(!nn)return;
+    books[nn.trim()]="";
+    bookSel=nn.trim();saveNotes();renderNotes();
+    const ta=$("notePad");if(ta)ta.focus();
+  };
+  strip.appendChild(addB);
+  if(Object.keys(books).length>1){
+    const delB=document.createElement("button");
+    delB.className="chip";
+    delB.textContent="delete this notebook";
+    delB.onclick=function(){
+      if(!confirm("Delete "+bookSel+"?"))return;
+      delete books[bookSel];
+      bookSel=Object.keys(books)[0];
+      saveNotes();renderNotes();
+    };
+    strip.appendChild(delB);
+  }
+  inner.appendChild(strip);
+
+  /* toolbar */
+  const bar=document.createElement("div");
+  bar.className="chiprow";
+  bar.style.marginTop="10px";
+  const find=document.createElement("input");
+  find.className="sess-search";
+  find.id="noteFind";
+  find.placeholder="search this notebook";
+  find.style.maxWidth="240px";
+  const counters=document.createElement("span");
+  counters.className="hint";
+  counters.id="noteCount";
+  counters.textContent=noteMeta();
+  bar.append(find,counters);
+  inner.appendChild(bar);
 
   const ta=document.createElement("textarea");
   ta.className="notepad";
   ta.id="notePad";
-  ta.placeholder="anything you want to keep - half a thought, a plan, a snippet. it stays in this browser.";
-  ta.value=notes;
+  ta.placeholder="anything worth keeping. start a line with [ ] to make it a tick box.";
+  ta.value=currentNote();
   ta.oninput=function(){
-    notes=ta.value;
-    const c=$("noteCount");
-    if(c)c.textContent=noteMeta();
-    clearTimeout(noteTimer);
-    noteTimer=setTimeout(function(){
-      try{localStorage.setItem(LS.notes,notes)}catch(e){}
-    },350);
+    setNote(ta.value);
+    counters.textContent=noteMeta();
   };
   inner.appendChild(ta);
 
-  const meta=document.createElement("div");
-  meta.className="hint";
-  meta.style.marginTop="8px";
-  meta.id="noteCount";
-  meta.textContent=noteMeta();
-  inner.appendChild(meta);
-
+  /* actions */
   const row=document.createElement("div");
   row.className="chiprow";
-  [["Summarize this","summarize"],["Make a checklist","turn my notes into a checklist"],
+  [["Summarize","summarize this notebook"],["Make a checklist","turn my notes into a checklist"],
    ["Clean this up","rewrite these notes so they are clear and tidy"],
    ["What did I miss","what questions are left unanswered in these notes"]].forEach(function(x){
     const b=document.createElement("button");
@@ -3879,29 +4284,100 @@ function renderNotes(){
     b.onclick=function(){askAboutNotes(x[1])};
     row.appendChild(b);
   });
+  const stamp=document.createElement("button");
+  stamp.className="chip";
+  stamp.textContent="Insert time";
+  stamp.onclick=function(){
+    const cur=ta.selectionStart||ta.value.length;
+    const before=ta.value.slice(0,cur);
+    const nl=before.length&&!/\n$/.test(before)?"\n":"";
+    const ins=nl+new Date().toLocaleString()+" - ";
+    ta.value=ta.value.slice(0,cur)+ins+ta.value.slice(cur);
+    setNote(ta.value);
+    counters.textContent=noteMeta();
+    ta.focus();
+    ta.selectionStart=ta.selectionEnd=cur+ins.length;
+  };
+  row.appendChild(stamp);
+  const copyB=document.createElement("button");
+  copyB.className="chip";
+  copyB.textContent="Copy all";
+  copyB.onclick=function(){copyText(ta.value,"copied");toast("notebook copied")};
+  const dlB=document.createElement("button");
+  dlB.className="chip";
+  dlB.textContent="Export .md";
+  dlB.onclick=function(){
+    const n=bookSel.replace(/[^a-z0-9 _-]/gi,"").trim().replace(/\s+/g,"-").toLowerCase()||"notes";
+    downloadFile("# "+bookSel+"\n\n"+ta.value+"\n","orbit-"+n+".md","text/markdown");
+    toast("exported");
+  };
   const clr=document.createElement("button");
   clr.className="chip";
   clr.textContent="Clear";
   clr.onclick=function(){
-    if(!notes.trim())return;
-    if(!confirm("Delete everything in the notepad?"))return;
-    notes="";try{localStorage.removeItem(LS.notes)}catch(e){}
-    ta.value="";meta.textContent=noteMeta();
+    if(!ta.value.trim())return;
+    if(!confirm("Empty "+bookSel+"?"))return;
+    ta.value="";setNote("");counters.textContent=noteMeta();
   };
-  row.appendChild(clr);
+  row.append(copyB,dlB,clr);
   inner.appendChild(row);
+
+  /* the tick boxes, rendered from the text */
+  const boxWrap=document.createElement("div");
+  boxWrap.id="noteBoxWrap";
+  boxWrap.style.marginTop="14px";
+  inner.appendChild(boxWrap);
+
+  function paintBoxes(){
+    const q=(find.value||"").trim().toLowerCase();
+    boxWrap.innerHTML="";
+    const lines=ta.value.split("\n");
+    let shown=0;
+    lines.forEach(function(line,i){
+      const m=line.match(/^\s*(?:[-*]\s*)?\[( |x|X)\]\s*(.*)$/);
+      const isBox=!!m;
+      if(q&&line.toLowerCase().indexOf(q)===-1)return;
+      if(isBox){
+        const rowEl=document.createElement("label");
+        rowEl.className="note-box"+(m[1].toLowerCase()==="x"?" done":"");
+        const cb=document.createElement("input");
+        cb.type="checkbox";
+        cb.checked=m[1].toLowerCase()==="x";
+        const tx=document.createElement("span");
+        tx.textContent=m[2]||"(untitled)";
+        rowEl.append(cb,tx);
+        rowEl.onclick=function(ev){
+          if(ev.target!==cb)ev.preventDefault();
+        };
+        cb.onchange=function(){
+          const ls=ta.value.split("\n");
+          ls[i]=ls[i].replace(/^(\s*(?:[-*]\s*)?)\[[ xX]\]/,"$1["+(cb.checked?"x":" ")+"]");
+          ta.value=ls.join("\n");
+          setNote(ta.value);
+          counters.textContent=noteMeta();
+          rowEl.classList.toggle("done",cb.checked);
+        };
+        boxWrap.appendChild(rowEl);
+        shown++;
+      }
+    });
+    if(!shown){
+      const e=document.createElement("div");
+      e.className="excl-empty";
+      e.textContent=q?"nothing matches that.":"no tick boxes here - write a line starting with [ ] and it shows up in this list.";
+      boxWrap.appendChild(e);
+    }
+  }
+  paintBoxes();
+  ta.addEventListener("input",paintBoxes);
+  find.addEventListener("input",paintBoxes);
 
   box.appendChild(inner);
 }
-function noteMeta(){
-  const w=notes.trim()?notes.trim().split(/\s+/).length:0;
-  return w+" word"+(w===1?"":"s")+" · "+notes.length+" characters";
-}
 function askAboutNotes(ask){
-  if(!notes.trim()){toast("nothing in the notepad yet");return}
-  const q=ask+"\n\n---\n"+notes.trim();
+  if(!currentNote().trim()){toast("nothing in this notebook yet");return}
   setTab("chat");
-  $("input").value=q;
+  $("input").value=ask+"\n\n---\n"+currentNote().trim();
   resizeInput();
   $("input").focus();
   toast("sent - hit enter to ask");
@@ -4007,6 +4483,177 @@ function loadMovies(){
     moviesErr="could not load it - "+String(e.message||e).slice(0,80);
     renderMovies();
   });
+}
+
+/* ---------------- tools ----------------
+   small offline converters. nothing here leaves the machine. */
+const TOOLS=[
+  {id:"case",name:"Change case",hint:"upper, lower, title, sentence, camel, kebab, snake",
+   fn:function(s){
+     var out=[];
+     out.push(["UPPER",s.toUpperCase()]);
+     out.push(["lower",s.toLowerCase()]);
+     out.push(["Title Case",s.replace(/\w\S*/g,function(t){return t.charAt(0).toUpperCase()+t.slice(1).toLowerCase()})]);
+     out.push(["Sentence case",s.toLowerCase().replace(/(^\s*\w)|([.;!?]\s+\w)/g,function(m){return m.toUpperCase()})]);
+     out.push(["camelCase",s.replace(/[^a-zA-Z0-9]+(.)?/g,function(m,c){return c?c.toUpperCase():""}).replace(/^[A-Z]/,function(c){return c.toLowerCase()})]);
+     out.push(["kebab-case",s.trim().replace(/\s+/g,"-").toLowerCase()]);
+     out.push(["snake_case",s.trim().replace(/\s+/g,"_").toLowerCase()]);
+     return out;
+   }},
+  {id:"b64",name:"Base 64",hint:"encode or decode, either way round",
+   fn:function(s){
+     var out=[];
+     var trim=s.replace(/\s+/g,"");
+     try{ out.push(["encoded",btoa(unescape(encodeURIComponent(s)))]); }catch(e){}
+     try{ out.push(["decoded",decodeURIComponent(escape(atob(trim)))]); }catch(e){ out.push(["decoded","(not valid base64)"]); }
+     return out;
+   }},
+  {id:"url",name:"URL",hint:"percent-encode or decode",
+   fn:function(s){
+     var out=[];
+     try{ out.push(["encoded",encodeURIComponent(s)]); }catch(e){}
+     try{ out.push(["decoded",decodeURIComponent(s.replace(/\+/g," "))]); }catch(e){ out.push(["decoded","(not valid encoding)"]); }
+     return out;
+   }},
+  {id:"json",name:"JSON",hint:"pretty print, or compact",
+   fn:function(s){
+     var out=[];
+     try{ out.push(["pretty",JSON.stringify(JSON.parse(s),null,2)]); }catch(e){ out.push(["pretty","(invalid json - "+e.message.slice(0,60)+")"]); }
+     try{ out.push(["keys",Object.keys(JSON.parse(s)).join(", ")]); }catch(e){}
+     return out;
+   }},
+  {id:"hash",name:"Hash",hint:"a quick fingerprint of the text, not for passwords",
+   fn:function(s){
+     var h1=0x811c9dc5,h2=0x01000193;
+     for(var i=0;i<s.length;i++){h1^=s.charCodeAt(i);h1=Math.imul(h1,16777619)>>>0;}
+     for(var j=s.length-1;j>=0;j--){h2=(Math.imul(h2^s.charCodeAt(j),2654435761))>>>0;}
+     return [["length",s.length+" characters"],["fnv1a",("00000000"+h1.toString(16)).slice(-8)],
+             ["fnv1a-alt",("00000000"+h2.toString(16)).slice(-8)]];
+   }},
+  {id:"count",name:"Counter",hint:"words, characters, reading time",
+   fn:function(s){
+     var words=s.trim()?s.trim().split(/\s+/).length:0;
+     return [["words",words],["characters",s.length],["no spaces",s.replace(/\s/g,"").length],
+             ["lines",s?s.split(/\n/).length:0],
+             ["sentences",(s.match(/[.!?]+/g)||[]).length],
+             ["reading time",words?Math.max(1,Math.round(words/200))+" min":0]];
+   }},
+  {id:"html",name:"Strip HTML",hint:"tags out, entities decoded",
+   fn:function(s){
+     var t=s.replace(/<script[\s\S]*?<\/script>/gi,"").replace(/<style[\s\S]*?<\/style>/gi,"")
+            .replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim();
+     var dec=t.replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&amp;/g,"&").replace(/&quot;/g,'"').replace(/&#39;/g,"'");
+     return [["text",dec],["was",s.length+" characters"]];
+   }},
+  {id:"uni",name:"Escape codes",hint:"text to \\u form and back",
+   fn:function(s){
+     var esc=Array.from(s).map(function(c){var n=c.codePointAt(0);
+       return n<128?c:"\\u"+n.toString(16).padStart(4,"0")}).join("");
+     return [["escaped",esc||"(nothing to escape)"],
+             ["unescaped",(function(){try{return JSON.parse('"'+esc.replace(/"/g,'\\"')+'"')}catch(e){return "(no escapes found)"}})()]];
+   }}
+];
+function renderTools(){
+  const box=$("toolsBody");
+  box.innerHTML="";
+  const inner=document.createElement("div");
+  inner.className="tool-inner";
+  const head=document.createElement("div");
+  head.className="tool-head";
+  head.innerHTML="<h2>Tools</h2><p>offline converters - nothing here is sent anywhere</p>";
+  inner.appendChild(head);
+
+  const cols=document.createElement("div");
+  cols.className="tool-cols";
+  TOOLS.forEach(function(t){
+    const card=document.createElement("div");
+    card.className="tcard";
+    const h=document.createElement("h3");
+    h.textContent=t.name;
+    const hint=document.createElement("p");
+    hint.className="hint";
+    hint.textContent=t.hint;
+    const ta=document.createElement("textarea");
+    ta.placeholder="paste or type something";
+    ta.id="tin-"+t.id;
+    const out=document.createElement("div");
+    out.className="tout";
+    out.id="tout-"+t.id;
+    const run=function(){
+      const v=ta.value;
+      if(!v){ out.textContent=""; return; }
+      let rows=[];
+      try{ rows=t.fn(v) }catch(e){ rows=[["error",String(e.message||e).slice(0,70)]] }
+      out.textContent=rows.map(function(r){return r[0]+"  ·  "+r[1]}).join("\n\n");
+    };
+    ta.addEventListener("input",run);
+    const acts=document.createElement("div");
+    acts.className="chiprow";
+    const paste=document.createElement("button");
+    paste.className="chip";
+    paste.textContent="Paste";
+    paste.onclick=function(){
+      if(!navigator.clipboard)return;
+      navigator.clipboard.readText().then(function(x){ta.value=x;run()}).catch(function(){toast("clipboard blocked - ctrl+v instead")});
+    };
+    const copy=document.createElement("button");
+    copy.className="chip";
+    copy.textContent="Copy result";
+    copy.onclick=function(){copyText(out.textContent,"copied");toast("copied")};
+    acts.append(paste,copy);
+    card.append(h,hint,ta,out,acts);
+    cols.appendChild(card);
+  });
+  inner.appendChild(cols);
+  box.appendChild(inner);
+}
+
+/* ---------------- credits ---------------- */
+function renderCredits(){
+  const box=$("creditsBody");
+  box.innerHTML="";
+  const inner=document.createElement("div");
+  inner.className="tool-inner";
+
+  const hero=document.createElement("div");
+  hero.className="credit-hero";
+  hero.innerHTML='<p class="big">orbit</p>'+
+    '<p class="sub">'+CATALOG.length+' games and a full assistant, in one file that works offline</p>';
+  inner.appendChild(hero);
+
+  const made=document.createElement("div");
+  made.style.textAlign="center";
+  made.innerHTML='<div class="credit-name"><span class="who">Idk Bro</span>'+
+    '<span class="note">built this</span></div>'+
+    '<div class="credit-name cool"><span class="who">Billy</span>'+
+    '<span class="note">Billy is cool</span></div>';
+  inner.appendChild(made);
+
+  const sec=document.createElement("div");
+  sec.className="credit-sec";
+  sec.innerHTML='<div class="sec-title">what is in here</div>'+
+    '<div class="credit-row"><span class="k">Games</span><span class="v">'+CATALOG.length+
+      ' titles across four collections, playable offline</span></div>'+
+    '<div class="credit-row"><span class="k">Assistant</span><span class="v">Groq, with chat history, '+
+      'session memory, maths rendering and sources</span></div>'+
+    '<div class="credit-row"><span class="k">Storage</span><span class="v">localStorage only - '+
+      'nothing leaves this browser except the model request</span></div>'+
+    '<div class="credit-row"><span class="k">Themes</span><span class="v">'+
+      BUILTIN_THEMES.length+' built in, plus your own</span></div>'+
+    '<div class="credit-row"><span class="k">Credits to</span><span class="v">everyone who made the '+
+      'games, and the folks who built orbit</span></div>';
+  inner.appendChild(sec);
+
+  const tip=document.createElement("div");
+  tip.className="credit-sec";
+  tip.innerHTML='<div class="sec-title">tips</div>'+
+    '<div class="credit-row"><span class="k">Right click a tab</span>'+
+    '<span class="v">drag it along the bar to rearrange - the order sticks</span></div>'+
+    '<div class="credit-row"><span class="k">?</span><span class="v">every keyboard shortcut</span></div>'+
+    '<div class="credit-row"><span class="k">T</span><span class="v">converters live in the Tools tab</span></div>';
+  inner.appendChild(tip);
+
+  box.appendChild(inner);
 }
 
 /* ---------------- stats ---------------- */
@@ -4116,6 +4763,8 @@ const KEYS=[
   [["Ctrl","L"],"back to the composer"],
   [["Ctrl","Alt","N"],"new chat"],
   [["M"],"open the movies tab"],
+  [["T"],"open the tools tab"],
+  [["C"],"open the credits tab"],
   [["P"],"open the proxy tab"],
   [["Enter"],"load the address in the proxy"],
   [["Ctrl","1"],["Ctrl","9"],"switch tab"],
@@ -4305,6 +4954,16 @@ document.addEventListener("keydown",e=>{
     setTab("notes");
     return;
   }
+  if(!typing&&(e.key==="c"||e.key==="C")){
+    e.preventDefault();
+    setTab("credits");
+    return;
+  }
+  if(!typing&&(e.key==="t"||e.key==="T")){
+    e.preventDefault();
+    setTab("tools");
+    return;
+  }
   if(!typing&&(e.key==="m"||e.key==="M")){
     e.preventDefault();
     setTab("movies");
@@ -4341,7 +5000,12 @@ document.addEventListener("keydown",e=>{
 
 applyTheme(currentThemeId(),false);
 $("favCount").textContent=favorites.length;
+applyScale();
+applyMotion();
+applyChrome();
+applyTabOrder();
 renderTabs();
+paintAccent();
 buildFeatured();
 renderMoods();
 renderGrid(true);
