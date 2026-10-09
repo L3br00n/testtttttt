@@ -1,1 +1,1647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#08090b">
+<meta name="color-scheme" content="dark">
+<title>ORBIT</title>
+<meta name="description" content="ORBIT - play hundreds of zones, and ask Orbit anything. Maths, questions, images, and a full assistant that lives next to the games.">
+<meta property="og:title" content="ORBIT">
+<meta property="og:description" content="Zones, an assistant that reads images, maths, questions, and a browser. One page.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Staatliches&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2308090b'/%3E%3Ccircle cx='16' cy='16' r='4.6' fill='%23ff4b2b'/%3E%3Cellipse cx='16' cy='16' rx='11.5' ry='5' transform='rotate(-28 16 16)' stroke='%23ff4b2b' stroke-width='2' fill='none'/%3E%3Ccircle cx='25' cy='11' r='2.1' fill='%23ff4b2b'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2308090b'/%3E%3Ccircle cx='16' cy='16' r='4.6' fill='%23ff4b2b'/%3E%3Cellipse cx='16' cy='16' rx='11.5' ry='5' transform='rotate(-28 16 16)' stroke='%23ff4b2b' stroke-width='2' fill='none'/%3E%3C/svg%3E">
+<style>
+
+/* ============================================================
+   ORBIT
+   One page, four tabs, a few hundred zones and a real assistant.
+   Dark by default, with a theme you can change.
+   Every colour comes from the five variables below, so a theme is five values
+   and nothing else in this file has to know about it.
+   ============================================================ */
+:root{
+  --bg:#08090b;         /* the page */
+  --surf:#0e1013;       /* panels and cards */
+  --surf2:#15181d;      /* anything that sits on a panel */
+  --line:#1e2229;       /* hairlines */
+  --line2:#2b3038;      /* hairlines you can see */
+  --tx:#e7e9ec;         /* words */
+  --mut:#82878f;        /* fewer words */
+  --acc:#ff4b2b;        /* the one accent */
+  --accInk:#08090b;     /* words on the accent */
+  --dim:rgba(231,233,236,.045);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+html,body{margin:0;padding:0;height:100%}
+body{
+  background:var(--bg);color:var(--tx);
+  font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:14px;line-height:1.55;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:var(--acc);text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+::selection{background:var(--acc);color:var(--accInk)}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--line2);border-radius:6px;border:3px solid var(--bg)}
+::-webkit-scrollbar-thumb:hover{background:var(--mut)}
+
+/* ---------- header ---------- */
+header{position:sticky;top:0;z-index:60;background:var(--bg);
+  border-bottom:1px solid var(--line);transition:border-color .2s}
+.header-content{max-width:1560px;margin:0 auto;padding:0 20px;height:56px;
+  display:flex;align-items:center;gap:8px}
+.logo{display:flex;align-items:center;gap:9px;flex-shrink:0;cursor:pointer;
+  padding:6px 8px 6px 0;border-radius:9px;transition:background .16s;user-select:none}
+.logo:hover{background:var(--dim)}
+.logo svg{transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.logo:hover svg{transform:rotate(-22deg)}
+.logo-tag{font-family:"Staatliches",sans-serif;font-size:12px;letter-spacing:3px;color:var(--mut)}
+
+/* ---------- tabs ---------- */
+.tabs{display:flex;gap:2px;margin-left:6px}
+.tab{display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 11px;
+  border-radius:8px;border:1px solid transparent;background:transparent;
+  color:var(--mut);cursor:pointer;font-size:12.5px;font-weight:550;letter-spacing:.1px;
+  transition:color .16s,background .16s,border-color .16s;white-space:nowrap}
+.tab svg{width:15px;height:15px;flex-shrink:0;transition:transform .22s cubic-bezier(.2,.8,.2,1)}
+.tab:hover{color:var(--tx);background:var(--dim)}
+.tab:hover svg{transform:translateY(-1px)}
+.tab.on{color:var(--tx);background:var(--surf);border-color:var(--line)}
+.tab.on svg{color:var(--acc)}
+.tab .n{font-size:9px;opacity:.55;font-variant-numeric:tabular-nums}
+
+.search-container{display:flex;align-items:center;gap:6px;margin-left:auto}
+#searchBar,#sortOptions,#filterOptions,.px-url,.ct-url{
+  background:var(--surf);border:1px solid var(--line);color:var(--tx);
+  border-radius:8px;padding:8px 11px;font-size:12.5px;outline:none;
+  transition:border-color .16s,background .16s}
+#searchBar{width:min(260px,30vw)}
+#searchBar::placeholder,.px-url::placeholder,.ct-url::placeholder{color:var(--mut)}
+#searchBar:hover,#sortOptions:hover,#filterOptions:hover,.px-url:hover,.ct-url:hover{border-color:var(--line2)}
+#searchBar:focus,#sortOptions:focus,#filterOptions:focus,.px-url:focus,.ct-url:focus{border-color:var(--acc)}
+#sortOptions,#filterOptions{cursor:pointer}
+select option{background:var(--surf);color:var(--tx)}
+.control-buttons{display:flex;gap:4px;margin-left:6px}
+.control-button{width:32px;height:32px;border-radius:8px;border:1px solid transparent;
+  background:transparent;color:var(--mut);cursor:pointer;display:grid;place-items:center;
+  padding:0;transition:color .16s,background .16s,border-color .16s,transform .16s}
+.control-button svg{width:16px;height:16px;transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+.control-button:hover{color:var(--tx);background:var(--surf);border-color:var(--line)}
+.control-button:hover svg{transform:rotate(35deg)}
+.control-button:active{transform:scale(.93)}
+
+main{max-width:1560px;margin:0 auto;padding:0 20px 70px}
+.view{display:none}
+.view.on{display:block;animation:viewIn .22s cubic-bezier(.2,.8,.2,1)}
+@keyframes viewIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ---------- the line across the top ---------- */
+.rainbow-container{width:100%;overflow:hidden;height:44px;position:relative;
+  display:flex;align-items:center;justify-content:center;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 86%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 8%,#000 86%,transparent)}
+/* the line across the top. it used to slide across from off the left edge, which
+   meant the first thing on the page was a half cut off word. it sits still and
+   fades from one line to the next instead */
+.rainbow-text{font-family:"Staatliches",sans-serif;font-size:20px;white-space:nowrap;
+  display:block;margin:0;padding:0 26px;letter-spacing:1.1px;line-height:40px;
+  text-align:center;overflow:hidden;text-overflow:ellipsis;
+  background:linear-gradient(90deg,var(--mut),var(--tx) 45%,var(--acc));
+  background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;animation:quoteIn .5s ease,colorShift 9s linear infinite}
+@keyframes quoteIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+@keyframes colorShift{0%{background-position:0% center}100%{background-position:200% center}}
+
+/* ---------- zones ---------- */
+details{margin-bottom:22px}
+summary{font-family:"Staatliches",sans-serif;font-size:13px;letter-spacing:2.2px;
+  text-transform:uppercase;color:var(--mut);cursor:pointer;padding:12px 0;
+  list-style:none;transition:color .16s;user-select:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"›";display:inline-block;margin-right:8px;transition:transform .2s}
+details[open] summary::before{transform:rotate(90deg)}
+summary:hover{color:var(--tx)}
+details[open] summary{color:var(--tx)}
+
+/* the grid alice.js fills. sized like the original so the covers stay square and
+   the labels get room for two lines */
+#container,#featuredZones{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(184px,1fr));gap:14px}
+.zone-item{background:var(--surf);border:1px solid var(--line);border-radius:10px;
+  overflow:hidden;cursor:pointer;position:relative;display:flex;flex-direction:column;
+  transition:transform .18s cubic-bezier(.2,.8,.2,1),border-color .18s,background .18s}
+.zone-item::before{content:"";position:absolute;inset:0;background:var(--dim);
+  opacity:0;transition:opacity .18s;pointer-events:none;z-index:1}
+.zone-item:hover{transform:translateY(-3px);border-color:var(--line2);background:var(--surf2)}
+.zone-item:hover::before{opacity:1}
+.zone-item img{width:100%;aspect-ratio:1;object-fit:cover;display:block;
+  background:var(--surf2);transition:transform .28s cubic-bezier(.2,.8,.2,1)}
+.zone-item:hover img{transform:scale(1.035)}
+.zone-item button{width:100%;flex:1;background:transparent;color:var(--tx);border:0;
+  padding:9px 10px;min-height:58px;cursor:pointer;font-weight:550;font-size:12.5px;
+  line-height:1.35;text-align:center;transition:color .16s;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  word-break:break-word}
+.zone-item button:hover{color:var(--acc)}
+
+/* ---------- the game, full window ---------- */
+/* alice.js turns the viewer on with an inline display:block, so the frame cannot
+   rely on flex to size itself. An iframe is a replaced element, and a replaced
+   element with width:auto uses its own width instead of stretching to fill - so
+   the size has to be spelled out or the game sits in a 300x150 corner. */
+#zoneViewer{position:fixed;inset:0;z-index:200;background:#000;display:none}
+.zone-header{position:absolute;top:0;left:0;right:0;z-index:2;height:50px;
+  display:flex;align-items:center;gap:12px;padding:0 14px;
+  background:var(--surf);border-bottom:1px solid var(--line)}
+.zone-title{display:flex;align-items:center;gap:9px;min-width:0;flex:1}
+#zoneName{margin:0;font-family:"Staatliches",sans-serif;font-size:16px;letter-spacing:1.2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46vw}
+#zoneAuthor{font-size:11.5px;color:var(--mut);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;max-width:22vw}
+.zone-controls{display:flex;gap:6px;flex-shrink:0}
+.zone-controls button,.small-btn,.act{
+  padding:7px 12px;border-radius:7px;border:1px solid var(--line);background:var(--surf);
+  color:var(--tx);cursor:pointer;font-size:11.5px;font-weight:550;white-space:nowrap;
+  transition:border-color .16s,color .16s,background .16s,transform .12s}
+.zone-controls button:hover,.small-btn:hover,.act:hover{border-color:var(--acc);color:var(--acc)}
+.zone-controls button:active,.small-btn:active,.act:active{transform:scale(.97)}
+#zoneFrame{position:absolute;top:50px;left:0;width:100%;height:calc(100% - 50px);
+  border:0;background:#000;display:block}
+.info-button{background:transparent;border:0;color:var(--mut);cursor:pointer;padding:4px;
+  display:grid;place-items:center;border-radius:6px;flex-shrink:0;
+  transition:color .16s,background .16s,transform .18s}
+.info-button:hover{color:var(--acc);background:var(--dim);transform:scale(1.1)}
+
+/* ---------- popup ---------- */
+#popupOverlay{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.72);display:none;
+  align-items:center;justify-content:center;padding:20px;animation:fade .18s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.popup{background:var(--surf);border:1px solid var(--line);border-radius:12px;
+  max-width:560px;width:100%;max-height:80vh;overflow:auto;
+  animation:popIn .2s cubic-bezier(.2,.8,.2,1)}
+@keyframes popIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+.popup-header{display:flex;align-items:center;justify-content:space-between;padding:13px 17px;
+  border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--surf)}
+.popup-header h3{margin:0;font-family:"Staatliches",sans-serif;font-size:15px;letter-spacing:1.4px}
+#popupClose{background:transparent;border:0;color:var(--mut);font-size:20px;cursor:pointer;
+  line-height:1;padding:0 4px;transition:color .16s}
+#popupClose:hover{color:var(--acc)}
+#popupBody{padding:17px;font-size:13px;line-height:1.7}
+.settings-button{padding:9px 14px;border-radius:7px;border:1px solid var(--line);
+  background:var(--surf);color:var(--tx);cursor:pointer;font-size:12.5px;font-weight:550;
+  width:100%;margin-bottom:8px;transition:border-color .16s,color .16s,background .16s}
+.settings-button:hover{border-color:var(--acc);color:var(--acc);background:var(--surf2)}
+
+/* ---------- chat ---------- */
+.chat-wrap{max-width:880px;margin:8px auto 0;display:flex;flex-direction:column;height:76vh;
+  background:var(--surf);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.chat-head{display:flex;align-items:center;gap:10px;padding:12px 16px;
+  border-bottom:1px solid var(--line);flex-shrink:0}
+.chat-head .dot{width:7px;height:7px;border-radius:50%;background:var(--acc);flex-shrink:0;
+  animation:pulse 2.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+.chat-head h2{margin:0;font-family:"Staatliches",sans-serif;font-size:15px;letter-spacing:1.5px}
+.chat-head p{margin:1px 0 0;font-size:10.5px;color:var(--mut)}
+.chat-head .sp{margin-left:auto;display:flex;gap:6px}
+.tool{padding:6px 10px;border-radius:7px;border:1px solid var(--line);background:transparent;
+  color:var(--mut);cursor:pointer;font-size:11px;font-weight:550;
+  transition:border-color .16s,color .16s,background .16s}
+.tool:hover{border-color:var(--line2);color:var(--tx)}
+.tool.on{border-color:var(--acc);color:var(--acc);background:var(--dim)}
+#chat{padding:18px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:12px}
+.msg{max-width:82%;padding:11px 14px;border-radius:10px;font-size:13.5px;line-height:1.68;
+  white-space:pre-wrap;overflow-wrap:anywhere;
+  animation:msgIn .2s cubic-bezier(.2,.8,.2,1)}
+@keyframes msgIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.msg.you{align-self:flex-end;background:var(--surf2);border:1px solid var(--line)}
+.msg.ai{align-self:flex-start;background:transparent;border:1px solid var(--line)}
+.msg .who{font-size:9px;letter-spacing:1.6px;text-transform:uppercase;color:var(--mut);
+  display:block;margin-bottom:5px}
+.msg .who.acc{color:var(--acc)}
+.msg .shots{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.msg .shots img{width:70px;height:70px;object-fit:cover;border-radius:7px;
+  border:1px solid var(--line);cursor:zoom-in;transition:border-color .16s}
+.msg .shots img:hover{border-color:var(--acc)}
+.hint{font-size:11px;color:var(--mut)}
+.typing{display:inline-flex;gap:4px}
+.typing i{width:5px;height:5px;border-radius:50%;background:var(--acc);animation:bl 1.1s infinite}
+.typing i:nth-child(2){animation-delay:.18s}
+.typing i:nth-child(3){animation-delay:.36s}
+@keyframes bl{0%,60%,100%{opacity:.25;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+
+.composer{border-top:1px solid var(--line);padding:11px 13px;background:var(--bg);flex-shrink:0}
+.clips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:9px}
+.clips:empty{display:none}
+.clip{position:relative;width:58px;height:58px;border-radius:8px;overflow:hidden;
+  border:1px solid var(--line);animation:msgIn .2s ease}
+.clip img{width:100%;height:100%;object-fit:cover;cursor:zoom-in}
+.clip b{position:absolute;inset:0;display:none;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.66);cursor:pointer;color:#fff;font-size:16px;font-weight:300}
+.clip:hover b{display:flex}
+.clip .t{position:absolute;left:0;right:0;bottom:0;padding:1px 0 2px;text-align:center;font-size:7px;
+  letter-spacing:.4px;text-transform:uppercase;background:rgba(0,0,0,.72);color:var(--acc)}
+.crow{display:flex;gap:7px;align-items:flex-end}
+.crow textarea{flex:1;min-height:44px;max-height:170px;resize:none;padding:12px 13px;
+  border-radius:9px;background:var(--surf);border:1px solid var(--line);color:var(--tx);
+  font-size:13.5px;outline:none;transition:border-color .16s}
+.crow textarea:focus{border-color:var(--acc)}
+.iconbtn{width:44px;height:44px;border-radius:9px;border:1px solid var(--line);
+  background:var(--surf);color:var(--mut);cursor:pointer;display:grid;place-items:center;
+  flex-shrink:0;transition:border-color .16s,color .16s,background .16s,transform .14s}
+.iconbtn:hover{border-color:var(--acc);color:var(--acc)}
+.iconbtn:active{transform:scale(.94)}
+.iconbtn svg{width:18px;height:18px}
+.send{width:44px;height:44px;border-radius:9px;border:1px solid var(--acc);background:var(--acc);
+  color:var(--accInk);cursor:pointer;display:grid;place-items:center;flex-shrink:0;
+  transition:opacity .16s,transform .14s,filter .16s}
+.send:hover{filter:brightness(1.08)}
+.send:active{transform:scale(.94)}
+.send:disabled{opacity:.35;cursor:default}
+.send svg{width:18px;height:18px}
+.tools{display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap;align-items:center}
+
+/* ---------- google ---------- */
+.tabs-px{display:flex;gap:5px;overflow-x:auto;padding-bottom:9px;margin-bottom:10px;
+  border-bottom:1px solid var(--line)}
+.ptab{display:flex;align-items:center;gap:7px;height:30px;padding:0 6px 0 9px;border-radius:7px;
+  border:1px solid var(--line);background:var(--surf);cursor:pointer;max-width:190px;flex-shrink:0;
+  transition:border-color .16s,background .16s}
+.ptab:hover{background:var(--surf2)}
+.ptab.on{border-color:var(--acc);background:var(--surf2)}
+.ptab img,.ptab .ptabico{width:13px;height:13px;border-radius:3px;object-fit:contain;
+  background:var(--surf2);flex-shrink:0}
+.ptab .ptabico{display:grid;place-items:center;font-size:8px;font-weight:700;color:var(--mut)}
+.ptab span{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--mut)}
+.ptab.on span{color:var(--tx)}
+.ptab button{border:0;background:transparent;color:var(--mut);cursor:pointer;font-size:13px;
+  line-height:1;padding:0 3px;transition:color .14s}
+.ptab button:hover{color:var(--acc)}
+.px-bar{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.px-url{flex:1;min-width:200px}
+.px-frame-wrap{border:1px solid var(--line);border-radius:10px;overflow:hidden;
+  background:#000;height:70vh}
+.px-frame{width:100%;height:100%;border:0;display:block}
+.px-out{display:flex;align-items:center;gap:7px;padding:9px 2px 0;flex-wrap:wrap}
+.px-out .hint{flex:1;min-width:170px}
+
+/* ---------- settings ---------- */
+.panel{max-width:800px;margin:8px auto 0;background:var(--surf);border:1px solid var(--line);
+  border-radius:12px;padding:4px 20px 20px}
+.panel h3{margin:20px 0 8px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--acc)}
+.field{padding:14px 0;border-top:1px solid var(--line)}
+.field:first-of-type{border-top:0}
+.field label{display:block;font-size:12.5px;font-weight:550;margin-bottom:6px}
+.field input[type=password],.field input[type=text],.field select,.field textarea{
+  width:100%;padding:10px 12px;border-radius:8px;background:var(--bg);
+  border:1px solid var(--line);color:var(--tx);font-size:12.5px;outline:none;
+  transition:border-color .16s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--acc)}
+/* the sliders were still the browser's own blue, which is the one colour on the
+   page a theme cannot reach */
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:22px;
+  background:transparent;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:99px;
+  background:var(--line2)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+  width:14px;height:14px;border-radius:50%;background:var(--acc);
+  border:2px solid var(--bg);margin-top:-5px;
+  transition:transform .14s,box-shadow .14s}
+input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.14);
+  box-shadow:0 0 0 5px var(--dim)}
+input[type=range]::-moz-range-track{height:4px;border-radius:99px;background:var(--line2)}
+input[type=range]::-moz-range-thumb{width:13px;height:13px;border-radius:50%;
+  background:var(--acc);border:2px solid var(--bg)}
+input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 5px var(--dim)}
+.row{display:flex;gap:7px;align-items:center}
+.row input{flex:1}
+.note{font-size:10.5px;color:var(--mut);margin-top:6px;line-height:1.6}
+.actions{display:flex;gap:8px;padding-top:14px;margin-top:6px;flex-wrap:wrap}
+.act.primary{background:var(--acc);color:var(--accInk);border-color:var(--acc)}
+.act.primary:hover{color:var(--accInk);filter:brightness(1.08)}
+.row2{display:flex;gap:7px}
+
+/* ---------- theme picker ---------- */
+.themes{display:grid;grid-template-columns:repeat(auto-fill,minmax(122px,1fr));gap:8px}
+.th{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;
+  border:1px solid var(--line);background:var(--bg);cursor:pointer;text-align:left;
+  transition:border-color .16s,background .16s,transform .14s}
+.th:hover{background:var(--surf2);transform:translateY(-1px)}
+.th.on{border-color:var(--acc)}
+.th .strip{display:flex;gap:3px;flex-shrink:0}
+.th .strip i{width:11px;height:11px;border-radius:3px;display:block}
+.th span{font-size:11.5px;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.th.on span{color:var(--tx)}
+
+/* ---------- footer ---------- */
+footer{margin-top:46px;border-top:1px solid var(--line);padding:18px 20px 44px}
+.footer-links{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;font-size:12px}
+.footer-links a{cursor:pointer;color:var(--mut);transition:color .16s}
+.footer-links a:hover{color:var(--acc)}
+.credit{text-align:center;font-size:10.5px;color:var(--mut);margin-top:12px;line-height:1.9}
+
+/* ---------- responsive ---------- */
+@media(max-width:1180px){
+  #container,#featuredZones{grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:12px}
+  #zoneName{max-width:34vw}
+}
+@media(max-width:860px){
+  .header-content{height:auto;flex-wrap:wrap;padding:9px 14px;gap:8px}
+  .tabs{order:3;width:100%;overflow-x:auto}
+  .search-container{order:2;flex:1;min-width:0}
+  #searchBar{width:100%}
+  main{padding:0 14px 60px}
+  .rainbow-text{font-size:19px}
+  #container,#featuredZones{grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:10px}
+  .chat-wrap{height:80vh}
+  #zoneName{max-width:26vw;font-size:14px}
+  #zoneAuthor{display:none}
+  .zone-controls button{padding:7px 9px;font-size:11px}
+}
+@media(max-width:520px){
+  .zone-item button{font-size:11px;min-height:50px;padding:8px}
+  .tab span{display:none}
+  .tab{padding:0 9px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;
+    transition-duration:.01ms!important;scroll-behavior:auto!important}
+  .rainbow-text{animation:none;position:static;display:block;text-align:center;padding:11px 0}
+}
+
+</style>
+</head>
+<body class="dark-mode">
+
+<header>
+  <div class="header-content">
+    <div class="logo" id="logoHome" title="Orbit">
+      <svg viewBox="0 0 32 32" width="34" height="34" aria-hidden="true">
+        <circle cx="16" cy="16" r="4.6" fill="#22d3ee"/>
+        <ellipse cx="16" cy="16" rx="11.5" ry="5" transform="rotate(-28 16 16)" stroke="#f59e0b" stroke-width="2" fill="none"/>
+        <circle cx="25" cy="11" r="2.1" fill="#f59e0b"/>
+      </svg>
+      <span class="logo-tag">ORBIT</span>
+    </div>
+
+    <nav class="tabs" id="tabs">
+      <button class="tab on" data-tab="games" title="Zones">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="3"/><path d="M7 10v4M5 12h4M15.5 11h.01M18 13.5h.01"/></svg>
+        <span>Zones</span>
+      </button>
+      <button class="tab" data-tab="chat" title="Ask Orbit">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.2a2 2 0 0 1-2 2H8l-4 3.6V5.6a2 2 0 0 1 2-2h12.5a2 2 0 0 1 2 2z"/></svg>
+        <span>Ask Orbit</span>
+      </button>
+      <button class="tab" data-tab="google" title="Google">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
+        <span>Google</span>
+      </button>
+      <button class="tab" data-tab="settings" title="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+        <span>Settings</span>
+      </button>
+    </nav>
+
+    <div class="search-container" id="gamesTools">
+      <input type="text" id="searchBar" placeholder="Search zones..." oninput="filterZones()" autocomplete="off">
+      <select id="sortOptions" onchange="sortZones()">
+        <option value="name">Name</option>
+        <option value="id">ID (Date)</option>
+        <option value="popular">Popular</option>
+        <option value="trendingDay">Trending (Day)</option>
+        <option value="trendingWeek">Trending (Week)</option>
+        <option value="trendingMonth">Trending (Month)</option>
+      </select>
+      <select id="filterOptions" onchange="filterZones2()">
+        <option value="none">(SELECT TAG)</option>
+      </select>
+      <div class="control-buttons">
+        <button id="randomZoneBtn" class="control-button" title="Play something at random" onclick="randomZone()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><circle cx="8.5" cy="8.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="15.5" cy="8.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="8.5" cy="15.5" r="1.3" fill="currentColor" stroke="none"/></svg>
+        </button>
+        <button id="refresh" class="control-button" title="Refresh all the zones" onclick="listZones()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 12a8.5 8.5 0 1 1-2.5-6"/><path d="M20.5 4v5.5H15"/></svg>
+        </button>
+        <button id="settings" class="control-button" title="Settings!">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h9M17.5 7H20M4 12h3M11.5 12H20M4 17h7M15.5 17H20"/><circle cx="15.2" cy="7" r="2.1"/><circle cx="9.2" cy="12" r="2.1"/><circle cx="13.2" cy="17" r="2.1"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="rainbow-container">
+    <h3 class="rainbow-text" id="rainbowText"> ORBIT </h3>
+  </div>
+
+  <!-- ==================== ZONES ==================== -->
+  <section class="view on" id="viewGames">
+    <details id="featuredZonesWrapper" open>
+      <summary id="allZonesSummary" style="font-size:1.2rem;font-weight:bold;cursor:pointer;">Featured Zones</summary>
+      <div id="featuredZones" class="zone-container"></div>
+    </details>
+    <br><hr style="border:0;border-top:1px solid var(--border);margin:14px 0"><br>
+    <details id="allZonesWrapper" open>
+      <summary id="allSummary" style="font-size:1.2rem;font-weight:bold;cursor:pointer;">All Zones</summary>
+      <div id="container">Loading...</div>
+    </details>
+  </section>
+
+  <!-- ==================== ASK ORBIT ==================== -->
+  <section class="view" id="viewChat">
+    <div class="chat-wrap">
+      <div class="chat-head">
+        <span class="dot"></span>
+        <div>
+          <h2>Ask Orbit</h2>
+          <p id="chatWho">text and maths · images are read by Gemini</p>
+        </div>
+        <div class="sp">
+          <button class="tool" id="clearChat">clear</button>
+          <button class="tool" id="gameMode">find a zone</button>
+        </div>
+      </div>
+      <div id="chat"></div>
+      <div class="composer">
+        <div class="tools">
+          <button class="tool" id="pageGo" title="fetch a page and put its text here">read a page</button>
+          <button class="tool" id="pageOpen" title="open it in the google tab">open</button>
+          <button class="iconbtn" id="shotBtn" title="One frame of your screen - never written to disk">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2.8" y="5.5" width="18.4" height="13" rx="3"/><path d="M8.6 5.5 10 3.4h4l1.4 2.1"/><circle cx="12" cy="12" r="3.6"/></svg>
+          </button>
+          <input type="text" id="pageInput" class="ct-url" style="flex:1;min-width:150px"
+                 placeholder="paste a link, or type something to look up" autocomplete="off">
+        </div>
+        <div class="clips" id="clips"></div>
+        <div class="crow">
+          <button class="iconbtn" id="clipBtn" title="Attach a picture">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.4 11.1 12.3 20.2a5.5 5.5 0 0 1-7.8-7.8l9.2-9.2a3.7 3.7 0 0 1 5.2 5.2l-9.2 9.2a1.8 1.8 0 0 1-2.6-2.6l8.5-8.5"/></svg>
+          </button>
+          <input type="file" id="clipInput" accept="image/*" multiple hidden>
+          <textarea id="input" rows="1" placeholder="Ask anything. Maths, questions, images, or tell me a game to play."></textarea>
+          <button class="send" id="send" title="send">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.4 21 12 3.4 3.6 3.4 10l12.6 2-12.6 2z"/></svg>
+          </button>
+        </div>
+        <div class="hint" id="chatHint" style="margin-top:7px">
+          enter sends · shift+enter makes a new line · a picture goes to Gemini, everything else to Groq
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== GOOGLE ==================== -->
+  <section class="view" id="viewGoogle">
+    <div class="tabs-px" id="pxTabs"></div>
+    <div class="px-bar">
+      <input type="text" id="pxUrl" class="px-url" placeholder="https://site.com, or type something to search">
+      <button class="small-btn" id="pxGo">Go</button>
+      <button class="small-btn" id="pxNew">New tab</button>
+      <button class="small-btn" id="pxAsk">Ask Orbit about this</button>
+    </div>
+    <div class="px-frame-wrap"><iframe id="pxFrame" class="px-frame"
+      sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
+      referrerpolicy="no-referrer"></iframe></div>
+    <div class="px-out">
+      <span class="hint">Some sites refuse to sit in a frame. If the box stays blank,
+        open it in a real tab - that always works.</span>
+      <button class="small-btn" id="pxAway">Open in a new tab</button>
+      <button class="small-btn" id="pxRead">Read this page into the chat</button>
+    </div>
+  </section>
+
+  <!-- ==================== SETTINGS ==================== -->
+  <section class="view" id="viewSettings">
+    <div class="panel">
+      <h3>keys</h3>
+      <div class="field">
+        <label>Chat key (Groq)</label>
+        <div class="row">
+          <input type="password" id="apiKey" autocomplete="off">
+          <button class="small-btn" id="showKey">Show</button>
+        </div>
+        <div class="note">A key ships with the file and is kept in this browser only. Replace it with your own if you share this.</div>
+        <div class="actions" style="border:0;padding-top:10px;margin:0">
+          <button class="act" id="testKey">Test key</button>
+        </div>
+        <div class="note" id="keyNote"></div>
+      </div>
+      <div class="field">
+        <label>Pictures key (Gemini)</label>
+        <div class="row">
+          <input type="password" id="gemKey" autocomplete="off">
+          <button class="small-btn" id="showGem">Show</button>
+        </div>
+        <div class="note">Only used when you attach a picture. Groq cannot see images, so this is what makes that work.</div>
+        <div class="actions" style="border:0;padding-top:10px;margin:0">
+          <button class="act" id="testGem">Test key</button>
+        </div>
+        <div class="note" id="gemNote"></div>
+      </div>
+      <h3>look</h3>
+      <div class="field">
+        <label>Theme</label>
+        <div class="themes" id="themePicker"></div>
+        <div class="note">Every colour on the page comes from the theme. Pick one and it stays.</div>
+      </div>
+
+      <h3>the assistant</h3>
+      <div class="field">
+        <label>Model</label>
+        <select id="modelSelect"></select>
+        <div class="note">Loaded from the key when you open this. Any chat model on the account works.</div>
+      </div>
+      <div class="field">
+        <label>How it answers</label>
+        <div class="row">
+          <input type="range" id="temp" min="0" max="1.6" step="0.1">
+          <span class="hint" id="tempVal"></span>
+        </div>
+      </div>
+      <div class="field">
+        <label>How long an answer can be</label>
+        <div class="row">
+          <input type="range" id="maxTok" min="512" max="8192" step="256">
+          <span class="hint" id="maxVal"></span>
+        </div>
+      </div>
+      <div class="field">
+        <label>How it should answer</label>
+        <textarea id="persona" rows="4" placeholder="Optional. Anything you add here is added to how Orbit behaves."></textarea>
+        <div class="note">Maths and facts are checked and worked through step by step unless you tell it otherwise.</div>
+      </div>
+      <h3>your data</h3>
+      <div class="field">
+        <label>Back up, or move to another browser</label>
+        <div class="note">Chats, keys, favourites and settings, in one file.</div>
+        <div class="actions" style="border:0;padding-top:10px;margin:0">
+          <button class="act" id="exportOrbit">Export</button>
+          <button class="act" id="importOrbit">Import</button>
+          <input type="file" id="orbitImport" accept="application/json" hidden>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="act primary" id="saveSettings">Save</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-links">
+    <a onclick="loadDisclaimer(); return false;">CREDITS AND STUFF</a>
+    <a onclick="showContact(); return false;">Contact</a>
+    <a onclick="loadPrivacy(); return false;">Privacy</a>
+    <a onclick="saveData(); return false;">Export Zone Data</a>
+    <a onclick="document.getElementById('importData').click(); return false;">Import Zone Data</a>
+    <input type="file" id="importData" style="display:none;" onchange="loadData(event)">
+  </div>
+  <div class="credit">
+    ORBIT &middot; zones by DAKNUX &middot; reed i made this &middot; holy rebrand
+  </div>
+</footer>
+
+<!-- the game viewer, exactly where the original expects it -->
+<div id="zoneViewer">
+  <div class="zone-header">
+    <div class="zone-title">
+      <h2 id="zoneName">zone</h2>
+      <button class="info-button" onclick="showZoneInfo()" title="Zone Information">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      </button>
+      <span id="zoneId" style="display:none;"></span>
+      <a id="zoneAuthor" href="#" target="_blank" rel="noopener">by Author</a>
+    </div>
+    <div class="zone-controls">
+      <button onclick="fullscreenZone()">Fullscreen</button>
+      <button onclick="aboutBlank()">Open in New Tab</button>
+      <button onclick="downloadZone()">Download</button>
+      <button onclick="closeZone()">Close</button>
+    </div>
+  </div>
+  <iframe id="zoneFrame"></iframe>
+</div>
+
+<div id="popupOverlay">
+  <div class="popup">
+    <div class="popup-header">
+      <h3 id="popupTitle">Title</h3>
+      <button id="popupClose" onclick="closePopup()">&times;</button>
+    </div>
+    <div id="popupBody">Content will be here</div>
+  </div>
+</div>
+
+<script>
+/* alice.js blanks out canvas.toDataURL near the end of the file it ships, which is
+   there to stop screen grabs. Keep the real one before that happens, because our
+   screen button needs it. Nothing about how zones load is touched. */
+var NATIVE_TO_DATA_URL = HTMLCanvasElement.prototype.toDataURL;
+
+"use strict";
+
+/* Everything below lives inside a function on purpose. alice.js is a plain script
+   with its own top-level consts - it declares `settings` of its own, for one - and
+   a second top-level declaration of the same name is a syntax error that stops the
+   zone system loading at all. A wrapper means nothing here can ever collide with
+   anything in there. */
+(function(){
+
+/* ============================================================
+   1. STORAGE
+   ============================================================ */
+var LS={key:"orbitGroqKey",gemKey:"orbitGeminiKey",model:"orbitModel",settings:"orbitSettings",
+        chats:"orbitChats",active:"orbitActive",marks:"orbitMarks",pxUrl:"orbitPxUrl",
+        fav:"orbitFav",theme:"orbitTheme"};
+
+var DEFAULT_KEY="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";
+var DEFAULT_GEM="AQ.Ab8RN6JK_-s31crhZNCjOM7IjXGILo0GkM0Fv5NaLsXBNmP4yA";
+
+var GROQ_URL="https://api.groq.com/openai/v1/chat/completions";
+var GROQ_MODELS_URL="https://api.groq.com/openai/v1/models";
+var GEMINI_HOST="https://generativelanguage.googleapis.com/v1beta/models/";
+var GEM_MODELS=["gemini-3.8-flash","gemini-3.6-flash","gemini-3.5-flash","gemini-3.1-flash-lite","gemini-flash-latest"];
+/* groq also serves guard models and whisper on the models list; neither can chat */
+var BAD_MODEL=/guard|whisper|whisper-large|omni-moderation/i;
+
+function lsGet(k,fallback){try{var v=localStorage.getItem(k);return v==null?fallback:v}catch(e){return fallback}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+var settings=Object.assign({model:"",temperature:.7,maxTokens:3072,persona:""},
+                           JSON.parse(lsGet(LS.settings,"null")||"{}"));
+var apiKey=lsGet(LS.key,DEFAULT_KEY);
+var gemKey=lsGet(LS.gemKey,DEFAULT_GEM);
+var models=[];
+
+/* ============================================================
+   2. TABS
+   ============================================================ */
+var TAB_IDS=["games","chat","google","settings"];
+var activeTab="games";
+
+function setTab(id){
+  if(TAB_IDS.indexOf(id)<0)id="games";
+  activeTab=id;
+  TAB_IDS.forEach(function(t){
+    var v=document.getElementById("view"+t.charAt(0).toUpperCase()+t.slice(1));
+    if(v)v.classList.toggle("on",t===id);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll("#tabs .tab"),function(b){
+    b.classList.toggle("on",b.dataset.tab===id);
+  });
+  /* the zone search belongs to the zones tab */
+  var g=document.getElementById("gamesTools");
+  if(g)g.style.display=(id==="games")?"":"none";
+  try{history.replaceState(null,"","#"+id)}catch(e){}
+  if(id==="chat")$("input").focus();
+}
+document.addEventListener("click",function(e){
+  var b=e.target.closest&&e.target.closest("#tabs .tab");
+  if(b)setTab(b.dataset.tab);
+});
+document.getElementById("logoHome").onclick=function(){setTab("games");window.scrollTo({top:0,behavior:"smooth"})};
+(function(){
+  var h=(location.hash||"").replace("#","");
+  if(TAB_IDS.indexOf(h)>=0)setTab(h);
+})();
+
+/* ============================================================
+   2b. THEMES
+   Five colours each, and nothing else in the page knows about any of them.
+   Chosen dark, with one accent, the way a typing test does it - so the accent is
+   the only thing that moves and the page stays calm.
+   ============================================================ */
+var THEMES=[
+  {id:"orbit",  name:"Orbit",     bg:"#08090b",surf:"#0e1013",surf2:"#15181d",line:"#1e2229",line2:"#2b3038",tx:"#e7e9ec",mut:"#82878f",acc:"#ff4b2b"},
+  {id:"ember",  name:"Ember",     bg:"#0a0708",surf:"#120d0e",surf2:"#1b1315",line:"#241a1c",line2:"#332325",tx:"#f2e8e6",mut:"#8d7c7a",acc:"#ff7a45"},
+  {id:"nord",   name:"Nord",      bg:"#2e3440",surf:"#3b4252",surf2:"#434c5e",line:"#4c566a",line2:"#5e6b80",tx:"#eceff4",mut:"#a8b3c2",acc:"#88c0d0"},
+  {id:"dracula",name:"Dracula",   bg:"#1e1f29",surf:"#282a36",surf2:"#343746",line:"#44475a",line2:"#565a72",tx:"#f8f8f2",mut:"#9aa0b0",acc:"#bd93f9"},
+  {id:"tokyo",  name:"Tokyo",     bg:"#0a0a0f",surf:"#12121a",surf2:"#1a1a26",line:"#23232f",line2:"#31313f",tx:"#c0caf5",mut:"#7a83a6",acc:"#7aa2f7"},
+  {id:"gruv",   name:"Gruvbox",   bg:"#1d2021",surf:"#282828",surf2:"#32302f",line:"#3c3836",line2:"#504945",tx:"#ebdbb2",mut:"#928374",acc:"#fabd2f"},
+  {id:"rose",   name:"Rosé Pine", bg:"#191724",surf:"#1f1d2e",surf2:"#26233a",line:"#403d52",line2:"#524c6b",tx:"#e0def4",mut:"#908caa",acc:"#ebbcba"},
+  {id:"ayu",    name:"Ayu",       bg:"#0b0e14",surf:"#11151d",surf2:"#181d27",line:"#1f2530",line2:"#2c3441",tx:"#d5d8dd",mut:"#7f8794",acc:"#ffb454"},
+  {id:"cat",    name:"Catppuccin",bg:"#11111b",surf:"#181825",surf2:"#1e1e2e",line:"#313244",line2:"#45475a",tx:"#cdd6f4",mut:"#9399b2",acc:"#cba6f7"},
+  {id:"matrix", name:"Matrix",    bg:"#040705",surf:"#08100b",surf2:"#0c1710",line:"#122017",line2:"#1b2f22",tx:"#c8f7d4",mut:"#6f9c7c",acc:"#3ddc84"},
+  {id:"ice",    name:"Ice",       bg:"#070a0d",surf:"#0d1216",surf2:"#131a20",line:"#1b242c",line2:"#26333d",tx:"#e2edf5",mut:"#7b8f9e",acc:"#4dd0e1"},
+  {id:"rose2",  name:"Vermilion", bg:"#0c0707",surf:"#140c0c",surf2:"#1d1212",line:"#261819",line2:"#362223",tx:"#f0e4e3",mut:"#957b7a",acc:"#e5484d"}
+];
+var themeId="orbit";
+
+function applyTheme(id,keep){
+  var t=THEMES.filter(function(x){return x.id===id})[0]||THEMES[0];
+  themeId=t.id;
+  var r=document.documentElement.style;
+  r.setProperty("--bg",t.bg);
+  r.setProperty("--surf",t.surf);
+  r.setProperty("--surf2",t.surf2);
+  r.setProperty("--line",t.line);
+  r.setProperty("--line2",t.line2);
+  r.setProperty("--tx",t.tx);
+  r.setProperty("--mut",t.mut);
+  r.setProperty("--acc",t.acc);
+  /* whatever accent was chosen, the words on top of it have to stay readable */
+  r.setProperty("--accInk",bestInk(t.acc));
+  if(!keep){try{localStorage.setItem("orbitTheme",t.id)}catch(e){}}
+  var meta=document.querySelector('meta[name="theme-color"]');
+  if(meta)meta.setAttribute("content",t.bg);
+  paintThemePicker();
+}
+function bestInk(hex){
+  /* near-black or near-white, whichever reads better on this accent */
+  var h=String(hex).replace("#","");
+  if(h.length===3)h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  var c=[0,2,4].map(function(i){return parseInt(h.slice(i,i+2),16)});
+  var f=c.map(function(v){v/=255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4)});
+  var L=0.2126*f[0]+0.7152*f[1]+0.0722*f[2];
+  return (1.05/(L+0.05))>=4.5?"#000000":"#ffffff";
+}
+function paintThemePicker(){
+  var box=$("themePicker");
+  if(!box)return;
+  box.innerHTML="";
+  THEMES.forEach(function(t){
+    var b=document.createElement("button");
+    b.className="th"+(t.id===themeId?" on":"");
+    b.title=t.name;
+    var strip=document.createElement("span");
+    strip.className="strip";
+    [t.acc,t.tx,t.line,t.bg].forEach(function(col){
+      var i=document.createElement("i");
+      i.style.background=col;
+      strip.appendChild(i);
+    });
+    var nm=document.createElement("span");
+    nm.textContent=t.name;
+    b.append(strip,nm);
+    b.onclick=function(){applyTheme(t.id)};
+    box.appendChild(b);
+  });
+}
+
+/* ============================================================
+   3. THE MOVING LINE
+   ============================================================ */
+var QUOTES=[
+  "reed i made this",
+  "holy rebrand",
+  "reed is cool",
+  "billy i made this too",
+  "fernandes isn't mexican",
+  "orbit, but it is now",
+  "every zone still works, promise",
+  "ask it a maths question, it can do that",
+  "attach a picture and it reads it",
+  "shift the page, the next zone loads itself",
+  "the whole thing is one file",
+  "no install, no launcher, no nonsense",
+  "it picks games when you want games",
+  "it answers everything else properly",
+  "made by reed, rebranded into orbit",
+  "google is in here too, with tabs",
+  "the screen button keeps nothing",
+  "press settings if anything looks wrong",
+  "holy rebrand, indeed",
+  "somebody read this and said yes to it"
+];
+(function(){
+  var el=document.getElementById("rainbowText");
+  if(!el)return;
+  var n=Math.floor(Math.random()*QUOTES.length);
+  var show=function(){
+    el.textContent=QUOTES[n++%QUOTES.length];
+    /* put the fade back at the start each time, so the line never jumps */
+    el.style.animation="none";
+    void el.offsetWidth;
+    el.style.animation="";
+  };
+  show();
+  setInterval(show,9000);
+})();
+
+/* ============================================================
+   4. SMALL HELPERS
+   ============================================================ */
+function $(id){return document.getElementById(id)}
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;")
+  .replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function toast(msg,kind){
+  var host=$("toastHost")||(function(){
+    var d=document.createElement("div");d.id="toastHost";
+    d.style.cssText="position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:9999;"+
+      "display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none";
+    document.body.appendChild(d);return d})();
+  var t=document.createElement("div");
+  t.textContent=msg;
+  t.style.cssText="background:"+(kind==="bad"?"#b91c1c":"#0e7490")+";color:#fff;padding:10px 16px;"+
+    "border-radius:10px;font-size:12.5px;font-weight:600;box-shadow:0 10px 30px -10px #000;"+
+    "max-width:min(90vw,520px);text-align:center;opacity:.97";
+  host.appendChild(t);
+  setTimeout(function(){
+    t.style.transition="opacity .3s";t.style.opacity="0";
+    setTimeout(function(){t.remove()},320);
+  },kind==="bad"?6000:3200);
+}
+/* very small markdown: fenced code, inline code, bold, and newlines */
+function mdToHtml(t){
+  var parts=String(t||"").split(/```/);
+  var out=parts.map(function(p,i){
+    if(i%2===1)return "<pre>"+esc(p.replace(/^[a-z]*\n?/,""))+"</pre>";
+    return esc(p)
+      .replace(/`([^`\n]+)`/g,"<code>$1</code>")
+      .replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>");
+  });
+  return out.join("");
+}
+async function fetchWithTimeout(url,opts,ms,signal){
+  var ctl=(typeof AbortController!=="undefined")?new AbortController():null;
+  var timer=ctl?setTimeout(function(){ctl.abort()},ms||20000):null;
+  try{
+    var o=Object.assign({},opts||{},(signal||(ctl&&ctl.signal))?{signal:signal||ctl.signal}:{});
+    return await fetch(url,o);
+  }finally{if(timer)clearTimeout(timer)}
+}
+
+/* ============================================================
+   5. CHATS
+   ============================================================ */
+var chats=JSON.parse(lsGet(LS.chats,"[]")||"[]");
+var activeChat=lsGet(LS.active,"");
+var messages=[];
+var gameMode=false;
+
+function newChat(seed){
+  var c={id:"c"+Date.now()+Math.random().toString(36).slice(2,6),
+         title:seed||"New chat",when:Date.now(),messages:[]};
+  if(seed)c.messages=seed;
+  chats.push(c);activeChat=c.id;
+  messages=c.messages;
+  saveChats();
+  return c;
+}
+function saveChats(){
+  try{
+    /* screen grabs are deliberately left out of the saved copy */
+    var clean=chats.map(function(c){
+      return {id:c.id,title:c.title,when:c.when,
+              messages:(c.messages||[]).map(function(m){
+                var r={role:m.role,content:m.content};
+                if(m.shots&&m.shots.length)r.shots=m.shots;
+                return r;
+              })};
+    });
+    lsSet(LS.chats,JSON.stringify(clean.slice(-30)));
+    lsSet(LS.active,activeChat);
+  }catch(e){}
+}
+function loadChat(id){
+  var c=chats.filter(function(x){return x.id===id})[0];
+  if(!c)return;
+  activeChat=id;messages=c.messages||[];
+  lsSet(LS.active,id);
+  renderChat();
+}
+function renderChat(){
+  var box=$("chat");
+  box.innerHTML="";
+  if(!messages.length){
+    var w=document.createElement("div");
+    w.className="msg ai";
+    w.innerHTML='<span class="who">Orbit</span>Ask me anything. Maths, questions, code, writing, or '+
+      'say "find a zone" and I will sort the games for you.<br><br>'+
+      'Attach a picture and Gemini reads it. Everything else goes to the chat key.';
+    box.appendChild(w);
+  }
+  messages.forEach(function(m){paintMessage(m,box)});
+  box.scrollTop=box.scrollHeight;
+}
+function paintMessage(m,box){
+  var el=document.createElement("div");
+  el.className="msg "+(m.role==="user"?"you":"ai");
+  var who=document.createElement("span");
+  who.className="who";
+  who.textContent=m.role==="user"?"You":(m.via||"Orbit");
+  el.appendChild(who);
+  if(m.shots&&m.shots.length){
+    var row=document.createElement("div");
+    row.className="shots";
+    m.shots.forEach(function(s){
+      var im=document.createElement("img");
+      im.src=s.dataUrl;im.alt=s.name||"picture";
+      im.onclick=function(){openImage(s.dataUrl)};
+      row.appendChild(im);
+    });
+    el.appendChild(row);
+  }
+  var body=document.createElement("div");
+  body.innerHTML=m.role==="user"?esc(m.content):mdToHtml(m.content);
+  el.appendChild(body);
+  box.appendChild(el);
+}
+function push(m){
+  messages.push(m);
+  var c=chats.filter(function(x){return x.id===activeChat})[0];
+  if(c)c.messages=messages;
+  if(m.role==="user"&&(c.title==="New chat"||!c.title))
+    c.title=m.content.replace(/\s+/g," ").slice(0,34)+(m.content.length>34?"…":"");
+  saveChats();
+}
+
+/* ---------- the big picture overlay ---------- */
+var imgView=null;
+function openImage(src){
+  closeImage();
+  var d=document.createElement("div");
+  d.style.cssText="position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.92);display:grid;"+
+    "place-items:center;padding:20px;cursor:zoom-out";
+  var im=document.createElement("img");
+  im.src=src;im.style.cssText="max-width:96vw;max-height:92vh;object-fit:contain;border-radius:10px";
+  d.appendChild(im);
+  d.onclick=closeImage;
+  document.body.appendChild(d);
+  imgView=d;
+}
+function closeImage(){if(imgView){imgView.remove();imgView=null}}
+document.addEventListener("keydown",function(e){
+  if(e.key==="Escape"){
+    closeImage();
+    if(activeTab==="chat"&&$("input"))$("input").focus();
+  }
+});
+
+/* ============================================================
+   6. PICTURES
+   ============================================================ */
+var clips=[];
+var MAX_CLIP=4*1024*1024;   /* nothing is resized, so this is only the api ceiling */
+
+function readClip(file,ephemeral){
+  if(!file)return;
+  if(!/^image\//.test(file.type)){toast("that is not an image","bad");return}
+  if(file.size>MAX_CLIP){
+    toast("that picture is over "+(MAX_CLIP/1048576)+" MB. Nothing is resized here, so take a smaller one","bad");
+    return;
+  }
+  if(clips.length>=4){toast("four pictures is the limit","bad");return}
+  var fr=new FileReader();
+  var url=URL.createObjectURL(file);
+  var probe=new Image();
+  var sized=new Promise(function(res){
+    probe.onload=function(){res({w:probe.naturalWidth,h:probe.naturalHeight})};
+    probe.onerror=function(){res({w:0,h:0})};
+  });
+  probe.src=url;
+  fr.onload=function(){
+    Promise.all([Promise.resolve(String(fr.result)),sized]).then(function(r){
+      URL.revokeObjectURL(url);
+      clips.push({name:file.name||"picture",dataUrl:r[0],bytes:file.size,
+                  mime:file.type||"image/png",w:r[1].w,h:r[1].h,ephemeral:!!ephemeral});
+      renderClips();
+      if(!$("input").value.trim())$("input").value="what is in this picture?";
+      resize();
+    });
+  };
+  fr.onerror=function(){URL.revokeObjectURL(url);toast("could not read that file","bad")};
+  fr.readAsDataURL(file);
+}
+function renderClips(){
+  var row=$("clips");
+  row.innerHTML="";
+  clips.forEach(function(c,i){
+    var w=document.createElement("div");
+    w.className="clip";
+    var im=document.createElement("img");
+    im.src=c.dataUrl;im.alt=c.name;
+    im.onclick=function(){openImage(c.dataUrl)};
+    var x=document.createElement("b");
+    x.textContent="\u00d7";
+    x.onclick=function(){clips.splice(i,1);renderClips()};
+    w.appendChild(im);
+    if(c.ephemeral){
+      var t=document.createElement("span");
+      t.className="t";t.textContent="not saved";
+      w.appendChild(t);
+    }
+    w.appendChild(x);
+    row.appendChild(w);
+  });
+}
+$("clipBtn").onclick=function(){$("clipInput").click()};
+$("clipInput").onchange=function(e){
+  Array.prototype.forEach.call(e.target.files,function(f){readClip(f,false)});
+  e.target.value="";
+};
+document.addEventListener("paste",function(e){
+  if(activeTab!=="chat")return;
+  var items=(e.clipboardData||{}).items||[];
+  var got=false;
+  for(var i=0;i<items.length;i++){
+    if(items[i].type&&items[i].type.indexOf("image")===0){
+      var f=items[i].getAsFile();
+      if(f){readClip(f,false);got=true}
+    }
+  }
+  if(got)e.preventDefault();
+});
+
+/* ---------- one frame of the screen, kept in memory ---------- */
+function grabScreen(){
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getDisplayMedia){
+    toast("this browser cannot share the screen. use the paperclip instead","bad");return;
+  }
+  var stream=null;
+  navigator.mediaDevices.getDisplayMedia({video:{frameRate:1},audio:false}).then(function(s){
+    stream=s;
+    var v=document.createElement("video");
+    v.srcObject=s;v.muted=true;v.playsInline=true;
+    v.play().catch(function(){});
+    return new Promise(function(res){
+      if(v.videoWidth)return res();
+      v.onloadedmetadata=function(){res()};
+      setTimeout(res,2500);
+    }).then(function(){
+      var c=document.createElement("canvas");
+      c.width=v.videoWidth||1280;c.height=v.videoHeight||720;
+      c.getContext("2d").drawImage(v,0,0,c.width,c.height);
+      var out="";
+      try{out=NATIVE_TO_DATA_URL.call(c,"image/png")}catch(e){}
+      try{s.getTracks().forEach(function(t){t.stop()})}catch(e){}
+      if(!out){toast("could not read the screen","bad");return}
+      readClip(new File([out],"screen.png",{type:"image/png"}),true);
+      toast("screen attached - nothing is written to disk");
+    });
+  }).catch(function(){/* cancelled, which is fine */});
+}
+$("shotBtn").onclick=grabScreen;
+
+/* ============================================================
+   7. ASKING
+   ============================================================ */
+var SYS="You are Orbit, a sharp and genuinely useful assistant who happens to live "+
+  "next to a library of playable zones."+
+  "\n\nOn maths and anything with a right answer: work it out, show the steps, and do "+
+  "not guess. If you are unsure, say so plainly rather than inventing something."+
+  "\nOn questions and explanations: answer directly first, then add detail if it helps. "+
+  "Plain language, no waffle."+
+  "\nOn images: you may be shown pictures read by another model along with a note of what "+
+  "it saw. Trust the text over your own guess."+
+  "\nOn games: when someone wants a zone to play, answer from the list Orbit gives you and "+
+  "be brief about it. Otherwise just be a normal assistant."+
+  (settings.persona?"\n\n"+settings.persona:"");
+
+function typing(on){
+  var box=$("chat");
+  var ex=$("typing");
+  if(!on){if(ex)ex.remove();return}
+  if(ex)return;
+  var d=document.createElement("div");
+  d.id="typing";d.className="msg ai";
+  d.innerHTML='<span class="who">Orbit</span><span class="typing"><i></i><i></i><i></i></span>';
+  box.appendChild(d);
+  box.scrollTop=box.scrollHeight;
+}
+
+async function groqAsk(history){
+  var res=await fetchWithTimeout(GROQ_URL,{
+    method:"POST",
+    headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiKey},
+    body:JSON.stringify({
+      model:settings.model||"openai/gpt-oss-120b",
+      messages:[{role:"system",content:SYS}].concat(history),
+      temperature:settings.temperature,
+      max_tokens:settings.maxTokens
+    })
+  },120000);
+  if(!res.ok){
+    var j=null;
+    try{j=await res.json()}catch(e){}
+    var why=(j&&j.error&&j.error.message)||("the server said "+res.status);
+    if(res.status===401||res.status===403&&/api key/i.test(why))
+      throw new Error("the chat key was refused. it may have been revoked, or the "+
+        "Generative AI API may not be enabled for it - put a working key in settings.");
+    if(res.status===403)
+      throw new Error("groq blocked the request rather than refusing the key "+
+        "(403). that is a network or filter problem, not a bad key.");
+    throw new Error(why);
+  }
+  var j=await res.json();
+  var c=j.choices&&j.choices[0];
+  var t=c&&c.message&&c.message.content;
+  if(!t)throw new Error("empty answer"+(c&&c.finish_reason==="length"?" - it ran past the length limit":""));
+  return t.trim();
+}
+
+function gemModel(){return lsGet("orbitGemModel",GEM_MODELS[0])}
+function imagePart(c){return {inline_data:{mime_type:c.mime||"image/png",data:c.dataUrl.split(",")[1]||""}}}
+
+async function geminiAsk(prompt,shots,history){
+  if(!gemKey)throw new Error("no picture key is set. add one in settings.");
+  var order=[gemModel()].concat(GEM_MODELS.filter(function(m){return m!==gemModel()}));
+  var tried=[];
+  for(var i=0;i<order.length;i++){
+    var model=order[i];
+    var parts=[];
+    (history||[]).forEach(function(h){
+      parts.push({text:h.text});
+      (h.shots||[]).forEach(function(c){parts.push(imagePart(c))});
+    });
+    parts.push({text:prompt});
+    (shots||[]).forEach(function(c){parts.push(imagePart(c))});
+    var res=await fetchWithTimeout(GEMINI_HOST+model+":generateContent",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","x-goog-api-key":gemKey},
+      body:JSON.stringify({
+        contents:[{role:"user",parts:parts}],
+        systemInstruction:{parts:[{text:SYS}]},
+        generationConfig:{temperature:0.3,maxOutputTokens:3000}
+      })
+    },120000);
+    if(res.status===401||res.status===403)
+      throw new Error("that picture key was refused ("+res.status+"). it may have been revoked - "+
+        "put a working one in settings and pictures will read again.");
+    if(res.ok){
+      var j=await res.json();
+      var c=(j.candidates||[])[0];
+      var ps=(c&&c.content&&c.content.parts)||[];
+      var text=ps.map(function(p){return p.text||""}).join("").trim();
+      if(text)return text;
+    }else if(res.status!==429&&res.status!==503){
+      tried.push(model+" ("+res.status+")");
+    }else{
+      tried.push(model+" ("+res.status+")");
+    }
+  }
+  throw new Error("every picture model refused or was busy"+(tried.length?" ["+tried.join(", ")+"]":""));
+}
+
+/* ---------- finding a zone ---------- */
+var ZONE_WORDS=/\b(find|show|list|give me|recommend|suggest|play|zone|game|games)\b/i;
+function cleanName(n){
+  /* the feed occasionally carries stray control characters, which then show up in
+     the answer as boxes */
+  return String(n||"").replace(/[\u0000-\u001f\u007f-\u009f]/g," ")
+                  .replace(/[\u200b-\u200f\u202a-\u202e\u2060-\u2064\ufeff]/g,"")
+                  .replace(/[\u2028\u2029]/g," ")
+                  .replace(/\s+/g," ").trim();
+}
+function zoneSearch(q){
+  q=String(q||"").toLowerCase();
+  var list=(typeof zones!=="undefined"&&zones.length)?zones:[];
+  var out=[];
+  for(var i=0;i<list.length&&out.length<40;i++){
+    var z=list[i];
+    var hay=(z.name+" "+(z.special||[]).join(" ")).toLowerCase();
+    if(hay.indexOf(q)>=0)out.push(z);
+  }
+  return out;
+}
+function zoneBrief(q){
+  var found=zoneSearch(q);
+  if(!found.length)return "no zone matches that. try a shorter word, or ask in your own words.";
+  return "Here is what is in the library:\n\n"+
+    found.slice(0,25).map(function(z){
+      var tags=(z.special&&z.special.length)?cleanName(z.special.join(", ")):"";
+      return "- "+cleanName(z.name)+(tags?"  ["+tags+"]":"");
+    }).join("\n")+
+    "\n\n("+found.length+" match"+(found.length===1?"":"es")+". switch to the ZONES tab and "+
+    "search for it to play.)";
+}
+
+async function send(){
+  var text=$("input").value.trim();
+  if(!text||busy())return;
+  var shot=clips.slice();
+  clips=[];renderClips();
+  $("input").value="";resize();
+  busy(null,true);
+
+  push({role:"user",content:text,shots:shot.filter(function(c){return !c.ephemeral})
+        .map(function(c){return {name:c.name,dataUrl:c.dataUrl}})});
+  renderChat();
+  typing(true);
+
+  try{
+    if(gameMode&&!shot.length){
+      push({role:"assistant",content:zoneBrief(text.replace(/^(find|show|give me|recommend|suggest|play)\s+/i,""))});
+      gameMode=false;$("gameMode").classList.remove("on");
+    }else if(shot.length){
+      var hist=messages.filter(function(m){
+        return m.role==="user"&&m.shots&&m.shots.length;
+      }).slice(-2).map(function(m){
+        return {text:m.content,shots:m.shots};
+      });
+      var answer=await geminiAsk(text,shot,hist);
+      push({role:"assistant",content:answer,via:"Gemini"});
+    }else{
+      /* the question just asked is already the last entry, so the whole tail goes
+         across and it is never left out */
+      var history=messages.slice(-10).map(function(m){return {role:m.role,content:m.content}});
+      var note=(gameMode||ZONE_WORDS.test(text))
+        ? "\n\nIf the question is about what to play, these zones exist: "+zoneNames().join(", ")+"."
+        : "";
+      var reply=await groqAsk(history);
+      push({role:"assistant",content:reply+note,via:modelLabel(settings.model)});
+    }
+  }catch(e){
+    var msg=String(e.message||e);
+    push({role:"assistant",content:"That did not work: "+msg,via:"Orbit"});
+    toast(msg,"bad");
+  }
+  typing(false);
+  busy(null,false);
+  renderChat();
+}
+function modelLabel(m){
+  if(!m)return"Orbit";
+  return m.split("/").pop().replace(/-/g," ");
+}
+function zoneNames(){
+  var list=(typeof zones!=="undefined"&&zones.length)?zones:[];
+  return list.slice(0,60).map(function(z){return cleanName(z.name)});
+}
+
+$("send").onclick=send;
+$("input").addEventListener("keydown",function(e){
+  if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}
+});
+function resize(){
+  var t=$("input");
+  t.style.height="auto";
+  t.style.height=Math.min(t.scrollHeight,180)+"px";
+}
+$("input").addEventListener("input",resize);
+function busy(set,on){ if(set)set.disabled=on;else $("send").disabled=on }
+$("clearChat").onclick=function(){ newChat(); renderChat(); toast("new chat") };
+$("gameMode").onclick=function(){
+  gameMode=!gameMode;
+  this.classList.toggle("on",gameMode);
+  $("chatWho").textContent=gameMode
+    ?"zone finder on - ask for a game and it will sort the library"
+    :"text and maths · images are read by Gemini";
+  $("input").focus();
+};
+
+/* ---------- zones that were built for a small window ----------
+   The frame fills the window, which is right for most of them, but plenty of these
+   were drawn for a 640 or 800 pixel screen and would sit hard in the corner
+   looking broken. The frame is same-origin - alice.js writes the document in from
+   here - so the game can be nudged into the middle.
+   The body's own box is always as wide as the frame, so it is the content inside
+   it that has to be measured. Anything already using the whole width is left
+   exactly as it was. */
+function centreSmallZone(f){
+  if(!f||f._centreHooked)return;
+  f._centreHooked=true;
+  f.addEventListener("load",function(){
+    var doc=null;
+    try{doc=f.contentDocument}catch(e){return}
+    if(!doc||!doc.body)return;
+    var settle=function(){
+      var b=doc.body;
+      if(!b||!b.isConnected)return;
+      var room=f.clientWidth;
+      if(room<200)return;
+      var widest=0,kids=b.children;
+      for(var i=0;i<kids.length&&i<12;i++){
+        var r=kids[i].getBoundingClientRect();
+        if(r.width>widest)widest=r.width;
+      }
+      /* nothing to do for a game that already fills the frame */
+      if(widest<1||widest>=room-40)return;
+      if(b._centred)return;
+      b._centred=true;
+      /* a column keeps the children in the order they were written, and centres
+         them without touching any of their own sizes */
+      b.style.display="flex";
+      b.style.flexDirection="column";
+      b.style.alignItems="center";
+      b.style.minHeight="100%";
+      if(!doc.documentElement.style.height)doc.documentElement.style.height="100%";
+    };
+    f._settle=settle;
+    settle();
+    setTimeout(settle,120);
+    setTimeout(settle,600);
+    setTimeout(settle,1600);
+  });
+}
+function recentreZone(){
+  var f=$("zoneFrame");
+  if(f&&f._settle)f._settle();
+}
+(function watchZoneFrame(){
+  var f=$("zoneFrame");
+  if(!f)return;
+  centreSmallZone(f);
+  /* alice.js replaces the frame when the previous one was closed, so watch for a
+     new one appearing */
+  new MutationObserver(function(){
+    var now=$("zoneFrame");
+    if(now&&now!==f)centreSmallZone(now);
+  }).observe($("zoneViewer"),{childList:true,subtree:true});
+  /* a game drawn for a fixed screen has to be put back in the middle when the
+     window changes size */
+  window.addEventListener("resize",function(){setTimeout(recentreZone,180)});
+})();
+
+/* ============================================================
+   8. GOOGLE TAB
+   ============================================================ */
+var pxTabs=[];
+var pxActive=0;
+var PX_HOME="https://www.google.com?igu=1";
+
+function pxTarget(raw){
+  var v=String(raw||"").trim();
+  if(!v)return PX_HOME;
+  if(/^https?:\/\//i.test(v))return v;
+  if(/^localhost$/i.test(v))return "http://"+v;
+  if(/^[\w.-]+:\d+(\/|$)/.test(v))return "http://"+v;
+  var host=v.split("/")[0].split(":")[0];
+  if(!/\s/.test(v)&&host.indexOf(".")>-1&&/[a-z]{2,}$/i.test(host))return "https://"+v;
+  return "https://www.google.com/search?q="+encodeURIComponent(v.replace(/\s+/g," ")).replace(/%20/g,"+")+"&igu=1";
+}
+function favicon(url){
+  try{
+    var u=new URL(url);
+    if(!/^https?:$/.test(u.protocol))return "";
+    if(/google\.com$/.test(u.hostname))return "https://www.google.com/favicon.ico";
+    return u.origin+"/favicon.ico";
+  }catch(e){return ""}
+}
+function hostOf(u){try{return new URL(u).hostname.replace(/^www\./,"")}catch(e){return String(u)}}
+function pxTitle(u){return hostOf(u)}
+function loadPxTabs(){
+  try{
+    var v=JSON.parse(lsGet(LS.marks,"[]")||"[]");
+    if(Array.isArray(v))pxTabs=v.filter(function(t){return t&&t.url});
+  }catch(e){}
+  if(!pxTabs.length)pxTabs.push({url:PX_HOME,title:"Google",icon:favicon(PX_HOME)});
+}
+function savePxTabs(){lsSet(LS.marks,JSON.stringify(pxTabs.map(function(t){return {url:t.url,title:t.title}})))}
+function paintPx(){
+  var strip=$("pxTabs");
+  strip.innerHTML="";
+  pxTabs.forEach(function(t,i){
+    var el=document.createElement("div");
+    el.className="ptab"+(i===pxActive?" on":"");
+    var im=document.createElement("img");
+    im.alt="";im.loading="lazy";im.src=t.icon||favicon(t.url);
+    im.onerror=function(){
+      var l=document.createElement("span");
+      l.textContent=(t.title||"?").replace(/[^A-Za-z0-9]/g,"").slice(0,1).toUpperCase();
+      l.style.cssText="width:14px;height:14px;border-radius:3px;display:grid;place-items:center;"+
+        "background:var(--surface-hover);font-size:9px;font-weight:800";
+      im.replaceWith(l);
+    };
+    var nm=document.createElement("span");
+    nm.textContent=t.title;
+    el.append(im,nm);
+    var x=document.createElement("button");
+    x.textContent="\u00d7";
+    x.onclick=function(e){e.stopPropagation();pxTabs.splice(i,1);
+      if(pxActive>=pxTabs.length)pxActive=pxTabs.length-1;
+      if(!pxTabs.length)pxTabs.push({url:PX_HOME,title:"Google",icon:favicon(PX_HOME)});
+      savePxTabs();paintPx();};
+    el.appendChild(x);
+    el.onclick=function(){pxActive=i;paintPx()};
+    strip.appendChild(el);
+  });
+  var add=document.createElement("button");
+  add.className="ptab";
+  add.style.padding="0 12px";
+  add.textContent="+";
+  add.title="open another site";
+  add.onclick=function(){
+    var v=window.prompt("address, or words to search for");
+    if(v)pxGo(v,true);
+  };
+  strip.appendChild(add);
+
+  var t=pxTabs[pxActive];
+  if(!t)return;
+  $("pxUrl").value=t.url;
+  $("pxFrame").src=t.url;
+  lsSet(LS.pxUrl,t.url);
+}
+function pxGo(raw,forceNew){
+  var typed=String(raw||"").trim();
+  if(!typed)return;
+  var url=pxTarget(typed);
+  var here=pxTabs[pxActive];
+  if(!forceNew&&here&&(here.url===url||hostOf(here.url)===hostOf(url))){
+    here.url=url;
+    here.title=(/^https?:\/\//i.test(typed))?hostOf(url):typed;
+    savePxTabs();paintPx();
+    return;
+  }
+  var found=-1;
+  pxTabs.forEach(function(t,i){if(t.url===url)found=i});
+  if(found>-1){pxActive=found;paintPx();return}
+  pxTabs.push({url:url,title:(/^https?:\/\//i.test(typed))?hostOf(url):typed,icon:favicon(url)});
+  pxActive=pxTabs.length-1;
+  savePxTabs();paintPx();
+}
+loadPxTabs();
+paintPx();
+$("pxGo").onclick=function(){pxGo($("pxUrl").value)};
+$("pxUrl").addEventListener("keydown",function(e){
+  if(e.key==="Enter"){e.preventDefault();pxGo(this.value)}
+});
+$("pxNew").onclick=function(){pxGo($("pxUrl").value,true)};
+$("pageOpen").onclick=function(){
+  var v=$("pageInput").value.trim();
+  if(!v){toast("type a link or a search first");return}
+  pxGo(v,true);
+  setTab("google");
+};
+
+/* ---------- reading a page into the composer ---------- */
+function htmlToText(html){
+  var doc=document.implementation.createHTMLDocument("");
+  doc.body.innerHTML=String(html)
+    .replace(/<script[\s\S]*?<\/script>/gi," ")
+    .replace(/<style[\s\S]*?<\/style>/gi," ")
+    .replace(/<noscript[\s\S]*?<\/noscript>/gi," ");
+  doc.querySelectorAll("script,style,noscript,svg,nav,footer,header,aside,form").forEach(function(n){n.remove()});
+  var title=(doc.querySelector("title")||{}).textContent||"";
+  var body=(doc.body.textContent||"").replace(/[ \t]+/g," ").replace(/\n{3,}/g,"\n\n").trim();
+  return {title:title.trim(),text:body};
+}
+async function askAboutPage(url){
+  var target=pxTarget(url);
+  try{
+    var res=await fetch(target,{redirect:"follow"});
+    if(!res.ok)throw new Error("the server said "+res.status);
+    var page=htmlToText(await res.text());
+    if(!page.text)throw new Error("nothing readable came back");
+    $("input").value="Here is a page I am looking at. Answer using it when it helps:\n\n"+
+      "URL: "+target+"\n"+(page.title?"Title: "+page.title+"\n":"")+"\n"+
+      page.text.slice(0,6000)+"\n\n[the page was cut at 6000 characters]";
+    resize();setTab("chat");
+    toast("the page is in the composer - add your question and hit enter");
+  }catch(e){
+    toast("could not read that page - "+e.message,"bad");
+  }
+}
+$("pxAsk").onclick=function(){askAboutPage($("pxUrl").value)};
+$("pxAway").onclick=function(){
+  /* a frame that shows nothing is usually a site refusing to be framed, so the
+     way out is a real tab rather than an empty box */
+  window.open($("pxUrl").value,"_blank","noopener");
+  toast("opened in a new tab");
+};
+$("pxRead").onclick=function(){askAboutPage($("pxUrl").value)};
+$("pageGo").onclick=function(){
+  var v=$("pageInput").value.trim();
+  if(!v){toast("type a link or a search first");return}
+  askAboutPage(v);
+};
+
+/* ============================================================
+   9. SETTINGS
+   ============================================================ */
+function paintSettings(){
+  $("apiKey").value=apiKey;
+  $("gemKey").value=gemKey;
+  $("persona").value=settings.persona||"";
+  $("temp").value=settings.temperature;
+  $("tempVal").textContent=settings.temperature.toFixed(1);
+  $("maxTok").value=settings.maxTokens;
+  $("maxVal").textContent=settings.maxTokens+" tokens";
+  var sel=$("modelSelect");
+  sel.innerHTML="";
+  if(models.length){
+    models.forEach(function(m){
+      var o=document.createElement("option");
+      o.value=m.id;o.textContent=(m.id||"").replace(/^openai\//,"");
+      if(m.id===settings.model)o.selected=true;
+      sel.appendChild(o);
+    });
+  }else{
+    var o=document.createElement("option");
+    o.value=settings.model||"openai/gpt-oss-120b";
+    o.textContent=(settings.model||"openai/gpt-oss-120b").replace(/^openai\//,"");
+    o.selected=true;
+    sel.appendChild(o);
+  }
+}
+$("temp").addEventListener("input",function(){settings.temperature=parseFloat(this.value);$("tempVal").textContent=this.value});
+$("maxTok").addEventListener("input",function(){settings.maxTokens=parseInt(this.value,10);$("maxVal").textContent=this.value+" tokens"});
+$("showKey").onclick=function(){var e=$("apiKey");e.type=e.type==="password"?"text":"password"};
+$("showGem").onclick=function(){var e=$("gemKey");e.type=e.type==="password"?"text":"password"};
+$("saveSettings").onclick=function(){
+  apiKey=$("apiKey").value.trim()||DEFAULT_KEY;
+  gemKey=$("gemKey").value.trim()||DEFAULT_GEM;
+  settings.model=$("modelSelect").value||settings.model;
+  settings.persona=$("persona").value;
+  lsSet(LS.key,apiKey);lsSet(LS.gemKey,gemKey);lsSet(LS.model,settings.model);
+  lsSet(LS.settings,JSON.stringify(settings));
+  toast("saved");
+};
+$("testKey").onclick=async function(){
+  var b=this;this.disabled=true;$("keyNote").textContent="trying...";
+  try{
+    var res=await fetchWithTimeout(GROQ_MODELS_URL,{headers:{"Authorization":"Bearer "+apiKey}},15000);
+    if(!res.ok)throw new Error("the server said "+res.status);
+    var j=await res.json();
+    var good=(j.data||[]).filter(function(m){return !BAD_MODEL.test(m.id||"")});
+    models=good.map(function(m){return m.id});
+    if(!models.length)throw new Error("no chat models on this key");
+    $("keyNote").textContent="that key works - "+models.length+" chat models";
+    paintSettings();
+  }catch(e){
+    $("keyNote").textContent="that key did not work: "+e.message;
+  }
+  this.disabled=false;
+};
+$("testGem").onclick=async function(){
+  var b=this;this.disabled=true;$("gemNote").textContent="trying...";
+  try{
+    var res=await fetchWithTimeout(
+      GEMINI_HOST+GEM_MODELS[0]+":generateContent",
+      {method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":gemKey},
+       body:JSON.stringify({contents:[{role:"user",parts:[{text:"Reply with one word: ok"}]}],
+                            generationConfig:{maxOutputTokens:100}})},20000);
+    if(!res.ok){
+      var j=await res.json().catch(function(){return null});
+      throw new Error(((j&&j.error&&j.error.message)||("the server said "+res.status)));
+    }
+    $("gemNote").textContent="that key works - pictures will be read";
+  }catch(e){
+    $("gemNote").textContent="that key did not work: "+String(e.message||e);
+  }
+  this.disabled=false;
+};
+$("exportOrbit").onclick=function(){
+  var data={};
+  for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);
+    if(k.indexOf("orbit")===0)data[k]=localStorage.getItem(k);
+  }
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="orbit-backup.json";
+  a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href)},4000);
+  toast("backup downloaded");
+};
+$("importOrbit").onclick=function(){$("orbitImport").click()};
+$("orbitImport").onchange=function(e){
+  var f=e.target.files[0];if(!f)return;
+  var fr=new FileReader();
+  fr.onload=function(){
+    try{
+      var d=JSON.parse(String(fr.result));
+      Object.keys(d).forEach(function(k){lsSet(k,d[k])});
+      toast("restored - reloading");
+      setTimeout(function(){location.reload()},700);
+    }catch(err){toast("that file was not an orbit backup","bad")}
+  };
+  fr.readAsText(f);
+  e.target.value="";
+};
+
+paintSettings();
+
+/* the theme comes back the way it was left */
+applyTheme(lsGet(LS.theme,"orbit"),true);
+
+/* first run: an empty chat so the page never looks broken */
+if(!chats.length)newChat();
+else loadChat(activeChat)||newChat();
+renderChat();
+
+/* a small handle, for the console and for anything that wants to drive it */
+window.ORBIT={
+  setTab:setTab, send:send, askAboutPage:askAboutPage, grabScreen:grabScreen,
+  newChat:function(){newChat();renderChat()},
+  zoneBrief:zoneBrief, pxGo:pxGo, pxTarget:pxTarget,
+  recentre:recentreZone,
+  googleTabs:function(){return pxTabs},
+  chats:function(){return chats}, messages:function(){return messages},
+  settings:function(){return settings},
+  quotes:function(){return QUOTES},
+  themes:function(){return THEMES}, theme:function(){return themeId},
+  setTheme:function(id){applyTheme(id)},
+  keys:function(){return {chat:DEFAULT_KEY,picture:DEFAULT_GEM,
+                   haveChat:apiKey,havePicture:gemKey}},  pictures:function(){return {models:GEM_MODELS,chosen:gemModel()}},
+  addPicture:function(c){clips.push(c);renderClips();},
+  clearPictures:function(){clips=[];renderClips();},
+};
+})();
+</script>
+
+<script src="https://cdn.jsdelivr.net/gh/daknux/egg-shell@main/alice.js"></script>
+</body>
+</html>
 
