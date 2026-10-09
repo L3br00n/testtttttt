@@ -61,6 +61,8 @@ header{position:sticky;top:0;z-index:60;background:var(--bg);
 .logo{display:flex;align-items:center;gap:9px;flex-shrink:0;cursor:pointer;
   padding:6px 8px 6px 0;border-radius:9px;transition:background .16s;user-select:none}
 .logo:hover{background:var(--dim)}
+/* the mark takes the theme's own colours instead of two fixed ones */
+.logo .logo-mark{color:var(--tx)}
 .logo svg{transition:transform .5s cubic-bezier(.2,.8,.2,1)}
 .logo:hover svg{transform:rotate(-22deg)}
 .logo-tag{font-family:"Staatliches",sans-serif;font-size:12px;letter-spacing:3px;color:var(--mut)}
@@ -119,6 +121,24 @@ main{max-width:1560px;margin:0 auto;padding:0 20px 70px}
   background-clip:text;animation:quoteIn .5s ease,colorShift 9s linear infinite}
 @keyframes quoteIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 @keyframes colorShift{0%{background-position:0% center}100%{background-position:200% center}}
+
+/* ---------- near fullscreen ----------
+   Chat, Google and YouTube are the three things you sit and look at, so they get
+   the whole window instead of a card in the middle of the page. The tab bar stays
+   at the top so you can still get out. */
+body.wide{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
+body.wide header{flex:0 0 auto}
+body.wide footer{display:none}
+body.wide main{flex:1 1 auto;min-height:0;width:100%;max-width:none;margin:0;padding:0}
+body.wide .view.on{height:100%;animation:none}
+body.wide .rainbow-container{display:none}
+body.wide .chat-wrap{max-width:1180px;height:100%;margin:0 auto;border-radius:0;
+  border-left:0;border-right:0}
+body.wide #viewGoogle,body.wide #viewYoutube{display:none;height:100%}
+body.wide #viewGoogle.on,body.wide #viewYoutube.on{display:flex;flex-direction:column}
+body.wide .px-frame-wrap{flex:1 1 auto;height:auto;min-height:0;border-radius:0;
+  border-left:0;border-right:0}
+body.wide .px-out{padding:8px 14px 10px;border-top:1px solid var(--line);flex-shrink:0}
 
 /* ---------- zones ---------- */
 details{margin-bottom:22px}
@@ -292,6 +312,108 @@ details[open] summary{color:var(--tx)}
 .px-out{display:flex;align-items:center;gap:7px;padding:9px 2px 0;flex-wrap:wrap}
 .px-out .hint{flex:1;min-width:170px}
 
+/* ---------- your games table ---------- */
+.mtable{width:100%;border-collapse:collapse;margin:10px 0 4px;font-size:12px}
+.mtable th{text-align:left;font-size:9.5px;letter-spacing:1.6px;text-transform:uppercase;
+  color:var(--mut);font-weight:600;padding:6px 8px;border-bottom:1px solid var(--line)}
+.mtable td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.mtable tr:hover td{background:var(--dim)}
+.mtable .m-name{font-weight:600}
+.mtable .m-kind{color:var(--acc);font-size:10.5px;text-transform:uppercase;letter-spacing:1px}
+.mtable .m-link{color:var(--mut);font-size:11px;max-width:260px;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.mtable img{width:26px;height:26px;border-radius:6px;object-fit:cover;
+  border:1px solid var(--line);background:var(--surf2)}
+.mtable .m-act{display:flex;gap:4px;justify-content:flex-end}
+.mtable .mini{width:26px;height:26px;border-radius:6px;border:1px solid var(--line);
+  background:transparent;color:var(--mut);cursor:pointer;font-size:13px;line-height:1;
+  display:grid;place-items:center;transition:color .16s,border-color .16s}
+.mtable .mini:hover{color:var(--acc);border-color:var(--acc)}
+.mtable .mini.del:hover{color:#e5484d;border-color:#e5484d}
+.mine-form{margin-top:4px}
+.mf-row{display:flex;align-items:center;gap:8px;padding:6px 0}
+.mf-lab{width:66px;flex-shrink:0;font-size:10.5px;color:var(--mut);text-transform:uppercase;
+  letter-spacing:1.1px}
+.mf-row input{flex:1;min-width:0;padding:8px 11px;border-radius:8px;background:var(--bg);
+  border:1px solid var(--line);color:var(--tx);font-size:12.5px;outline:none;
+  transition:border-color .16s}
+.mf-row input:focus{border-color:var(--acc)}
+.mf-prev{width:34px;height:34px;border-radius:8px;border:1px solid var(--line);
+  background:var(--surf2) center/cover no-repeat;flex-shrink:0}
+#mfError{color:#e5484d;min-height:14px}
+
+/* ---------- what's new ---------- */
+.news{display:flex;flex-direction:column;gap:2px;margin-top:6px}
+.news-item{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+.news-item:last-child{border-bottom:0}
+.news-when{width:96px;flex-shrink:0;font-size:10px;color:var(--mut);letter-spacing:.6px;
+  padding-top:2px;font-variant-numeric:tabular-nums}
+.news-what{flex:1;min-width:0}
+.news-what b{display:block;font-size:12.5px;font-weight:600;margin-bottom:3px}
+.news-what p{margin:0;font-size:12px;line-height:1.6;color:var(--mut)}
+.dotnew{position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%;
+  background:var(--acc);box-shadow:0 0 0 2px var(--bg)}
+
+/* ---------- youtube ---------- */
+.yt-wrap{display:flex;flex-direction:column;height:100%;min-height:0}
+.yt-bar{display:flex;gap:6px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);
+  flex-shrink:0;flex-wrap:wrap}
+.yt-bar h2{margin:0 auto 0 0;font-family:"Staatliches",sans-serif;font-size:15px;letter-spacing:1.5px}
+.yt-url{flex:1;min-width:180px;background:var(--surf);border:1px solid var(--line);
+  color:var(--tx);border-radius:8px;padding:8px 11px;font-size:12.5px;outline:none;
+  transition:border-color .16s}
+.yt-url::placeholder{color:var(--mut)}
+.yt-url:hover{border-color:var(--line2)}
+.yt-url:focus{border-color:var(--acc)}
+
+.yt-wrap{display:flex;flex-direction:column;height:100%;min-height:0}
+.yt-bar{display:flex;gap:6px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);
+  flex-shrink:0;flex-wrap:wrap}
+.yt-url{flex:1;min-width:180px;background:var(--surf);border:1px solid var(--line);
+  color:var(--tx);border-radius:8px;padding:8px 11px;font-size:12.5px;outline:none;
+  transition:border-color .16s}
+.yt-url::placeholder{color:var(--mut)}
+.yt-url:hover{border-color:var(--line2)}
+.yt-url:focus{border-color:var(--acc)}
+.yt-stage{position:relative;flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+.yt-feed{display:grid;gap:12px;padding:16px;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+  grid-auto-rows:max-content;overflow-y:auto;align-content:start;flex:1 1 auto;min-height:0}
+.yt-card{text-align:left;background:var(--surf);border:1px solid var(--line);border-radius:11px;
+  padding:0;overflow:hidden;cursor:pointer;color:var(--tx);position:relative;
+  transition:border-color .16s,transform .18s cubic-bezier(.2,.8,.2,1),background .16s;
+  animation:viewIn .24s cubic-bezier(.2,.8,.2,1)}
+.yt-card:hover{border-color:var(--line2);background:var(--surf2);transform:translateY(-3px)}
+.yt-thumb{aspect-ratio:16/9;position:relative;display:grid;place-items:center;
+  background:linear-gradient(140deg,var(--surf2),var(--bg));border-bottom:1px solid var(--line);
+  overflow:hidden}
+.yt-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.yt-thumb .playico{position:absolute;width:34px;height:34px;border-radius:50%;
+  background:rgba(8,9,11,.72);display:grid;place-items:center;
+  box-shadow:0 2px 10px rgba(0,0,0,.4);transition:transform .22s,color .16s}
+.yt-thumb .playico svg{width:15px;height:15px;color:#fff}
+.yt-card:hover .yt-thumb .playico{transform:scale(1.14);color:var(--acc)}
+.yt-thumb .len{position:absolute;right:6px;bottom:6px;font-size:9px;padding:1px 5px;border-radius:4px;
+  background:rgba(0,0,0,.72);color:var(--tx);font-variant-numeric:tabular-nums}
+.yt-body{padding:10px 11px 12px}
+.yt-body b{display:block;font-size:12.5px;font-weight:600;line-height:1.4;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.yt-body span{display:block;margin-top:4px;font-size:10.5px;color:var(--mut)}
+.yt-avatar{width:100%;aspect-ratio:1;object-fit:cover;display:block;background:var(--surf2)}
+.yt-say{padding:11px 12px 13px;margin:0}
+.yt-say h2{margin:0 0 3px;font-family:"Staatliches",sans-serif;font-size:17px;letter-spacing:1.2px}
+.yt-say p{margin:0 0 7px;font-size:11.5px;color:var(--mut);line-height:1.6}
+.yt-note{padding:22px 18px;color:var(--mut);font-size:12.5px;line-height:1.7;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.yt-player{position:absolute;inset:0;background:var(--bg);display:flex;flex-direction:column;
+  z-index:3;animation:viewIn .22s ease}
+.yt-player[hidden]{display:none}
+.yt-frame{flex:1 1 auto;width:100%;min-height:0;border:0;background:#000;display:block}
+.yt-under{display:flex;align-items:center;gap:8px;padding:9px 14px;border-top:1px solid var(--line);
+  flex-shrink:0;flex-wrap:wrap}
+.yt-under-txt{flex:1;min-width:140px;overflow:hidden}
+.yt-under-txt b{display:block;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.yt-under-txt span{font-size:10.5px;color:var(--mut)}
+
 /* ---------- settings ---------- */
 .panel{max-width:800px;margin:8px auto 0;background:var(--surf);border:1px solid var(--line);
   border-radius:12px;padding:4px 20px 20px}
@@ -383,10 +505,10 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding:18px 20px 44px}
 <header>
   <div class="header-content">
     <div class="logo" id="logoHome" title="Orbit">
-      <svg viewBox="0 0 32 32" width="34" height="34" aria-hidden="true">
-        <circle cx="16" cy="16" r="4.6" fill="#22d3ee"/>
-        <ellipse cx="16" cy="16" rx="11.5" ry="5" transform="rotate(-28 16 16)" stroke="#f59e0b" stroke-width="2" fill="none"/>
-        <circle cx="25" cy="11" r="2.1" fill="#f59e0b"/>
+      <svg class="logo-mark" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true">
+        <ellipse cx="16" cy="16" rx="13" ry="6.4" fill="none" stroke="currentColor"
+                 stroke-width="1.5" opacity=".45" transform="rotate(-28 16 16)"/>
+        <circle cx="16" cy="16" r="4.4" fill="var(--acc)"/>
       </svg>
       <span class="logo-tag">ORBIT</span>
     </div>
@@ -403,6 +525,10 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding:18px 20px 44px}
       <button class="tab" data-tab="google" title="Google">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
         <span>Google</span>
+      </button>
+      <button class="tab" data-tab="youtube" title="YouTube">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2.4" y="5.2" width="19.2" height="13.6" rx="4"/><path d="M10.4 9.5v5l4.4-2.5z" fill="currentColor" stroke="none"/></svg>
+        <span>YouTube</span>
       </button>
       <button class="tab" data-tab="settings" title="Settings">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
@@ -426,6 +552,10 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding:18px 20px 44px}
       <div class="control-buttons">
         <button id="randomZoneBtn" class="control-button" title="Play something at random" onclick="randomZone()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><circle cx="8.5" cy="8.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="15.5" cy="8.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="8.5" cy="15.5" r="1.3" fill="currentColor" stroke="none"/></svg>
+        </button>
+        <button id="newsBtn" class="control-button" title="What changed" onclick="showNews()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 4.5h9.5l4 4v11a1 1 0 0 1-1 1h-12.5a1 1 0 0 1-1-1v-14a1 1 0 0 1 1-1z"/><path d="M15 4.5v4h4"/><path d="M8.5 12.5h7M8.5 16h4.5"/></svg>
+          <span class="dotnew" id="newsDot" hidden></span>
         </button>
         <button id="refresh" class="control-button" title="Refresh all the zones" onclick="listZones()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 12a8.5 8.5 0 1 1-2.5-6"/><path d="M20.5 4v5.5H15"/></svg>
@@ -519,6 +649,40 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding:18px 20px 44px}
     </div>
   </section>
 
+  <!-- ==================== YOUTUBE ==================== -->
+  <section class="view" id="viewYoutube">
+    <div class="yt-wrap">
+      <div class="yt-bar">
+        <input type="text" id="ytUrl" class="yt-url" placeholder="search YouTube - videos or channels" autocomplete="off">
+        <button class="small-btn" id="ytGo">Go</button>
+        <button class="small-btn" id="ytMode" title="switch between videos and channels">Videos</button>
+        <button class="small-btn" id="ytSort" title="how the list is ordered">Relevance</button>
+        <button class="small-btn" id="ytHome">For You</button>
+        <button class="small-btn" id="ytBack" hidden>Back</button>
+      </div>
+      <div class="yt-stage" id="ytStage">
+        <div class="yt-feed" id="ytFeed"></div>
+        <div class="yt-player" id="ytPlayer" hidden>
+          <iframe id="ytFrame" class="yt-frame" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+            allowfullscreen referrerpolicy="no-referrer"></iframe>
+          <div class="yt-under">
+            <div class="yt-under-txt">
+              <b id="ytNowTitle">nothing playing</b>
+              <span id="ytNowWho"></span>
+            </div>
+            <button class="small-btn" id="ytOpenWatch">Open on YouTube</button>
+            <button class="small-btn" id="ytStop">Stop</button>
+          </div>
+        </div>
+      </div>
+      <div class="px-out">
+        <span class="hint" id="ytHint">Real results, straight from YouTube. Pick a video and it plays
+          right here; pick a channel and you get their uploads.</span>
+        <button class="small-btn" id="ytAsk">Ask Orbit about this</button>
+      </div>
+    </div>
+  </section>
+
   <!-- ==================== SETTINGS ==================== -->
   <section class="view" id="viewSettings">
     <div class="panel">
@@ -579,6 +743,72 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding:18px 20px 44px}
         <textarea id="persona" rows="4" placeholder="Optional. Anything you add here is added to how Orbit behaves."></textarea>
         <div class="note">Maths and facts are checked and worked through step by step unless you tell it otherwise.</div>
       </div>
+      <h3>your games</h3>
+      <div class="field">
+        <label>Games you added yourself</label>
+        <div class="note">These sit in the zone list next to everyone else's, and they play in the
+          same window. Only three things are needed: the name, the raw link to the game's html file,
+          and an image for the icon. The rest is optional and only used to sort and filter.</div>
+        <table class="mtable" id="mineTable">
+          <thead>
+            <tr>
+              <th>name</th><th>raw link</th><th>icon</th><th>kind</th><th>tags</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="mineRows"></tbody>
+        </table>
+        <div class="actions" style="border:0;padding-top:10px;margin:0">
+          <button class="act" id="mineAdd">Add a game</button>
+        </div>
+        <div class="note">
+          <b>raw link</b> - the address of the html file itself, the one that ends in .html.
+          Right click the game on github and copy the raw address.<br>
+          <b>icon</b> - an image address, or a data: link. Square pictures look best.<br>
+          <b>kind</b> - game, tool, movie, mod or anything else you like. It becomes a filter tag.<br>
+          <b>tags</b> - comma separated. Also become filter tags, so you can sort by them.<br>
+          <b>author</b> - whose it is. Optional, shown next to the title.<br>
+          Anything left empty is simply skipped.
+        </div>
+      </div>
+      <div class="field mine-form" id="mineForm" hidden>
+        <label id="mineFormTitle">Add a game</label>
+        <div class="mf-row">
+          <span class="mf-lab">name</span>
+          <input type="text" id="mfName" placeholder="Pink Bike" autocomplete="off">
+        </div>
+        <div class="mf-row">
+          <span class="mf-lab">raw link</span>
+          <input type="text" id="mfLink" placeholder="https://raw.githubusercontent.com/.../game.html" autocomplete="off">
+        </div>
+        <div class="mf-row">
+          <span class="mf-lab">icon</span>
+          <input type="text" id="mfIcon" placeholder="https://.../icon.png or data:image/png;base64,..." autocomplete="off">
+          <span class="mf-prev" id="mfPrev"></span>
+        </div>
+        <div class="mf-row">
+          <span class="mf-lab">kind</span>
+          <input type="text" id="mfKind" placeholder="game" list="mfKinds" autocomplete="off">
+          <datalist id="mfKinds"></datalist>
+        </div>
+        <div class="mf-row">
+          <span class="mf-lab">tags</span>
+          <input type="text" id="mfTags" placeholder="pink, bike, classic" autocomplete="off">
+        </div>
+        <div class="mf-row">
+          <span class="mf-lab">author</span>
+          <input type="text" id="mfAuthor" placeholder="optional" autocomplete="off">
+        </div>
+        <div class="mf-row">
+          <span class="mf-lab">note</span>
+          <input type="text" id="mfNote" placeholder="optional, just for you" autocomplete="off">
+        </div>
+        <div class="note" id="mfError"></div>
+        <div class="actions" style="border:0;padding-top:8px;margin:0">
+          <button class="act primary" id="mfSave">Save it</button>
+          <button class="act" id="mfCancel">Cancel</button>
+        </div>
+      </div>
+
       <h3>your data</h3>
       <div class="field">
         <label>Back up, or move to another browser</label>
@@ -685,8 +915,10 @@ var models=[];
 /* ============================================================
    2. TABS
    ============================================================ */
-var TAB_IDS=["games","chat","google","settings"];
+var TAB_IDS=["games","chat","google","youtube","settings"];
 var activeTab="games";
+/* these three take over the window rather than sitting in the middle of the page */
+var WIDE_TABS=["chat","google","youtube"];
 
 function setTab(id){
   if(TAB_IDS.indexOf(id)<0)id="games";
@@ -701,7 +933,8 @@ function setTab(id){
   /* the zone search belongs to the zones tab */
   var g=document.getElementById("gamesTools");
   if(g)g.style.display=(id==="games")?"":"none";
-  try{history.replaceState(null,"","#"+id)}catch(e){}
+  document.body.classList.toggle("wide",WIDE_TABS.indexOf(id)>-1);
+  /* the address bar stays exactly where it was. switching tabs is not a place */
   if(id==="chat")$("input").focus();
 }
 document.addEventListener("click",function(e){
@@ -710,9 +943,18 @@ document.addEventListener("click",function(e){
 });
 document.getElementById("logoHome").onclick=function(){setTab("games");window.scrollTo({top:0,behavior:"smooth"})};
 (function(){
+  /* an old link like orbitzone.html#chat still opens that tab, but pressing a tab
+     afterwards never rewrites the address */
   var h=(location.hash||"").replace("#","");
   if(TAB_IDS.indexOf(h)>=0)setTab(h);
 })();
+/* alice.js puts the id of the zone you opened into the address bar, so the link
+   turned into file:///...orbitzone.html?id=281 the moment you played anything. The
+   file stays one file now. */
+try{
+  history.pushState=function(){};
+  history.replaceState=function(){};
+}catch(e){}
 
 /* ============================================================
    2b. THEMES
@@ -1505,6 +1747,892 @@ $("pageGo").onclick=function(){
   if(!v){toast("type a link or a search first");return}
   askAboutPage(v);
 };
+/* ============================================================
+   8b. YOUR GAMES
+   A list of games the user added. Only three things are really needed - a name, the
+   raw address of the game's html file, and an image - but a kind and a few tags let
+   them show up in the same filters everyone else's games use.
+   ============================================================ */
+var LS_MINE="orbitGames";var MINE_SEED=[
+  {id:"m-vulpez-movies",name:"Vulpez Movies",
+   link:"https://raw.githubusercontent.com/L3br00n/MovieHtml/refs/heads/main/index.html",
+   icon:"data:image/png;base64,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",kind:"tool",tags:"movies, video, film",author:"L3br00n",
+   note:"films and shows, in a page"},
+  {id:"m-pink-bike",name:"Pink Bike",
+   link:"https://raw.githubusercontent.com/brickyosu/ugs-files-sorted/refs/heads/main/P/clpinkbike.html",
+   icon:"https://es.pinkbike.org/246/sprt/i/share/grimdonutgame.jpg",kind:"game",
+   tags:"pink, bike, classic",author:"brickyosu",note:"the pink one"}
+];
+/* nothing to show for a game with no picture, so it gets a plain one of its own */
+var MINE_BLANK="data:image/svg+xml,"+encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#1a1d23"/>'+
+  '<circle cx="32" cy="32" r="13" fill="none" stroke="#3a4049" stroke-width="3"/>'+
+  '<circle cx="32" cy="32" r="4" fill="#3a4049"/></svg>');
+
+function mineAll(){
+  var raw=lsGet(LS_MINE,"");
+  if(!raw){
+    lsSet(LS_MINE,JSON.stringify(MINE_SEED));
+    return MINE_SEED.slice();
+  }
+  try{
+    var list=JSON.parse(raw);
+    return Array.isArray(list)?list:[];
+  }catch(e){return []}
+}
+function mineSave(list){lsSet(LS_MINE,JSON.stringify(list))}
+function cleanTag(t){
+  return String(t||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,24);
+}
+function mineZone(m,i){
+  var tags=[m.kind].concat(String(m.tags||"").split(",")).map(cleanTag).filter(Boolean);
+  var uniq=[];
+  tags.forEach(function(t){if(uniq.indexOf(t)<0)uniq.push(t)});
+  return {
+    id:m.id||("m-"+i+"-"+Date.now().toString(36)),
+    name:String(m.name||"untitled").slice(0,60),
+    cover:m.icon||MINE_BLANK,
+    url:m.link,
+    author:m.author||"you",
+    authorLink:"",
+    special:["user"].concat(uniq),
+    mine:m
+  };
+}
+var mineEdits=[];
+
+/* ---------- putting them in the list ---------- */
+function syncMineZones(){
+  if(typeof zones==="undefined"||!zones.length)return false;
+  var mine=mineAll().map(mineZone);
+  for(var i=zones.length-1;i>=0;i--){
+    if(zones[i]&&zones[i].special&&zones[i].special.indexOf("user")>-1)zones.splice(i,1);
+  }
+  mine.forEach(function(z){
+    /* they go at the front, so they are the first thing you see */
+    zones.unshift(z);
+  });
+  /* the tag list is built from the zones, so it has to be rebuilt too */
+  var sel=$("filterOptions");
+  if(sel){
+    var seen={},keep=[];
+    zones.forEach(function(z){
+      (z.special||[]).forEach(function(t){
+        if(t!=="user"&&!seen[t]){seen[t]=1;keep.push(t)}
+      });
+    });
+    var was=sel.value;
+    sel.innerHTML="";
+    var none=document.createElement("option");
+    none.value="none";
+    none.textContent="(SELECT TAG)";
+    sel.appendChild(none);
+    keep.sort().forEach(function(t){
+      var o=document.createElement("option");
+      o.value=t;
+      o.textContent=t.replace(/-/g," ");
+      sel.appendChild(o);
+    });
+    sel.value=keep.indexOf(was)>-1?was:"none";
+  }
+  if(typeof sortZones==="function")sortZones();
+  return true;
+}
+(function watchForZoneList(){
+  var tries=0;
+  var tick=function(){
+    if(syncMineZones())return;
+    if(tries++<120)setTimeout(tick,500);
+  };
+  tick();
+})();
+
+/* ---------- playing them ---------- */
+/* alice.js opens anything that starts with http in a new browser tab. These are
+   plain html files on github, so they are pulled in and written into the same
+   frame the other zones use, exactly the way alice.js does it.
+
+   alice.js is loaded after this script, so it replaces these names with its own as
+   soon as it runs. Everything here is therefore installed by installZoneHooks(),
+   which the page calls the moment alice.js has finished. */
+var RAW_OPEN=null;
+function installZoneHooks(){
+  RAW_OPEN=window.openZone;
+  var RAW_CLOSE=window.closeZone;
+  window.openZone=function(z){
+    if(!z||!z.special||z.special.indexOf("user")<0||!z.mine){
+      return RAW_OPEN.apply(this,arguments);
+    }
+    playMineZone(z);
+  };
+  /* alice.js takes the frame out of the page when a zone closes, and then forgets
+     where it put it. Keeping it there means fullscreen, download and open in a new
+     tab keep working for games that were added here. */
+  window.closeZone=function(){
+    var v=$("zoneViewer");
+    if(!v)return;
+    v.hidden=false;
+    v.style.display="none";
+    var f=$("zoneFrame");
+    if(f){
+      try{f.contentDocument.open();f.contentDocument.write("");f.contentDocument.close()}catch(e){}
+    }
+  };
+  window.fullscreenZone=function(){
+    var f=$("zoneFrame");
+    if(f&&f.requestFullscreen)f.requestFullscreen();
+    else if(f&&f.webkitRequestFullscreen)f.webkitRequestFullscreen();
+  };
+  window.aboutBlank=myAboutBlank;
+  window.downloadZone=myDownloadZone;
+}
+var _installZoneHooks=installZoneHooks;
+installZoneHooks=function(){
+  _installZoneHooks();
+  /* the tab cloak lives in the markup as oninput, and alice.js has its own version
+     that quietly does nothing when the page has no icon link */
+  window.cloakIcon=myCloakIcon;
+};
+window.__orbitAfterAlice=installZoneHooks;
+function zoneFrameNow(){
+  var f=$("zoneFrame");
+  if(!f){
+    f=document.createElement("iframe");
+    f.id="zoneFrame";
+    $("zoneViewer").appendChild(f);
+  }
+  return f;
+}
+function showZoneHead(z){
+  $("zoneName").textContent=z.name;
+  $("zoneId").textContent=z.id;
+  var a=$("zoneAuthor");
+  a.textContent="by "+(z.author||"you");
+  a.removeAttribute("href");
+  var v=$("zoneViewer");
+  v.style.display="block";
+  v.hidden=true;
+}
+function playMineZone(z){
+  var f=zoneFrameNow();
+  var m=z.mine||{};
+  showZoneHead(z);
+  var doc=f.contentDocument;
+  doc.open();
+  doc.write('<!doctype html><html><head><meta charset="utf-8"><title>'+esc(z.name)+
+    '</title><style>html,body{background:#0b0d10;color:#9aa0a8;font:14px system-ui;margin:0;'+
+    'height:100%;display:grid;place-items:center}</style></head><body>loading '+esc(z.name)+
+    '...</body></html>');
+  doc.close();
+  try{
+    fetch(z.url+"?t="+Date.now(),{redirect:"follow"}).then(function(res){
+      if(!res.ok)throw new Error("the server said "+res.status);
+      return res.text();
+    }).then(function(html){
+      if(!html||html.length<10)throw new Error("that file came back empty");
+      var d=f.contentDocument;
+      d.open();d.write(html);d.close();
+    }).catch(function(err){
+      var d=f.contentDocument;
+      d.open();
+      d.write('<!doctype html><html><head><meta charset="utf-8"><style>html,body{background:#0b0d10;'+
+        'color:#e5484d;font:15px system-ui;margin:0;height:100%;display:grid;place-items:center;'+
+        'text-align:center;padding:24px}</style></head><body><div><b>could not load it</b><br><br>'+
+        esc(err.message)+'<br><br><span style="color:#82878f">check the raw link in your games table</span>'+
+        '</div></body></html>');
+      d.close();
+      toast("could not load "+z.name,"bad");
+    });
+  }catch(e){
+    toast("could not load "+z.name,"bad");
+  }
+}
+/* alice.js takes the frame out of the page when a zone closes, and then forgets
+   where it put it. Keeping it there means fullscreen, download and open in a new
+   tab keep working for games that were added here - see installZoneHooks. */
+function mineUrl(z){
+  return z.mine?z.mine.link:String(z.url||"").replace("{COVER_URL}",coverURL).replace("{HTML_URL}",htmlURL);
+}
+function zoneOnScreen(){
+  var id=$("zoneId").textContent;
+  return zones.filter(function(a){return String(a.id)===String(id)})[0];
+}
+function myAboutBlank(){
+  var z=zoneOnScreen();
+  if(!z)return;
+  var url=mineUrl(z);
+  if(!/^https?:/i.test(url)){toast("that one needs a real link","bad");return}
+  fetch(url+"?t="+Date.now()).then(function(r){return r.text()}).then(function(html){
+    var w=window.open("about:blank","_blank");
+    if(w){w.document.open();w.document.write(html);w.document.close()}
+    else toast("your browser blocked the new tab");
+  }).catch(function(e){toast("could not read it - "+e.message,"bad")});
+};
+function myDownloadZone(){
+  var z=zoneOnScreen();
+  if(!z)return;
+  fetch(mineUrl(z)+"?t="+Date.now()).then(function(r){return r.text()}).then(function(text){
+    var url=URL.createObjectURL(new Blob([text],{type:"text/html;charset=utf-8"}));
+    var a=document.createElement("a");
+    a.href=url;
+    a.download=z.name+".html";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function(){URL.revokeObjectURL(url)},4000);
+  }).catch(function(e){toast("could not download it - "+e.message,"bad")});
+};
+
+/* ---------- the table ---------- */
+var mineEditing=-1;
+function paintMineTable(){
+  var body=$("mineRows");
+  if(!body)return;
+  var list=mineAll();
+  body.innerHTML="";
+  if(!list.length){
+    var tr=document.createElement("tr");
+    var td=document.createElement("td");
+    td.colSpan=6;
+    td.className="m-link";
+    td.textContent="nothing here yet - add one below";
+    tr.appendChild(td);
+    body.appendChild(tr);
+    return;
+  }
+  list.forEach(function(m,i){
+    var tr=document.createElement("tr");
+    var td;
+
+    td=document.createElement("td");
+    td.className="m-name";
+    td.textContent=m.name||"untitled";
+    if(m.note){
+      var sm=document.createElement("div");
+      sm.style.cssText="font-size:10.5px;color:var(--mut);font-weight:400";
+      sm.textContent=m.note;
+      td.appendChild(sm);
+    }
+    tr.appendChild(td);
+
+    td=document.createElement("td");
+    td.className="m-link";
+    td.title=m.link||"";
+    td.textContent=m.link||"";
+    tr.appendChild(td);
+
+    td=document.createElement("td");
+    var im=document.createElement("img");
+    im.src=m.icon||MINE_BLANK;
+    im.alt="";
+    im.loading="lazy";
+    im.onerror=function(){this.src=MINE_BLANK};
+    td.appendChild(im);
+    tr.appendChild(td);
+
+    td=document.createElement("td");
+    td.className="m-kind";
+    var tags=[m.kind].concat(String(m.tags||"").split(",")).map(cleanTag)
+      .filter(function(t){return t&&t!=="user"});
+    td.textContent=tags.slice(0,3).join(" · ");
+    tr.appendChild(td);
+
+    td=document.createElement("td");
+    td.className="m-link";
+    td.title=tags.join(", ");
+    td.textContent=String(m.tags||"");
+    tr.appendChild(td);
+
+    td=document.createElement("td");
+    var box=document.createElement("div");
+    box.className="m-act";
+    var play=document.createElement("button");
+    play.className="mini";
+    play.title="play it now";
+    play.textContent="▶";
+    play.onclick=function(){playMineZone(mineZone(m,i))};
+    var ed=document.createElement("button");
+    ed.className="mini";
+    ed.title="change it";
+    ed.textContent="✎";
+    ed.onclick=function(){openMineForm(i)};
+    var del=document.createElement("button");
+    del.className="mini del";
+    del.title="take it out";
+    del.textContent="×";
+    del.onclick=function(){
+      var l=mineAll();
+      l.splice(i,1);
+      mineSave(l);
+      syncMineZones();
+      paintMineTable();
+      toast("removed "+m.name);
+    };
+    box.append(play,ed,del);
+    td.appendChild(box);
+    tr.appendChild(td);
+
+    body.appendChild(tr);
+  });
+}
+function fillKindList(){
+  var dl=$("mfKinds");
+  if(!dl)return;
+  var seen={};
+  ["game","tool","movie","mod","music","remake"].forEach(function(k){seen[k]=1});
+  mineAll().forEach(function(m){
+    [m.kind].concat(String(m.tags||"").split(",")).forEach(function(t){
+      var c=cleanTag(t);
+      if(c)seen[c]=1;
+    });
+  });
+  dl.innerHTML="";
+  Object.keys(seen).sort().forEach(function(k){
+    var o=document.createElement("option");
+    o.value=k;
+    dl.appendChild(o);
+  });
+}
+function openMineForm(i){
+  var form=$("mineForm");
+  if(!form)return;
+  mineEditing=(i===undefined||i<0)?-1:i;
+  var m=mineEditing>=0?mineAll()[mineEditing]:null;
+  $("mineFormTitle").textContent=mineEditing>=0?"Change this game":"Add a game";
+  $("mfName").value=m?m.name||"":"";
+  $("mfLink").value=m?m.link||"":"";
+  $("mfIcon").value=m&&m.icon!==MINE_BLANK?(m.icon||""):"";
+  $("mfKind").value=m?(m.kind||""):"game";
+  $("mfTags").value=m?(m.tags||""):"";
+  $("mfAuthor").value=m?(m.author||""):"";
+  $("mfNote").value=m?(m.note||""):"";
+  $("mfError").textContent="";
+  paintMinePreview();
+  form.hidden=false;
+  $("mfName").focus();
+  form.scrollIntoView({block:"nearest",behavior:"smooth"});
+}
+function closeMineForm(){
+  var form=$("mineForm");
+  if(form)form.hidden=true;
+  mineEditing=-1;
+}
+function paintMinePreview(){
+  var v=$("mfIcon").value.trim();
+  var box=$("mfPrev");
+  if(!box)return;
+  box.style.backgroundImage=v?"url(\""+v.replace(/"/g,"")+"\")":"none";
+}
+function saveMineForm(){
+  var err=$("mfError");
+  var name=$("mfName").value.trim();
+  var link=$("mfLink").value.trim();
+  if(!name){err.textContent="it needs a name";$("mfName").focus();return}
+  if(!link){err.textContent="it needs the link to the html file";$("mfLink").focus();return}
+  if(!/^https?:\/\//i.test(link)){
+    err.textContent="that link has to start with http:// or https://";
+    $("mfLink").focus();
+    return;
+  }
+  if(/\s/.test(link)){err.textContent="that link has a space in it";$("mfLink").focus();return}
+  var list=mineAll();
+  var rec={
+    id:(mineEditing>=0&&list[mineEditing]&&list[mineEditing].id)||("m-"+Date.now().toString(36)),
+    name:name,
+    link:link,
+    icon:$("mfIcon").value.trim()||MINE_BLANK,
+    kind:cleanTag($("mfKind").value)||"game",
+    tags:String($("mfTags").value||"").split(",").map(cleanTag).filter(Boolean).join(", "),
+    author:$("mfAuthor").value.trim(),
+    note:$("mfNote").value.trim()
+  };
+  if(mineEditing>=0)list[mineEditing]=rec;
+  else list.push(rec);
+  mineSave(list);
+  closeMineForm();
+  syncMineZones();
+  paintMineTable();
+  fillKindList();
+  toast((mineEditing>=0?"changed ":"added ")+rec.name);
+}
+$("mineAdd").onclick=function(){openMineForm(-1)};
+$("mfSave").onclick=saveMineForm;
+$("mfCancel").onclick=closeMineForm;
+$("mfIcon").addEventListener("input",paintMinePreview);
+["mfName","mfLink","mfKind","mfTags"].forEach(function(id){
+  $(id).addEventListener("keydown",function(e){
+    if(e.key==="Enter"){e.preventDefault();saveMineForm()}
+  });
+});
+paintMineTable();
+fillKindList();
+
+/* ============================================================
+   8c. YOUTUBE
+   Real results. It talks to a Piped mirror of YouTube, which answers with plain
+   json and lets any page read it, so nothing here needs a key of its own. If one
+   mirror is down the next one is tried, and the working one is remembered. Video
+   pages play through youtube-nocookie, the same way the standalone viewer does.
+   ============================================================ */
+var YT_API=[
+  "https://api.piped.private.coffee",
+  "https://pipedapi.kavin.rocks",
+  "https://pipedapi.adminforge.de",
+  "https://pipedapi.reallyaweso.me",
+  "https://pipedapi.leptons.xyz",
+  "https://pipedapi.privacy.com.de"
+];
+/* the exact player the standalone viewer uses */
+var YT_EMBED="https://www.youtube-nocookie.com/embed/";
+var YT_EMBED_Q="wmode=transparent&iv_load_policy=3&autoplay=1&html5=1&showinfo=0&rel=0"+
+  "&modestbranding=1&playsinline=1&theme=light";
+var ytHost=lsGet("orbitYtHost","");
+var ytMode="videos";
+var ytSort="relevance";
+var ytSorts=["relevance","views","newest","oldest"];
+var ytPage={url:"",title:"",mode:"videos",channel:null};
+var ytNow={id:"",title:"",who:""};
+var YT_TIME=9000;
+
+function ytId(v){
+  var s=String(v||"").trim();
+  if(!s)return "";
+  if(/^[\w-]{11}$/.test(s))return s;
+  var m=s.match(/(?:v=|\/embed\/|\/shorts\/|\/live\/|\.be\/)([\w-]{11})/);
+  return m?m[1]:"";
+}
+function ytThumb(id,proxy){
+  var direct="https://i.ytimg.com/vi/"+id+"/hqdefault.jpg";
+  return direct;
+}
+function ytTime(sec){
+  sec=Math.floor(Number(sec)||0);
+  if(sec<0||!sec)return "";
+  var h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;
+  return (h?h+":":"")+(h?String(m).padStart(2,"0"):m)+":"+String(s).padStart(2,"0");
+}
+function ytSubs(n){
+  n=Number(n)||0;
+  if(n>=1e6)return (n/1e6).toFixed(1).replace(/\.0$/,"")+"M subscribers";
+  if(n>=1e3)return (n/1e3).toFixed(0)+"K subscribers";
+  return n+" subscribers";
+}
+function ytCount(n){
+  n=Number(n);
+  if(!n||n<0)return "";
+  if(n>=1e9)return (n/1e9).toFixed(1).replace(/\.0$/,"")+"B views";
+  if(n>=1e6)return (n/1e6).toFixed(1).replace(/\.0$/,"")+"M views";
+  if(n>=1e3)return Math.round(n/1e3)+"K views";
+  return n+" views";
+}
+function ytFetch(path){
+  var hosts=ytHost?[ytHost].concat(YT_API.filter(function(h){return h!==ytHost})):YT_API.slice();
+  var i=0;
+  var tryNext=function(lastErr){
+    if(i>=hosts.length)return Promise.reject(lastErr||new Error("no youtube mirror answered"));
+    var h=hosts[i++];
+    var ctl=null;
+    var timer=setTimeout(function(){if(ctl)ctl.abort()},YT_TIME);
+    return fetch(h+path,{signal:(ctl=new AbortController()).signal})
+      .then(function(r){
+        if(!r.ok)throw new Error("mirror said "+r.status);
+        return r.json();
+      })
+      .then(function(j){
+        clearTimeout(timer);
+        ytHost=h;
+        lsSet("orbitYtHost",h);
+        return j;
+      })
+      .catch(function(e){
+        clearTimeout(timer);
+        return tryNext(e);
+      });
+  };
+  return tryNext();
+}
+function ytSearch(q,mode,sort){
+  mode=mode||ytMode;
+  var filter=mode==="channels"?"channels":"videos";
+  var path="/search?filter="+filter+"&q="+encodeURIComponent(q);
+  return ytFetch(path).then(function(j){
+    var items=(j.items||[]).map(function(v,i){
+      return normalise(v,i,mode);
+    });
+    if(mode!=="channels")items=ytOrder(items,sort);
+    return items;
+  });
+}
+function normalise(v,i,mode){
+  var id=ytId(v.url);
+  if(mode==="channels"){
+    var cid=String(v.url||"").split("/").pop();
+    return {kind:"channel",cid:cid,name:v.name||"channel",who:v.uploaderName||"",
+            sub:v.subscribers||0,views:v.views,thumb:v.thumbnail||"",
+            desc:v.description||v.shortDescription||"",verified:!!v.verified};
+  }
+  return {
+    kind:"video",id:id,title:v.title||"video",who:v.uploaderName||"",
+    cid:String(v.uploaderUrl||"").split("/").pop(),
+    views:v.views,when:v.uploaded||v.uploadedDate||0,
+    dur:ytTime(v.duration),thumb:v.thumb||ytThumb(id),desc:v.shortDescription||""
+  };
+}
+function ytOrder(items,sort){
+  var l=items.slice();
+  if(sort==="views"){
+    l.sort(function(a,b){return (b.views||0)-(a.views||0)});
+  }else if(sort==="newest"){
+    l.sort(function(a,b){return (b.when||0)-(a.when||0)});
+  }else if(sort==="oldest"){
+    l.sort(function(a,b){return (a.when||0)-(b.when||0)});
+  }
+  return l;
+}
+function ytChannelInfo(cid){
+  return ytFetch("/channel/"+cid).then(function(c){
+    return {kind:"channel",cid:cid,name:c.name||"channel",sub:c.subscriberCount||0,
+            thumb:c.avatarUrl||"",desc:c.description||""};
+  });
+}
+/* there is no channel-videos call on these mirrors, so their name is searched and
+   the results are kept only if they really are from that channel */
+function ytChannelVideos(info,sort){
+  var q=(info.name||"").replace(/\s*-\s*topic$/i,"").trim();
+  return ytSearch(q,"videos",sort).then(function(items){
+    var mine=items.filter(function(v){return v.cid&&v.cid===info.cid});
+    return mine.length?mine:items;
+  });
+}
+function ytTrending(){
+  return ytFetch("/trending?region=US").then(function(j){
+    var items=(Array.isArray(j)?j:(j.items||[])).map(function(v,i){return normalise(v,i,"videos")});
+    return ytOrder(items,"views");
+  });
+}
+function ytRegionRegion(){return "US"}
+
+/* ---------- drawing ---------- */
+var YT_PLAY='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.2v13.6L19 12z"/></svg>';
+function ytCard(v){
+  var c=document.createElement("button");
+  c.className="yt-card";
+  c.title=v.title||v.name||"";
+  if(v.kind==="channel"){
+    var im=document.createElement("img");
+    im.className="yt-avatar";
+    im.src=v.thumb||MINE_BLANK;
+    im.alt="";
+    im.loading="lazy";
+    im.onerror=function(){this.src=MINE_BLANK};
+    c.appendChild(im);
+    var say=document.createElement("div");
+    say.className="yt-say";
+    var h=document.createElement("h2");
+    h.textContent=v.name;
+    say.appendChild(h);
+    var p=document.createElement("p");
+    p.textContent=(v.sub?ytSubs(v.sub):"channel")+(v.verified?" · verified":"");
+    say.appendChild(p);
+    c.appendChild(say);
+    c.onclick=function(){openChannel(v)};
+  }else{
+    var th=document.createElement("div");
+    th.className="yt-thumb";
+    var t=document.createElement("img");
+    t.src=v.thumb||MINE_BLANK;
+    t.alt="";
+    t.loading="lazy";
+    t.onerror=function(){this.style.display="none"};
+    th.appendChild(t);
+    var pl=document.createElement("span");
+    pl.className="playico";
+    pl.innerHTML=YT_PLAY;
+    th.appendChild(pl);
+    if(v.dur){
+      var len=document.createElement("span");
+      len.className="len";
+      len.textContent=v.dur;
+      th.appendChild(len);
+    }
+    var b=document.createElement("div");
+    b.className="yt-body";
+    var ti=document.createElement("b");
+    ti.textContent=v.title;
+    var sp=document.createElement("span");
+    sp.textContent=v.who+(v.who&&ytCount(v.views)?" · ":"")+ytCount(v.views);
+    b.append(ti,sp);
+    c.append(th,b);
+    c.onclick=function(){ytPlay(v)};
+  }
+  return c;
+}
+function ytPaint(items,note){
+  var box=$("ytFeed");
+  if(!box)return;
+  box.innerHTML="";
+  if(note){
+    var n=document.createElement("div");
+    n.className="yt-note";
+    n.style.gridColumn="1/-1";
+    n.textContent=note;
+    box.appendChild(n);
+  }
+  if(!items||!items.length){
+    var e=document.createElement("div");
+    e.className="yt-note";
+    e.style.gridColumn="1/-1";
+    e.textContent="nothing came back for that";
+    box.appendChild(e);
+    return;
+  }
+  items.forEach(function(v){box.appendChild(ytCard(v))});
+  box.scrollTop=0;
+}
+function ytBusy(on){
+  var hint=$("ytHint");
+  if(!hint)return;
+  hint.textContent=on?"asking youtube...":
+    "Real results, straight from YouTube. Pick a video and it plays right here; pick a channel and you get their uploads.";
+}
+
+/* ---------- playing ---------- */
+function ytPlay(v){
+  var id=v&&v.id?v.id:ytId(v);
+  if(!id){toast("that does not look like a video link","bad");return}
+  ytNow={id:id,title:v.title||"video",who:v.who||""};
+  $("ytNowTitle").textContent=ytNow.title;
+  $("ytNowWho").textContent=ytNow.who;
+  var f=$("ytFrame");
+  f.src=YT_EMBED+id+"?"+YT_EMBED_Q;
+  $("ytPlayer").hidden=false;
+  $("ytUrl").value="https://www.youtube.com/watch?v="+id;
+}
+function ytStop(){
+  var f=$("ytFrame");
+  f.removeAttribute("src");
+  $("ytPlayer").hidden=true;
+}
+$("ytStop").onclick=ytStop;
+$("ytOpenWatch").onclick=function(){
+  if(!ytNow.id){toast("nothing is playing");return}
+  window.open("https://www.youtube.com/watch?v="+ytNow.id,"_blank","noopener");
+};
+$("ytAsk").onclick=function(){
+  var what=ytNow.id?ytNow.title:$("ytUrl").value.trim();
+  if(!what){toast("nothing picked yet");return}
+  $("input").value="About this YouTube video - "+what+
+    (ytNow.id?"\nhttps://www.youtube.com/watch?v="+ytNow.id:"")+
+    "\n\nWhat is it about, and is it worth my time?";
+  resize();
+  setTab("chat");
+};
+
+/* ---------- pages ---------- */
+function ytHome(){
+  ytPage={url:"",title:"For You",mode:ytMode,channel:null};
+  $("ytBack").hidden=true;
+  $("ytStop").click&&ytStop();
+  $("ytPlayer").hidden=true;
+  ytBusy(true);
+  ytTrending().then(function(items){
+    ytBusy(false);
+    ytPaint(items,"For you - what YouTube is showing right now, biggest first.");
+  }).catch(function(e){
+    ytBusy(false);
+    ytPaint(null,"could not reach youtube just now ("+e.message+"). it will try again when you press go.");
+  });
+}
+function openChannel(v){
+  ytPage={url:"",title:v.name,mode:"videos",channel:v};
+  $("ytBack").hidden=false;
+  $("ytPlayer").hidden=true;
+  $("ytUrl").value="https://www.youtube.com/channel/"+v.cid;
+  ytBusy(true);
+  ytChannelInfo(v.cid).then(function(info){
+    ytPage.title=info.name||v.name;
+    return ytChannelVideos(info,ytSort).then(function(vids){
+      ytBusy(false);
+      $("ytFeed").innerHTML="";
+      var head=document.createElement("div");
+      head.style.cssText="grid-column:1/-1;display:flex;gap:13px;align-items:center;"+
+        "padding:4px 2px 12px;border-bottom:1px solid var(--line);margin-bottom:4px";
+      var av=document.createElement("img");
+      av.src=info.thumb||v.thumb||MINE_BLANK;
+      av.alt="";
+      av.style.cssText="width:64px;height:64px;border-radius:50%;object-fit:cover;"+
+        "border:1px solid var(--line);background:var(--surf2)";
+      av.onerror=function(){this.style.visibility="hidden"};
+      var txt=document.createElement("div");
+      var nm=document.createElement("div");
+      nm.style.cssText="font-family:'Staatliches',sans-serif;font-size:19px;letter-spacing:1.2px";
+      nm.textContent=info.name||v.name;
+      var sub=document.createElement("div");
+      sub.style.cssText="font-size:11px;color:var(--mut);margin-top:3px";
+      sub.textContent=(info.sub?ytSubs(info.sub):"")+
+        (info.desc?" · "+info.desc.replace(/\s+/g," ").slice(0,120):"");
+      txt.append(nm,sub);
+      head.append(av,txt);
+      $("ytFeed").appendChild(head);
+      vids.forEach(function(x){$("ytFeed").appendChild(ytCard(x))});
+      if(!vids.length){
+        var none=document.createElement("div");
+        none.className="yt-note";
+        none.textContent="no videos came back for this channel";
+        $("ytFeed").appendChild(none);
+      }
+    });
+  }).catch(function(e){
+    ytBusy(false);
+    ytPaint(null,"could not load that channel ("+e.message+")");
+  });
+}
+function ytGo(){
+  var raw=$("ytUrl").value.trim();
+  if(!raw){toast("type something to look for");return}
+  var id=ytId(raw);
+  if(id){
+    /* a link is a video, whatever is in the box */
+    ytPlay({id:id,title:raw,who:""});
+    return;
+  }
+  ytPage={url:raw,title:raw,mode:ytMode,channel:null};
+  $("ytBack").hidden=false;
+  $("ytPlayer").hidden=true;
+  ytBusy(true);
+  ytSearch(raw,ytMode,ytSort).then(function(items){
+    ytBusy(false);
+    ytPaint(items,ytMode==="channels"?
+      "Channels matching “"+raw+"”. Pick one to see their videos.":
+      "Videos matching “"+raw+"”.");
+  }).catch(function(e){
+    ytBusy(false);
+    ytPaint(null,"could not reach youtube just now ("+e.message+")");
+  });
+}
+$("ytGo").onclick=ytGo;
+$("ytUrl").addEventListener("keydown",function(e){
+  if(e.key==="Enter"){e.preventDefault();ytGo()}
+});
+$("ytHome").onclick=function(){ytHome()};
+$("ytBack").onclick=function(){
+  if(ytPage.channel)openChannel(ytPage.channel);
+  else if(ytPage.url)ytGo();
+  else ytHome();
+};
+$("ytMode").onclick=function(){
+  ytMode=ytMode==="videos"?"channels":"videos";
+  $("ytMode").textContent=ytMode==="videos"?"Videos":"Channels";
+  toast(ytMode==="videos"?"showing videos":"showing channels");
+  if(ytPage.url)ytGo();
+};
+$("ytSort").onclick=function(){
+  var i=ytSorts.indexOf(ytSort);
+  ytSort=ytSorts[(i+1)%ytSorts.length];
+  $("ytSort").textContent=ytSort.charAt(0).toUpperCase()+ytSort.slice(1);
+  toast("sorted by "+ytSort);
+  if(ytPage.channel)openChannel(ytPage.channel);
+  else if(ytPage.url)ytGo();
+};
+$("ytSort").textContent="Relevance";
+
+/* ============================================================
+   8d. THE TAB ICON
+   alice.js looks for one link[rel~=icon] and changes its address. If the page has
+   none it throws and the icon never changes, and some browsers ignore a new address
+   on a link they have already read - so a brand new link is put in the head instead.
+   ============================================================ */
+function setFavicon(url){
+  var v=String(url||"").trim();
+  if(!v)v=MINE_BLANK;
+  if(!/^(https?:|data:|blob:)/i.test(v))v="https://"+v;
+  var old=document.querySelectorAll("link[rel~='icon']");
+  Array.prototype.forEach.call(old,function(l){l.parentNode.removeChild(l)});
+  var link=document.createElement("link");
+  link.id="orbitFav";
+  link.rel="icon";
+  link.type=/data:image\/svg/i.test(v)?"image/svg+xml":(/data:/i.test(v)?"":"image/png");
+  link.href=v;
+  document.head.appendChild(link);
+  try{localStorage.setItem("orbitFav",v)}catch(e){}
+  return link;
+}
+function myCloakIcon(url){
+  var v=String(url||"").trim();
+  if(!v)v=MINE_BLANK;
+  setFavicon(v);
+}
+window.cloakName=function(name){
+  document.title=String(name||"").trim()||"ORBIT";
+  try{localStorage.setItem("orbitTitle",document.title)}catch(e){}
+};
+(function restoreCloak(){
+  var f=lsGet("orbitFav",""),t=lsGet("orbitTitle","");
+  if(f)setFavicon(f);
+  if(t)document.title=t;
+})();
+
+/* ============================================================
+   8e. WHAT'S NEW
+   ============================================================ */
+var NEWS=[
+  {when:"9 Oct 2026",what:"YouTube is in here properly",
+   body:"Real search results, channels you can open and browse, sorting by most viewed "+
+        "or newest, and video pages that play in the window through youtube-nocookie."},
+  {when:"9 Oct 2026",what:"Games you add yourself",
+   body:"A table in settings. A name, a raw link and an icon is all it takes - kind and tags "+
+        "are optional and become filters. They play in the same window as everything else."},
+  {when:"9 Oct 2026",what:"Games fill the window",
+   body:"The game frame used to sit in a 300 pixel corner. It now fills the screen, and games "+
+        "drawn for a small window are put in the middle instead of stuck in the corner."},
+  {when:"9 Oct 2026",what:"Chat and Google take the whole screen",
+   body:"Less page around the thing you actually came to use."},
+  {when:"9 Oct 2026",what:"The link stops changing",
+   body:"Switching tabs no longer rewrites the address, and playing a game no longer tacks "+
+        "?id= onto the file."},
+  {when:"9 Oct 2026",what:"Twelve themes",
+   body:"Orbit, Ember, Nord, Dracula, Tokyo, Gruvbox, Rosé Pine, Ayu, Catppuccin, Matrix, Ice "+
+        "and Vermilion. Every colour on the page comes from the one you pick."},
+  {when:"9 Oct 2026",what:"The rebrand",
+   body:"Every zone still loads the way it always did - same loader, same viewer, same "+
+        "buttons. Only the look and the extras changed."}
+];
+var NEWS_SEEEN="orbitNewsSeen";
+function showNews(){
+  $("popupTitle").textContent="What's new";
+  var body=$("popupBody");
+  var box=document.createElement("div");
+  box.className="news";
+  NEWS.forEach(function(n){
+    var row=document.createElement("div");
+    row.className="news-item";
+    var when=document.createElement("div");
+    when.className="news-when";
+    when.textContent=n.when;
+    var what=document.createElement("div");
+    what.className="news-what";
+    var b=document.createElement("b");
+    b.textContent=n.what;
+    var p=document.createElement("p");
+    p.textContent=n.body;
+    what.append(b,p);
+    row.append(when,what);
+    box.appendChild(row);
+  });
+  body.innerHTML="";
+  body.appendChild(box);
+  $("popupOverlay").style.display="flex";
+  var dot=$("newsDot");
+  if(dot)dot.hidden=true;
+  lsSet(NEWS_SEEEN,NEWS[0].what);
+}
+function markNews(){
+  var dot=$("newsDot");
+  if(!dot)return;
+  dot.hidden=lsGet(NEWS_SEEEN,"")===NEWS[0].what;
+}
+markNews();
+
 
 /* ============================================================
    9. SETTINGS
@@ -1626,6 +2754,11 @@ window.ORBIT={
   setTab:setTab, send:send, askAboutPage:askAboutPage, grabScreen:grabScreen,
   newChat:function(){newChat();renderChat()},
   zoneBrief:zoneBrief, pxGo:pxGo, pxTarget:pxTarget,
+  ytGo:ytGo, ytSearch:ytSearch, ytHome:ytHome, ytPlay:ytPlay, ytId:ytId,
+  ytTrending:ytTrending, ytChannel:openChannel,
+  mine:mineAll, mineSync:syncMineZones, minePaint:paintMineTable,
+  news:function(){return NEWS}, showNews:showNews,
+  setFavicon:setFavicon,
   recentre:recentreZone,
   googleTabs:function(){return pxTabs},
   chats:function(){return chats}, messages:function(){return messages},
@@ -1638,10 +2771,18 @@ window.ORBIT={
   addPicture:function(c){clips.push(c);renderClips();},
   clearPictures:function(){clips=[];renderClips();},
 };
+/* the news button and the tab cloak live in the markup as plain onclick, so these
+   two have to be reachable from the outside */
+window.showNews=showNews;
+window.setFavicon=setFavicon;
 })();
 </script>
 
 <script src="https://cdn.jsdelivr.net/gh/daknux/egg-shell@main/alice.js"></script>
+<script>
+/* alice.js is loaded after our own script, and it puts its own openZone, closeZone,
+   downloadZone, aboutBlank and cloakIcon on the page. This puts ours back. */
+try { if (window.__orbitAfterAlice) window.__orbitAfterAlice(); } catch (e) { console.error(e); }
+</script>
 </body>
 </html>
-
