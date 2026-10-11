@@ -82,15 +82,35 @@ header{position:sticky;top:0;z-index:60;background:var(--bg);
 
 .search-container{display:flex;align-items:center;gap:6px;margin-left:auto}
 #searchBar,#sortOptions,#filterOptions,.px-url,.ct-url{
-  background:var(--surf);border:1px solid var(--line);color:var(--tx);
+  background-color:var(--surf);border:1px solid var(--line);color:var(--tx);
   border-radius:8px;padding:8px 11px;font-size:12.5px;outline:none;
-  transition:border-color .16s,background .16s}
+  transition:border-color .16s,background-color .16s}
 #searchBar{width:min(260px,30vw)}
 #searchBar::placeholder,.px-url::placeholder,.ct-url::placeholder{color:var(--mut)}
 #searchBar:hover,#sortOptions:hover,#filterOptions:hover,.px-url:hover,.ct-url:hover{border-color:var(--line2)}
 #searchBar:focus,#sortOptions:focus,#filterOptions:focus,.px-url:focus,.ct-url:focus{border-color:var(--acc)}
 #sortOptions,#filterOptions{cursor:pointer}
+/* the browser's own dropdown is a white list with a grey arrow, which is the one
+   thing on the page no theme can reach. It is drawn as part of the site instead. */
+select{
+  -webkit-appearance:none;-moz-appearance:none;appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,var(--mut) 50%),
+    linear-gradient(135deg,var(--mut) 50%,transparent 50%);
+  background-position:calc(100% - 15px) 55%,calc(100% - 10px) 55%;
+  background-size:5px 5px,5px 5px;
+  background-repeat:no-repeat;
+  padding-right:30px!important;
+  transition:border-color .16s,background-color .16s}
+select:hover{background-color:var(--surf2)}
+select:focus{outline:none}
 select option{background:var(--surf);color:var(--tx)}
+select option:checked{background:var(--surf2);color:var(--acc)}
+/* the list itself, where the browser allows it */
+@supports selector(::-webkit-select-dropdown){
+  select::-webkit-select-dropdown{
+    background:var(--surf);border:1px solid var(--line2);border-radius:10px;
+    box-shadow:0 16px 40px -14px #000;padding:4px}
+}
 .control-buttons{display:flex;gap:4px;margin-left:6px}
 .control-button{width:32px;height:32px;border-radius:8px;border:1px solid transparent;
   background:transparent;color:var(--mut);cursor:pointer;display:grid;place-items:center;
@@ -230,7 +250,13 @@ details[open] summary{color:var(--tx)}
 @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
 .chat-head h2{margin:0;font-family:"Staatliches",sans-serif;font-size:15px;letter-spacing:1.5px}
 .chat-head p{margin:1px 0 0;font-size:10.5px;color:var(--mut)}
-.chat-head .sp{margin-left:auto;display:flex;gap:6px}
+.chat-head .sp{margin-left:auto;display:flex;gap:6px;align-items:center}
+.msel{max-width:190px;padding:6px 26px 6px 10px!important;border-radius:7px;
+  background-color:var(--surf);border:1px solid var(--line);color:var(--tx);
+  font-size:11px;font-weight:550;cursor:pointer;
+  background-position:calc(100% - 13px) 52%,calc(100% - 9px) 52%}
+.msel:hover{border-color:var(--line2)}
+.msel:focus{border-color:var(--acc)}
 .tool{padding:6px 10px;border-radius:7px;border:1px solid var(--line);background:transparent;
   color:var(--mut);cursor:pointer;font-size:11px;font-weight:550;
   transition:border-color .16s,color .16s,background .16s}
@@ -243,6 +269,63 @@ details[open] summary{color:var(--tx)}
 @keyframes msgIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 .msg.you{align-self:flex-end;background:var(--surf2);border:1px solid var(--line)}
 .msg.ai{align-self:flex-start;background:transparent;border:1px solid var(--line)}
+/* ---------- how an answer is laid out ---------- */
+.msg .body>:first-child{margin-top:0}
+/* the answer is laid out by the markup, so it must not also be keeping every
+   newline the html had. what you typed still is */
+.msg .body{white-space:normal}
+.msg.you .body{white-space:pre-wrap}
+.msg .body>:last-child{margin-bottom:0}
+.msg .body p{margin:0 0 11px}
+.msg .body h1,.msg .body h2,.msg .body h3,.msg .body h4{
+  font-family:"Staatliches",sans-serif;font-weight:400;letter-spacing:1.3px;
+  color:var(--tx);margin:20px 0 9px;line-height:1.25}
+.msg .body h1{font-size:19px}
+.msg .body h2{font-size:17px}
+.msg .body h3{font-size:15px;color:var(--acc)}
+.msg .body h4{font-size:13.5px;color:var(--mut)}
+.msg .body ul,.msg .body ol{margin:0 0 12px;padding-left:22px}
+.msg .body li{margin:4px 0}
+.msg .body ul{list-style:disc}
+.msg .body ol{list-style:decimal}
+.msg .body li::marker{color:var(--acc)}
+.msg .body blockquote{margin:0 0 12px;padding:8px 0 8px 13px;
+  border-left:2px solid var(--acc);color:var(--mut)}
+.msg .body hr{border:0;border-top:1px solid var(--line);margin:16px 0}
+.msg .body a{color:var(--acc);text-decoration:none;border-bottom:1px solid transparent;
+  overflow-wrap:anywhere}
+.msg .body a:hover{border-bottom-color:var(--acc)}
+.msg .body b{color:var(--tx);font-weight:650}
+.msg .body i{color:var(--tx)}
+.msg .body del{color:var(--mut)}
+.msg .body code{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  font-size:12px;background:var(--surf2);border:1px solid var(--line);
+  border-radius:5px;padding:1px 5px;white-space:pre-wrap;word-break:break-word}
+.msg .body .code{position:relative;margin:0 0 13px;border:1px solid var(--line);
+  border-radius:9px;background:var(--bg);overflow:hidden}
+.msg .body .code pre{margin:0;padding:26px 13px 12px;overflow-x:auto;
+  max-height:420px;overflow-y:auto}
+.msg .body .code.big pre{max-height:520px}
+.msg .body .code code{background:none;border:0;padding:0;font-size:12.5px;
+  line-height:1.62;white-space:pre;color:var(--tx)}
+.msg .body .clang{position:absolute;top:6px;right:76px;font-size:9px;letter-spacing:1.4px;
+  text-transform:uppercase;color:var(--mut);pointer-events:none;max-width:120px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.msg .body .copy{position:absolute;top:5px;right:6px;font-size:10px;font-weight:600;
+  padding:3px 8px;border-radius:6px;border:1px solid var(--line);background:var(--surf);
+  color:var(--mut);cursor:pointer;z-index:2;transition:color .16s,border-color .16s}
+.msg .body .copy:hover{color:var(--acc);border-color:var(--acc)}
+.msg .body table{border-collapse:collapse;margin:0 0 13px;font-size:12.5px;
+  display:block;overflow-x:auto;max-width:100%}
+.msg .body th,.msg .body td{border:1px solid var(--line);padding:6px 10px;text-align:left}
+.msg .body th{background:var(--surf2);color:var(--mut);font-size:10px;letter-spacing:1.2px;
+  text-transform:uppercase;font-weight:600}
+.copyall{position:absolute;top:8px;right:10px;font-size:10px;font-weight:600;padding:3px 8px;
+  border-radius:6px;border:1px solid var(--line);background:var(--surf);color:var(--mut);
+  cursor:pointer;opacity:0;transition:opacity .16s,color .16s,border-color .16s}
+.msg.ai{position:relative}
+.msg.ai:hover .copyall{opacity:1}
+.copyall:hover{color:var(--acc);border-color:var(--acc)}
 .msg .who{font-size:9px;letter-spacing:1.6px;text-transform:uppercase;color:var(--mut);
   display:block;margin-bottom:5px}
 .msg .who.acc{color:var(--acc)}
@@ -330,6 +413,8 @@ details[open] summary{color:var(--tx)}
   display:grid;place-items:center;transition:color .16s,border-color .16s}
 .mtable .mini:hover{color:var(--acc);border-color:var(--acc)}
 .mtable .mini.del:hover{color:#e5484d;border-color:#e5484d}
+.mtable .m-lock{font-size:9.5px;color:var(--mut);letter-spacing:1px;text-transform:uppercase;
+  padding-right:4px;white-space:nowrap}
 .mine-form{margin-top:4px}
 .mf-row{display:flex;align-items:center;gap:8px;padding:6px 0}
 .mf-lab{width:66px;flex-shrink:0;font-size:10.5px;color:var(--mut);text-transform:uppercase;
@@ -341,6 +426,81 @@ details[open] summary{color:var(--tx)}
 .mf-prev{width:34px;height:34px;border-radius:8px;border:1px solid var(--line);
   background:var(--surf2) center/cover no-repeat;flex-shrink:0}
 #mfError{color:#e5484d;min-height:14px}
+
+/* ---------- the popped out assistant ---------- */
+#aiDock{position:fixed;right:18px;bottom:18px;z-index:400;width:390px;max-width:calc(100vw - 36px)}
+#aiDock[hidden]{display:none}
+.ai-panel{display:flex;flex-direction:column;height:min(560px,calc(100vh - 130px));
+  background:var(--surf);border:1px solid var(--line2);border-radius:14px;
+  box-shadow:0 34px 80px -30px #000,0 0 0 1px rgba(255,255,255,.02);
+  overflow:hidden;animation:popIn .2s cubic-bezier(.2,.8,.2,1)}
+@keyframes popIn{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+.ai-bar{display:flex;align-items:center;gap:9px;padding:10px 12px;
+  border-bottom:1px solid var(--line);background:var(--surf2);flex-shrink:0}
+.ai-bar b{font-family:"Staatliches",sans-serif;font-size:13px;letter-spacing:1.4px;font-weight:400}
+.ai-dot{width:7px;height:7px;border-radius:50%;background:var(--acc);flex-shrink:0;
+  animation:pulse 2.6s ease-in-out infinite}
+.ai-model{font-size:10px;color:var(--mut);letter-spacing:.4px;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;flex:1}
+.ai-x{border:0;background:transparent;color:var(--mut);font-size:19px;line-height:1;
+  cursor:pointer;padding:0 2px;border-radius:5px;transition:color .16s}
+.ai-x:hover{color:var(--acc)}
+.ai-log{flex:1 1 auto;min-height:0;overflow-y:auto;padding:12px;display:flex;
+  flex-direction:column;gap:11px}
+.ai-log .ai-msg{font-size:12.5px;line-height:1.6;white-space:pre-wrap;
+  overflow-wrap:anywhere}
+.ai-log .ai-you{align-self:flex-end;max-width:86%;background:var(--surf2);
+  border:1px solid var(--line);border-radius:10px;padding:8px 11px}
+.ai-log .ai-ai{align-self:flex-start;max-width:96%;color:var(--tx)}
+.ai-log .ai-ai .body>:first-child{margin-top:0}
+.ai-log .ai-ai p{margin:0 0 9px}
+.ai-log .ai-ai code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11.5px;
+  background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:1px 4px}
+.ai-log .ai-ai .code{position:relative;margin:0 0 9px;border:1px solid var(--line);
+  border-radius:8px;background:var(--bg);overflow:hidden}
+.ai-log .ai-ai .code pre{margin:0;padding:24px 11px 10px;overflow:auto;max-height:230px}
+.ai-log .ai-ai .code code{background:none;border:0;padding:0;white-space:pre}
+.ai-log .ai-ai .copy{position:absolute;top:4px;right:4px;font-size:9.5px;padding:2px 7px;
+  border-radius:5px;border:1px solid var(--line);background:var(--surf);color:var(--mut);
+  cursor:pointer}
+.ai-log .ai-shot{margin:0 0 8px}
+.ai-log .ai-shot img{max-width:100%;border-radius:8px;border:1px solid var(--line);display:block}
+.ai-foot{display:flex;gap:7px;align-items:center;padding:9px;border-top:1px solid var(--line);
+  flex-shrink:0;background:var(--bg)}
+.ai-foot input{flex:1;min-width:0;padding:9px 11px;border-radius:9px;background:var(--surf);
+  border:1px solid var(--line);color:var(--tx);font-size:12.5px;outline:none;
+  transition:border-color .16s}
+.ai-foot input:focus{border-color:var(--acc)}
+.ai-btn{width:36px;height:36px;border-radius:9px;border:1px solid var(--line);
+  background:var(--surf);color:var(--mut);cursor:pointer;display:grid;place-items:center;
+  flex-shrink:0;transition:color .16s,border-color .16s}
+.ai-btn:hover{color:var(--acc);border-color:var(--acc)}
+.ai-btn.on{color:var(--acc);border-color:var(--acc);background:var(--dim)}
+.ai-btn svg{width:17px;height:17px}
+.ai-send{width:36px;height:36px;border-radius:9px;border:1px solid var(--acc);
+  background:var(--acc);color:var(--accInk);cursor:pointer;display:grid;place-items:center;
+  flex-shrink:0;transition:filter .16s}
+.ai-send:hover{filter:brightness(1.08)}
+.ai-send svg{width:16px;height:16px}
+.ai-note{padding:0 10px 9px;font-size:10.5px;color:var(--mut);background:var(--bg)}
+.ai-note:empty{display:none}
+@media(max-width:560px){
+  #aiDock{right:10px;left:10px;bottom:10px;width:auto}
+  .ai-panel{height:min(460px,calc(100vh - 100px))}
+}
+
+/* ---------- maths ---------- */
+.msg .body .math,.ai-log .ai-ai .math,.math{font-family:"Cambria Math","Latin Modern Math",Georgia,serif;
+  font-size:1.02em;white-space:nowrap}
+.math.big{display:block;text-align:center;margin:6px 0 12px;font-size:1.12em;white-space:normal}
+.math sup{font-size:.72em}
+.math sub{font-size:.72em}
+.math .frac{display:inline-flex;flex-direction:column;vertical-align:-.45em;
+  text-align:center;margin:0 .18em;line-height:1.12}
+.math .frac i{font-style:normal;padding:0 .25em}
+.math .frac i:first-child{border-bottom:1px solid currentColor;padding-bottom:1px}
+.math .frac i:last-child{padding-top:1px}
+.math .sqrt{border-top:1px solid currentColor;padding:0 .12em 0 .06em;margin-left:-.04em}
 
 /* ---------- what's new ---------- */
 .news{display:flex;flex-direction:column;gap:2px;margin-top:6px}
@@ -356,6 +516,61 @@ details[open] summary{color:var(--tx)}
 
 /* ---------- youtube ---------- */
 .yt-wrap{display:flex;flex-direction:column;height:100%;min-height:0}
+.yt-rail{display:flex;gap:5px;padding:10px 16px 0;flex-shrink:0;overflow-x:auto}
+.yt-rail-b{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
+  padding:7px 13px;border-radius:99px;border:1px solid var(--line);background:var(--surf);
+  color:var(--mut);cursor:pointer;font-size:12px;font-weight:550;
+  transition:color .16s,border-color .16s,background .16s}
+.yt-rail-b:hover{color:var(--tx);border-color:var(--line2)}
+.yt-rail-b.on{color:var(--tx);background:var(--surf2);border-color:var(--line2)}
+.yt-rail-b .n{font-style:normal;font-size:9.5px;color:var(--acc);
+  border:1px solid var(--line);border-radius:99px;padding:0 5px;line-height:14px}
+.yt-main{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+.yt-more{display:flex;align-items:center;justify-content:center;gap:12px;
+  padding:6px 16px 20px;flex-shrink:0}
+.yt-more[hidden]{display:none}
+/* ---------- shorts: one at a time, up and down ---------- */
+.yt-shorts{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;padding:0}
+.yt-shorts[hidden]{display:none}
+.yt-shorts-col{flex:1 1 auto;min-height:0;overflow-y:auto;scroll-snap-type:y mandatory;
+  padding:14px 16px 22px;overscroll-behavior:contain;display:flex;flex-direction:column;
+  gap:16px;align-items:center}
+.yt-shorts-foot{flex-shrink:0;text-align:center;font-size:10.5px;color:var(--mut);
+  padding:8px 12px;border-top:1px solid var(--line)}
+.yt-short{width:min(430px,100%);flex:0 0 auto;scroll-snap-align:center;cursor:pointer;
+  background:var(--surf);border:1px solid var(--line);border-radius:14px;overflow:hidden;
+  transition:border-color .16s,transform .18s;animation:viewIn .22s ease}
+.yt-short:hover{border-color:var(--line2);transform:scale(1.008)}
+.yt-short .frame{position:relative;width:100%;aspect-ratio:9/16;height:min(58vh,430px);
+  background:#000;display:grid;place-items:center;overflow:hidden}
+.yt-short .frame img.poster{width:100%;height:100%;object-fit:cover;display:block}
+.yt-short .frame .yt-short-frame{position:absolute;inset:0;width:100%;height:100%;
+  border:0;display:block;background:#000}
+.yt-short-play{margin-top:8px;font-size:10.5px;padding:4px 11px;border-radius:99px;
+  border:1px solid var(--line2);background:transparent;color:var(--mut);cursor:pointer}
+.yt-short-play:hover{color:var(--tx);border-color:var(--acc)}
+.yt-short .frame .playico{position:absolute;width:52px;height:52px;border-radius:50%;
+  background:rgba(8,9,11,.66);display:grid;place-items:center;
+  box-shadow:0 3px 16px rgba(0,0,0,.45)}
+.yt-short .frame .playico svg{width:22px;height:22px;color:#fff}
+.yt-short .cap{padding:10px 12px 12px}
+.yt-short .cap b{display:block;font-size:12.5px;line-height:1.4;font-weight:600;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.yt-short .cap span{display:flex;align-items:center;gap:7px;margin-top:6px;
+  font-size:10.5px;color:var(--mut)}
+.yt-short .cap span img{width:20px;height:20px;border-radius:50%;object-fit:cover;
+  border:1px solid var(--line)}
+/* ---------- subscriptions ---------- */
+.yt-sub-row{display:flex;align-items:center;gap:11px;padding:10px 12px;grid-column:1/-1;
+  border:1px solid var(--line);border-radius:11px;background:var(--surf);
+  transition:border-color .16s,background .16s}
+.yt-sub-row img{width:44px;height:44px;border-radius:50%;object-fit:cover;
+  border:1px solid var(--line);background:var(--surf2);flex-shrink:0}
+.yt-sub-row .t{flex:1;min-width:0}
+.yt-sub-row .t b{display:block;font-size:12.5px;font-weight:600;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.yt-sub-row .t span{font-size:10.5px;color:var(--mut)}
+.yt-sub-add{display:flex;gap:6px;grid-column:1/-1;margin:2px 0 4px}
 .yt-bar{display:flex;gap:6px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);
   flex-shrink:0;flex-wrap:wrap}
 .yt-bar h2{margin:0 auto 0 0;font-family:"Staatliches",sans-serif;font-size:15px;letter-spacing:1.5px}
@@ -377,7 +592,8 @@ details[open] summary{color:var(--tx)}
 .yt-url:focus{border-color:var(--acc)}
 .yt-stage{position:relative;flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
 .yt-feed{display:grid;gap:12px;padding:16px;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
-  grid-auto-rows:max-content;overflow-y:auto;align-content:start;flex:1 1 auto;min-height:0}
+        grid-auto-rows:max-content;overflow-y:auto;align-content:start;flex:1 1 auto;min-height:0}
+.yt-feed[hidden]{display:none}
 .yt-card{text-align:left;background:var(--surf);border:1px solid var(--line);border-radius:11px;
   padding:0;overflow:hidden;cursor:pointer;color:var(--tx);position:relative;
   transition:border-color .16s,transform .18s cubic-bezier(.2,.8,.2,1),background .16s;
@@ -407,12 +623,71 @@ details[open] summary{color:var(--tx)}
 .yt-player{position:absolute;inset:0;background:var(--bg);display:flex;flex-direction:column;
   z-index:3;animation:viewIn .22s ease}
 .yt-player[hidden]{display:none}
-.yt-frame{flex:1 1 auto;width:100%;min-height:0;border:0;background:#000;display:block}
+.yt-watch{flex:1 1 auto;min-height:0;display:flex;gap:0}
+.yt-screen{flex:1 1 auto;min-width:0;min-height:0;display:flex;background:#000}
+.yt-frame{width:100%;height:100%;border:0;background:#000;display:block}
+.yt-side{width:360px;flex-shrink:0;border-left:1px solid var(--line);display:flex;
+  flex-direction:column;min-height:0;background:var(--bg)}
+.yt-side[hidden]{display:none}
+.yt-player.theatre .yt-side{display:none}
+.yt-side-h{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);
+  flex-shrink:0}
+.yt-side-h b{font-family:"Staatliches",sans-serif;font-size:12px;letter-spacing:1.4px;font-weight:400}
+.yt-side-h button{margin-left:auto;padding:3px 8px;font-size:10px}
+.yt-side-list{flex:1 1 auto;min-height:0;overflow-y:auto;padding:6px}
+.yt-side-list .yt-row{display:flex;gap:9px;padding:6px;border-radius:9px;cursor:pointer;
+  align-items:flex-start;transition:background .14s;animation:none}
+.yt-side-list .yt-row:hover{background:var(--surf2)}
+.yt-side-list .yt-row .thumb{width:132px;flex-shrink:0;aspect-ratio:16/9;border-radius:7px;
+  overflow:hidden;position:relative;background:var(--surf2)}
+.yt-side-list .yt-row .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.yt-side-list .yt-row .thumb .len{position:absolute;right:4px;bottom:4px;font-size:8.5px;
+  padding:1px 4px;border-radius:3px;background:rgba(0,0,0,.75);color:#fff}
+.yt-side-list .yt-row .meta{min-width:0;flex:1}
+.yt-side-list .yt-row .meta b{display:block;font-size:11.5px;line-height:1.4;font-weight:600;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.yt-side-list .yt-row .meta span{display:block;font-size:10px;color:var(--mut);margin-top:3px}
+.yt-acts{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.yt-act{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:99px;
+  border:1px solid var(--line);background:var(--surf);color:var(--mut);cursor:pointer;
+  font-size:11px;font-weight:550;white-space:nowrap;
+  transition:color .16s,border-color .16s,background .16s}
+.yt-act:hover{color:var(--tx);border-color:var(--line2)}
+.yt-act svg{width:15px;height:15px}
+.yt-act.on{color:var(--acc);border-color:var(--acc);background:var(--dim)}
+.yt-yt-title{font-size:14px;line-height:1.35;margin:9px 0 4px}
 .yt-under{display:flex;align-items:center;gap:8px;padding:9px 14px;border-top:1px solid var(--line);
   flex-shrink:0;flex-wrap:wrap}
 .yt-under-txt{flex:1;min-width:140px;overflow:hidden}
 .yt-under-txt b{display:block;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .yt-under-txt span{font-size:10.5px;color:var(--mut)}
+/* the channel of whatever is playing, so you can walk into their videos */
+.yt-chan{display:flex;align-items:center;gap:10px;margin-top:9px;padding-top:9px;
+  border-top:1px solid var(--line);cursor:pointer;width:fit-content;max-width:100%;
+  border-radius:8px;transition:opacity .16s}
+.yt-chan[hidden]{display:none}
+.yt-chan:hover{opacity:.8}
+.yt-chan img{width:38px;height:38px;border-radius:50%;object-fit:cover;
+  border:1px solid var(--line);background:var(--surf2);flex-shrink:0}
+.yt-chan-txt{min-width:0}
+.yt-chan-txt b{display:block;font-size:12px;font-weight:600;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;max-width:220px}
+.yt-chan-txt i{font-style:normal;font-size:10.5px;color:var(--mut)}
+.yt-chan .small-btn{margin-left:6px;padding:4px 9px;font-size:10.5px}
+.yt-chan-head{grid-column:1/-1;display:flex;gap:14px;align-items:center;
+  padding:6px 2px 14px;border-bottom:1px solid var(--line);margin-bottom:6px}
+.yt-chan-head img{width:68px;height:68px;border-radius:50%;object-fit:cover;
+  border:1px solid var(--line);background:var(--surf2);flex-shrink:0}
+.yt-chan-head-txt{flex:1;min-width:0}
+.yt-chan-head-txt b{display:block;font-family:"Staatliches",sans-serif;font-size:19px;
+  letter-spacing:1.2px;font-weight:400}
+.yt-chan-head-txt i{display:block;font-style:normal;font-size:11px;color:var(--mut);
+  margin-top:3px;line-height:1.5}
+.yt-loading{display:flex;align-items:center;gap:10px;padding:18px 2px;
+  grid-column:1/-1;color:var(--mut);font-size:12.5px}
+/* a row of placeholders while it is on its way */
+.yt-skel{background:var(--surf);border:1px solid var(--line);border-radius:11px;
+  overflow:hidden;height:210px;animation:pulse 1.1s ease-in-out infinite}
 
 /* ---------- settings ---------- */
 .panel{max-width:800px;margin:8px auto 0;background:var(--surf);border:1px solid var(--line);
@@ -596,25 +871,21 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding:18px 20px 44px}
           <p id="chatWho">text and maths · images are read by Gemini</p>
         </div>
         <div class="sp">
+          <select id="chatModel" class="msel" title="which model answers you"></select>
           <button class="tool" id="clearChat">clear</button>
           <button class="tool" id="gameMode">find a zone</button>
+          <button class="tool" id="popAi" title="pop the assistant out so you can use it over a game">pop out</button>
         </div>
       </div>
       <div id="chat"></div>
       <div class="composer">
-        <div class="tools">
-          <button class="tool" id="pageGo" title="fetch a page and put its text here">read a page</button>
-          <button class="tool" id="pageOpen" title="open it in the google tab">open</button>
-          <button class="iconbtn" id="shotBtn" title="One frame of your screen - never written to disk">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2.8" y="5.5" width="18.4" height="13" rx="3"/><path d="M8.6 5.5 10 3.4h4l1.4 2.1"/><circle cx="12" cy="12" r="3.6"/></svg>
-          </button>
-          <input type="text" id="pageInput" class="ct-url" style="flex:1;min-width:150px"
-                 placeholder="paste a link, or type something to look up" autocomplete="off">
-        </div>
         <div class="clips" id="clips"></div>
         <div class="crow">
           <button class="iconbtn" id="clipBtn" title="Attach a picture">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.4 11.1 12.3 20.2a5.5 5.5 0 0 1-7.8-7.8l9.2-9.2a3.7 3.7 0 0 1 5.2 5.2l-9.2 9.2a1.8 1.8 0 0 1-2.6-2.6l8.5-8.5"/></svg>
+          </button>
+          <button class="iconbtn" id="shotBtn" title="Take one picture of your screen and let Orbit read it">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2.8" y="5.5" width="18.4" height="13" rx="3"/><path d="M8.6 5.5 10 3.4h4l1.4 2.1"/><circle cx="12" cy="12" r="3.6"/></svg>
           </button>
           <input type="file" id="clipInput" accept="image/*" multiple hidden>
           <textarea id="input" rows="1" placeholder="Ask anything. Maths, questions, images, or tell me a game to play."></textarea>
@@ -652,27 +923,89 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding:18px 20px 44px}
   <!-- ==================== YOUTUBE ==================== -->
   <section class="view" id="viewYoutube">
     <div class="yt-wrap">
-      <div class="yt-bar">
-        <input type="text" id="ytUrl" class="yt-url" placeholder="search YouTube - videos or channels" autocomplete="off">
-        <button class="small-btn" id="ytGo">Go</button>
-        <button class="small-btn" id="ytMode" title="switch between videos and channels">Videos</button>
-        <button class="small-btn" id="ytSort" title="how the list is ordered">Relevance</button>
-        <button class="small-btn" id="ytHome">For You</button>
-        <button class="small-btn" id="ytBack" hidden>Back</button>
-      </div>
-      <div class="yt-stage" id="ytStage">
-        <div class="yt-feed" id="ytFeed"></div>
-        <div class="yt-player" id="ytPlayer" hidden>
-          <iframe id="ytFrame" class="yt-frame" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-            allowfullscreen referrerpolicy="no-referrer"></iframe>
+      <nav class="yt-rail" id="ytRail">
+        <button class="yt-rail-b on" data-go="home"><span>Home</span></button>
+        <button class="yt-rail-b" data-go="shorts"><span>Shorts</span></button>
+        <button class="yt-rail-b" data-go="subs"><span>Subscriptions</span><i class="n" id="ytSubN"></i></button>
+        <button class="yt-rail-b" data-go="history"><span>History</span><i class="n" id="ytHisN"></i></button>
+      </nav>
+      <div class="yt-main">
+        <div class="yt-bar">
+          <input type="text" id="ytUrl" class="yt-url" placeholder="search YouTube - videos or channels" autocomplete="off">
+          <button class="small-btn" id="ytGo">Search</button>
+          <button class="small-btn" id="ytMode" title="switch between videos and channels">Videos</button>
+          <button class="small-btn" id="ytSort" title="how the list is ordered">Relevance</button>
+          <button class="small-btn" id="ytHome" title="back to the front page">Home</button>
+          <button class="small-btn" id="ytBack" hidden>Back</button>
+        </div>
+        <div class="yt-stage" id="ytStage">
+          <div class="yt-feed" id="ytFeed"></div>
+          <div class="yt-shorts" id="ytShorts" hidden>
+            <div class="yt-shorts-col" id="ytShortsCol"></div>
+            <div class="yt-shorts-foot" id="ytShortsFoot">scroll, or use the up and down arrows, to move through them</div>
+          </div>
+          <div class="yt-player" id="ytPlayer" hidden>
+          <div class="yt-watch">
+            <div class="yt-screen">
+              <iframe id="ytFrame" class="yt-frame" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"></iframe>
+            </div>
+            <div class="yt-side" id="ytSide">
+              <div class="yt-side-h">
+                <b>Up next</b>
+                <button class="small-btn" id="ytSideToggle">hide</button>
+              </div>
+              <div class="yt-side-list" id="ytSideList"></div>
+            </div>
+          </div>
           <div class="yt-under">
-            <div class="yt-under-txt">
+            <div class="yt-under-txt" id="ytNowBox">
               <b id="ytNowTitle">nothing playing</b>
               <span id="ytNowWho"></span>
+              <div class="yt-chan" id="ytNowChan" hidden>
+                <img id="ytNowAvatar" alt="">
+                <span class="yt-chan-txt">
+                  <b id="ytNowChanName"></b>
+                  <i id="ytNowChanSubs"></i>
+                </span>
+                <button class="small-btn" id="ytSubBtn">Subscribe</button>
+                <button class="small-btn" id="ytSeeAll">See all</button>
+              </div>
             </div>
-            <button class="small-btn" id="ytOpenWatch">Open on YouTube</button>
-            <button class="small-btn" id="ytStop">Stop</button>
+            <div class="yt-acts">
+              <button class="yt-act" id="ytLike" title="like">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 21V9.5l4.2-6.2c1.4 0 2.3 1 2.1 2.4L12.7 9h5.1c1.6 0 2.6 1.3 2.4 2.8l-1.2 6.4A3 3 0 0 1 16 21z"/><path d="M7 9H4.5A1.5 1.5 0 0 0 3 10.5v9A1.5 1.5 0 0 0 4.5 21H7"/></svg>
+                <span id="ytLikeCount"></span>
+              </button>
+              <button class="yt-act" id="ytDislike" title="not for me">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3v11.5l-4.2 6.2c-1.4 0-2.3-1-2.1-2.4l.6-3.6H6.2c-1.6 0-2.6-1.3-2.4-2.8l1.2-6.4A3 3 0 0 1 8 3z"/><path d="M17 15h2.5a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 19.5 3H17"/></svg>
+              </button>
+              <button class="yt-act" id="ytShare" title="copy the link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="17.5" cy="5.5" r="2.8"/><circle cx="6.5" cy="12" r="2.8"/><circle cx="17.5" cy="18.5" r="2.8"/><path d="m9 10.7 6-3.4M9 13.3l6 3.4"/></svg>
+                <span>Share</span>
+              </button>
+              <button class="yt-act" id="ytComments" title="read the comments">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 12.5c0 4-3.8 7.2-8.5 7.2a9.9 9.9 0 0 1-2.9-.4L4 21l1.3-3.6A6.9 6.9 0 0 1 3.5 12.5c0-4 3.8-7.2 8.5-7.2s8.5 3.2 8.5 7.2z"/></svg>
+                <span>Comments</span>
+              </button>
+              <button class="yt-act" id="ytWatch" title="open on youtube">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M20 4 10.5 13.5"/><path d="M19 14v5.5a1.5 1.5 0 0 1-1.5 1.5h-12A1.5 1.5 0 0 1 4 19.5v-12A1.5 1.5 0 0 1 5.5 6H11"/></svg>
+              </button>
+              <button class="yt-act" id="ytTheatre" title="big player, no sidebar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.6" y="5" width="18.8" height="14" rx="2.4"/><path d="M2.6 9.6h18.8"/></svg>
+              </button>
+              <button class="yt-act" id="ytFull" title="full screen">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 3.5H3.5v5M15.5 3.5h5v5M8.5 20.5h-5v-5M15.5 20.5h5v-5"/></svg>
+              </button>
+              <button class="yt-act" id="ytStop" title="stop and go back to the list">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg>
+                <span>Close</span>
+              </button>
+            </div>
           </div>
+        </div>
+        <div class="yt-more" id="ytMoreWrap" hidden>
+          <button class="act" id="ytMore">Load more</button>
+          <span class="hint" id="ytMoreN"></span>
         </div>
       </div>
       <div class="px-out">
@@ -743,70 +1076,56 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding:18px 20px 44px}
         <textarea id="persona" rows="4" placeholder="Optional. Anything you add here is added to how Orbit behaves."></textarea>
         <div class="note">Maths and facts are checked and worked through step by step unless you tell it otherwise.</div>
       </div>
-      <h3>your games</h3>
+      <h3>this tab</h3>
       <div class="field">
-        <label>Games you added yourself</label>
-        <div class="note">These sit in the zone list next to everyone else's, and they play in the
-          same window. Only three things are needed: the name, the raw link to the game's html file,
-          and an image for the icon. The rest is optional and only used to sort and filter.</div>
-        <table class="mtable" id="mineTable">
-          <thead>
-            <tr>
-              <th>name</th><th>raw link</th><th>icon</th><th>kind</th><th>tags</th><th></th>
-            </tr>
-          </thead>
-          <tbody id="mineRows"></tbody>
-        </table>
-        <div class="actions" style="border:0;padding-top:10px;margin:0">
-          <button class="act" id="mineAdd">Add a game</button>
+        <label>What the tab says</label>
+        <div class="row">
+          <input type="text" id="tabName" placeholder="ORBIT" autocomplete="off">
+          <button class="small-btn" id="tabNameGo">Set</button>
         </div>
-        <div class="note">
-          <b>raw link</b> - the address of the html file itself, the one that ends in .html.
-          Right click the game on github and copy the raw address.<br>
-          <b>icon</b> - an image address, or a data: link. Square pictures look best.<br>
-          <b>kind</b> - game, tool, movie, mod or anything else you like. It becomes a filter tag.<br>
-          <b>tags</b> - comma separated. Also become filter tags, so you can sort by them.<br>
-          <b>author</b> - whose it is. Optional, shown next to the title.<br>
-          Anything left empty is simply skipped.
-        </div>
+        <div class="note">The name in the tab at the top of the window.</div>
       </div>
-      <div class="field mine-form" id="mineForm" hidden>
-        <label id="mineFormTitle">Add a game</label>
-        <div class="mf-row">
-          <span class="mf-lab">name</span>
-          <input type="text" id="mfName" placeholder="Pink Bike" autocomplete="off">
+      <div class="field">
+        <label>The picture on the tab</label>
+        <div class="row">
+          <input type="text" id="tabIcon" placeholder="https://.../icon.png" autocomplete="off">
+          <button class="small-btn" id="tabIconGo">Set</button>
+          <button class="small-btn" id="tabIconClear">Clear</button>
         </div>
-        <div class="mf-row">
-          <span class="mf-lab">raw link</span>
-          <input type="text" id="mfLink" placeholder="https://raw.githubusercontent.com/.../game.html" autocomplete="off">
+        <div class="note">Any picture address, or a data: link. It is checked first, so
+          if the address does not load a picture you are told instead of being left
+          wondering. Small square pictures look best.</div>
+        <div class="note" id="favNote"></div>
+      </div>
+
+      <h3>open in a new tab</h3>
+        <div class="field">
+          <label>The zone to open</label>
+          <div class="row">
+            <input type="text" id="cloakZone" placeholder="type a zone name, or a raw link" autocomplete="off">
+            <button class="small-btn" id="cloakFind">Find</button>
+          </div>
+          <div class="note" id="cloakFound">Nothing picked yet.</div>
         </div>
-        <div class="mf-row">
-          <span class="mf-lab">icon</span>
-          <input type="text" id="mfIcon" placeholder="https://.../icon.png or data:image/png;base64,..." autocomplete="off">
-          <span class="mf-prev" id="mfPrev"></span>
+        <div class="field">
+          <label>What the new tab says</label>
+          <div class="row">
+            <input type="text" id="cloakTitle" placeholder="the tab title" autocomplete="off">
+          </div>
         </div>
-        <div class="mf-row">
-          <span class="mf-lab">kind</span>
-          <input type="text" id="mfKind" placeholder="game" list="mfKinds" autocomplete="off">
-          <datalist id="mfKinds"></datalist>
+        <div class="field">
+          <label>The picture on the new tab</label>
+          <div class="row">
+            <input type="text" id="cloakDomain" placeholder="docs.google.com" autocomplete="off">
+            <button class="small-btn" id="cloakPickIcon">Use google's icon</button>
+          </div>
+          <div class="note">A bare domain is enough - the icon is fetched from Google's
+            favicon service. Leave it empty to keep whatever the page brings with it.</div>
         </div>
-        <div class="mf-row">
-          <span class="mf-lab">tags</span>
-          <input type="text" id="mfTags" placeholder="pink, bike, classic" autocomplete="off">
+        <div class="actions" style="border:0;padding-top:4px;margin:0">
+          <button class="act" id="cloakGo">Open it in a new tab</button>
         </div>
-        <div class="mf-row">
-          <span class="mf-lab">author</span>
-          <input type="text" id="mfAuthor" placeholder="optional" autocomplete="off">
-        </div>
-        <div class="mf-row">
-          <span class="mf-lab">note</span>
-          <input type="text" id="mfNote" placeholder="optional, just for you" autocomplete="off">
-        </div>
-        <div class="note" id="mfError"></div>
-        <div class="actions" style="border:0;padding-top:8px;margin:0">
-          <button class="act primary" id="mfSave">Save it</button>
-          <button class="act" id="mfCancel">Cancel</button>
-        </div>
+        <div class="note" id="cloakNote"></div>
       </div>
 
       <h3>your data</h3>
@@ -839,6 +1158,29 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding:18px 20px 44px}
     ORBIT &middot; zones by DAKNUX &middot; reed i made this &middot; holy rebrand
   </div>
 </footer>
+
+<!-- the assistant, on its own, so you can ask it something while a game is open -->
+<div id="aiDock" hidden>
+  <div id="aiPanel" class="ai-panel">
+    <div class="ai-bar">
+      <span class="ai-dot"></span>
+      <b>Ask Orbit</b>
+      <span class="ai-model" id="aiModelName">gemini</span>
+      <button class="ai-x" id="aiClose" title="put it away">&times;</button>
+    </div>
+    <div id="aiLog" class="ai-log"></div>
+    <div class="ai-foot">
+      <button class="ai-btn" id="aiShot" title="look at one frame of your screen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2.8" y="5.5" width="18.4" height="13" rx="3"/><path d="M8.6 5.5 10 3.4h4l1.4 2.1"/><circle cx="12" cy="12" r="3.6"/></svg>
+      </button>
+      <input type="text" id="aiInput" placeholder="solve this" autocomplete="off">
+      <button class="ai-send" id="aiSend" title="ask">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.4 21 12 3.4 3.6 3.4 10l12.6 2-12.6 2z"/></svg>
+      </button>
+    </div>
+    <div class="ai-note" id="aiNote"></div>
+  </div>
+</div>
 
 <!-- the game viewer, exactly where the original expects it -->
 <div id="zoneViewer">
@@ -894,7 +1236,8 @@ var LS={key:"orbitGroqKey",gemKey:"orbitGeminiKey",model:"orbitModel",settings:"
         fav:"orbitFav",theme:"orbitTheme"};
 
 var DEFAULT_KEY="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";
-var DEFAULT_GEM="AQ.Ab8RN6JK_-s31crhZNCjOM7IjXGILo0GkM0Fv5NaLsXBNmP4yA";
+var OLD_GEM="AQ.Ab8RN6JK_-s31crhZNCjOM7IjXGILo0GkM0Fv5NaLsXBNmP4yA";
+var DEFAULT_GEM="AQ.Ab8RN6LfZ6xbmPmu30YI5XOzo7dzdg4eyA81bktv26RkJIyWyg";
 
 var GROQ_URL="https://api.groq.com/openai/v1/chat/completions";
 var GROQ_MODELS_URL="https://api.groq.com/openai/v1/models";
@@ -902,6 +1245,8 @@ var GEMINI_HOST="https://generativelanguage.googleapis.com/v1beta/models/";
 var GEM_MODELS=["gemini-3.8-flash","gemini-3.6-flash","gemini-3.5-flash","gemini-3.1-flash-lite","gemini-flash-latest"];
 /* groq also serves guard models and whisper on the models list; neither can chat */
 var BAD_MODEL=/guard|whisper|whisper-large|omni-moderation/i;
+/* whichever model actually produced the last answer */
+var lastAnswerModel="";
 
 function lsGet(k,fallback){try{var v=localStorage.getItem(k);return v==null?fallback:v}catch(e){return fallback}}
 function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
@@ -910,6 +1255,9 @@ var settings=Object.assign({model:"",temperature:.7,maxTokens:3072,persona:""},
                            JSON.parse(lsGet(LS.settings,"null")||"{}"));
 var apiKey=lsGet(LS.key,DEFAULT_KEY);
 var gemKey=lsGet(LS.gemKey,DEFAULT_GEM);
+/* the picture key was replaced, so a browser that still had the old one saved is
+   given the new one rather than quietly failing */
+if(gemKey===OLD_GEM){gemKey=DEFAULT_GEM;lsSet(LS.gemKey,gemKey)}
 var models=[];
 
 /* ============================================================
@@ -1092,16 +1440,230 @@ function toast(msg,kind){
     setTimeout(function(){t.remove()},320);
   },kind==="bad"?6000:3200);
 }
-/* very small markdown: fenced code, inline code, bold, and newlines */
-function mdToHtml(t){
-  var parts=String(t||"").split(/```/);
-  var out=parts.map(function(p,i){
-    if(i%2===1)return "<pre>"+esc(p.replace(/^[a-z]*\n?/,""))+"</pre>";
-    return esc(p)
-      .replace(/`([^`\n]+)`/g,"<code>$1</code>")
-      .replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>");
+/* ---------- maths ----------
+   Models write maths in LaTeX. Left alone it comes out as $$30 + 21 = 51$$ and
+   \times, which is exactly what nobody wants. This turns the common commands into
+   the real symbols, keeps fractions stacked, and leaves the text inside the
+   brackets alone so the whole line can still be copied out. */
+var MATH_WORDS={
+  times:"×",cdot:"·",div:"÷",pm:"±",mp:"∓",le:"≤",leq:"≤",ge:"≥",geq:"≥",ne:"≠",neq:"≠",
+  approx:"≈",equiv:"≡",sim:"∼",propto:"∝",rightarrow:"→",to:"→",Leftarrow:"⇐",
+  leftarrow:"←",Rightarrow:"⇒",leftrightarrow:"↔",iff:"⟺",infty:"∞",partial:"∂",
+  nabla:"∇",sum:"∑",prod:"∏",int:"∫",iint:"∬",oint:"∮",sqrt:"√",forall:"∀",exists:"∃",
+  in:"∈",notin:"∉",ni:"∋",subset:"⊂",subseteq:"⊆",supset:"⊃",supseteq:"⊇",
+  cup:"∪",cap:"∩",emptyset:"∅",varnothing:"∅",land:"∧",lor:"∨",neg:"¬",oplus:"⊕",
+  otimes:"⊗",perp:"⊥",parallel:"∥",angle:"∠",degree:"°",percent:"%",prime:"′",
+  therefore:"∴",because:"∵",ldots:"…",dots:"…",cdots:"⋯",lceil:"⌈",rceil:"⌉",
+  lfloor:"⌊",rfloor:"⌋",aleph:"ℵ",hbar:"ℏ",ell:"ℓ",Re:"ℜ",Im:"ℑ",wp:"℘",
+  alpha:"α",beta:"β",gamma:"γ",delta:"δ",epsilon:"ε",varepsilon:"ε",zeta:"ζ",
+  eta:"η",theta:"θ",vartheta:"ϑ",iota:"ι",kappa:"κ",lambda:"λ",mu:"μ",nu:"ν",
+  xi:"ξ",omicron:"ο",pi:"π",rho:"ρ",sigma:"σ",tau:"τ",upsilon:"υ",phi:"φ",varphi:"φ",
+  chi:"χ",psi:"ψ",omega:"ω",Gamma:"Γ",Delta:"Δ",Theta:"Θ",Lambda:"Λ",Xi:"Ξ",Pi:"Π",
+  Sigma:"Σ",Phi:"Φ",Psi:"Ψ",Omega:"Ω"
+};
+/* is this $...$ actually maths, or just money?
+   A single symbol or number between dollars is maths - $9$, $x$, $1$, $n$.
+   A run of words with two dollar signs in it is a price, and is left alone. */
+function looksMath(s){
+  if(!s)return false;
+  var t=String(s).replace(/\s+/g," ").trim();
+  if(!t||t.length>180)return false;
+  /* latex wins over everything else - it can only be maths */
+  if(/\\[a-zA-Z]/.test(t))return true;
+  if(/[=+\-*/^_<>|]/.test(t)&&(/[\dxn]/i.test(t)||/[a-zA-Z]/.test(t)))return true;
+  var words=t.split(" ");
+  /* a run of words with dollars in it is a price, not an equation */
+  if(words.length>4)return false;
+  if(words.length===1&&/^[a-zA-Z0-9]{1,20}(?:,[ ]?[a-zA-Z0-9]{1,20}){0,2}$/.test(t))return true;
+  return false;
+}
+function mathGroup(inner){
+  /* strips one layer of braces */
+  var t=String(inner);
+  t=t.replace(/^\{(.*)\}$/,"$1");
+  return t;
+}
+function latexToText(s){
+  var out=String(s==null?"":s);
+  out=out.replace(/\\(?:left|right|displaystyle|textstyle|!|,|;|:|quad|qquad|thinspace|enspace|smallspace)\b/g,"");
+  out=out.replace(/\\begin\{[^}]*\}|\\end\{[^}]*\}/g,"");
+  out=out.replace(/\\(?:text|mathrm|mbox|mathbf|mathit|operatorname)\{([^{}]*)\}/g,"$1");
+  out=out.replace(/\\\\/g,"\n");
+  /* \frac{a}{b} and \frac ab */
+  out=out.replace(/\\d?frac\{([^{}]*)\}\{([^{}]*)\}/g,
+    '<span class="frac"><i>$1</i><i>$2</i></span>');
+  out=out.replace(/\\d?frac\s*([0-9a-zA-Z])\s*([0-9a-zA-Z])/g,
+    '<span class="frac"><i>$1</i><i>$2</i></span>');
+  /* \sqrt{..}, \sqrt[..]{..} and \sqrt x */
+  out=out.replace(/\\sqrt\s*\[\s*[^\]]*\]\s*\{([^{}]*)\}/g,"√<span class=\"sqrt\">$1</span>");
+  out=out.replace(/\\sqrt\{([^{}]*)\}/g,"√<span class=\"sqrt\">$1</span>");
+  out=out.replace(/\\sqrt\s*([0-9a-zA-Z])/g,"√<span class=\"sqrt\">$1</span>");
+  /* powers and subscripts */
+  out=out.replace(/\^\{([^{}]*)\}/g,"<sup>$1</sup>");
+  out=out.replace(/\^([0-9a-zA-Z+\-−]+)/g,"<sup>$1</sup>");
+  out=out.replace(/_\{([^{}]*)\}/g,"<sub>$1</sub>");
+  out=out.replace(/_([0-9a-zA-Z+\-−]+)/g,"<sub>$1</sub>");
+  /* any command left over */
+  out=out.replace(/\\([a-zA-Z]+)/g,function(_,w){
+    var m=MATH_WORDS[w];
+    if(m)return m;
+    if(w.length===1)return w;
+    return "";
   });
-  return out.join("");
+  out=out.replace(/\\([^a-zA-Z])/g,"$1");
+  /* curly braces only ever group things here */
+  out=out.replace(/[{}]/g,"");
+  out=out.replace(/~/g," ");
+  out=out.replace(/[ \t]{2,}/g," ");
+  return out;
+}
+/* $$..$$ on its own, then $..$ inline */
+function pullMath(src,store){
+  src=src.replace(/\$\$([\s\S]+?)\$\$/g,function(_,inner){
+    if(!looksMath(inner))return _;
+    store.push('<span class="math big">'+latexToText(inner.trim())+"</span>");
+    return " @@M"+(store.length-1)+"@@ ";
+  });
+  src=src.replace(/\$([^$\n]{1,180})\$/g,function(_,inner){
+    if(!looksMath(inner))return _;
+    store.push('<span class="math">'+latexToText(inner)+"</span>");
+    return " @@M"+(store.length-1)+"@@ ";
+  });
+  return src;
+}
+
+/* ============================================================
+   MARKDOWN
+   Enough of it to render an answer properly: headings, lists, tables, quotes, code
+   with a language, links, bold, italic and inline code. Everything is escaped first
+   and every character is left exactly as the model wrote it, so symbols like ×, ’
+   and – survive and the whole thing can be copied back out again.
+   ============================================================ */
+function mdToHtml(t){
+  var src=String(t==null?"":t).replace(/\r\n?/g,"\n");
+  /* pull fenced code out first so nothing inside it gets touched */
+  var blocks=[];
+  src=src.replace(/```([a-zA-Z0-9+#._-]*)\n?([\s\S]*?)(?:```|$)/g,function(_,lang,code){
+    blocks.push({lang:lang||"",code:code.replace(/\n$/,"")});
+    return "@@CODE"+(blocks.length-1)+"@@";
+  });
+  /* and inline code, so its contents are safe from every other rule */
+  var codes=[];
+  src=src.replace(/`([^`\n]+)`/g,function(_,c){
+    codes.push(c);
+    return "@@IC"+(codes.length-1)+"@@";
+  });
+  /* and maths, which the model writes in latex */
+  var maths=[];
+  src=pullMath(src,maths);
+
+  var lines=esc(src).split("\n");
+  var out=[];
+  var list=null;
+  var continuing=false;
+  var closeList=function(){
+    if(list){
+      var last=out[out.length-1];
+      if(last&&/<li>[^<]*$/.test(last))out[out.length-1]=last+"</li>";
+      out.push("</"+list+">");
+      list=null;
+    }
+    continuing=false;
+  };
+  var endItem=function(){
+    var last=out[out.length-1];
+    if(last&&/<li>(?![\s\S]*<\/li>)/.test(last))out[out.length-1]=last+"</li>";
+  };
+  for(var i=0;i<lines.length;i++){
+    var ln=lines[i];
+    var t2=ln.trim();
+    if(t2===""){closeList();continue}
+
+    /* a table needs a line of dashes under it */
+    if(/^[\s|:-]+$/.test(t2)&&t2.indexOf("|")>-1&&t2.indexOf("-")>-1&&
+       i>0&&lines[i-1].indexOf("|")>-1){
+      var head=out.pop();
+      var cells=function(row){
+        return row.replace(/^\s*\|/,"").replace(/\|\s*$/,"").split("|").map(function(c){return c.trim()});
+      };
+      var hs=cells((head||"").replace(/^<t[dh]>/g,"").replace(/<\/t[dh]>$/g,""));
+      var rows=[];
+      while(i+1<lines.length&&lines[i+1].indexOf("|")>-1){
+        i++;
+        rows.push(cells(lines[i]));
+      }
+      var html="<table><thead><tr>";
+      hs.forEach(function(h){html+="<th>"+h+"</th>"});
+      html+="</tr></thead><tbody>";
+      rows.forEach(function(r){
+        html+="<tr>";
+        hs.forEach(function(_,c){html+="<td>"+(r[c]||"")+"</td>"});
+        html+="</tr>";
+      });
+      out.push(html+"</tbody></table>");
+      continue;
+    }
+
+    var h=ln.match(/^(#{1,6})\s+(.*)$/);
+    if(h){closeList();out.push("<h"+h[1].length+">"+h[2]+"</h"+h[1].length+">");continue}
+
+    if(/^\s*(?:---+|___+|\*\*\*+)\s*$/.test(t2)){closeList();out.push("<hr>");continue}
+
+    if(/^\s*&gt;\s?/.test(ln)){closeList();out.push("<blockquote>"+ln.replace(/^\s*&gt;\s?/,"")+"</blockquote>");continue}
+
+    var ol=ln.match(/^\s*(\d+)[.)]\s+(.*)$/);
+    if(ol){
+      if(list!=="ol"){closeList();out.push("<ol>");list="ol"}
+      endItem();
+      out.push("<li>"+ol[2]);
+      continuing=true;
+      continue;
+    }
+    var ul=ln.match(/^\s*[-*+]\s+(.*)$/);
+    if(ul){
+      if(list!=="ul"){closeList();out.push("<ul>");list="ul"}
+      endItem();
+      out.push("<li>"+ul[1]);
+      continuing=true;
+      continue;
+    }
+    /* a line that is just more of the item above - keep it in the same bullet, or
+       the numbering restarts at one for every line the model wrapped */
+    if(continuing&&list&&/^\s{2,}\S/.test(ln)){
+      out[out.length-1]+="<br>"+ln.trim();
+      endItem();
+      continue;
+    }
+    continuing=false;
+    closeList();
+    out.push("<p>"+ln+"</p>");
+  }
+  closeList();
+
+  var html=out.join("");
+  /* links, but only the plain ones - nothing that could run */
+  html=html.replace(/\[([^\]]{1,120})\]\((https?:\/\/[^\s)"']{1,400})\)/g,
+    '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  html=html.replace(/(^|[\s(])(https?:\/\/[^\s<>"']{6,300})/g,
+    function(m,a,u){return m.indexOf('href="')>-1?m:a+'<a href="'+u+'" target="_blank" rel="noopener">'+u+"</a>"});
+  /* bold, italic and strikethrough, last so they do not fight with the rest */
+  html=html.replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>");
+  html=html.replace(/(^|[^*\w])\*([^*\n]+)\*(?!\*)/g,"$1<i>$2</i>");
+  html=html.replace(/(^|[^_\w])_([^_\n]+)_(?!_)/g,"$1<i>$2</i>");
+  html=html.replace(/~~([^~]+)~~/g,"<del>$1</del>");
+
+  /* put the code back, with a copy button that takes the text straight off the
+     page, so whatever is copied is exactly what is on screen */
+  html=html.replace(/@@CODE(\d+)@@/g,function(_,n){
+    var b=blocks[+n];
+    return '<div class="code'+(b.code.split("\n").length>2?" big":"")+'">'+
+      (b.lang?'<span class="clang">'+b.lang+"</span>":"")+
+      '<button class="copy" type="button">copy</button>'+
+      "<pre><code>"+esc(b.code)+"</code></pre></div>";
+  });
+  html=html.replace(/@@IC(\d+)@@/g,function(_,n){return "<code>"+esc(codes[+n])+"</code>"});
+  html=html.replace(/@@M(\d+)@@/g,function(_,n){return maths[+n]});
+  return html;
 }
 async function fetchWithTimeout(url,opts,ms,signal){
   var ctl=(typeof AbortController!=="undefined")?new AbortController():null;
@@ -1184,9 +1746,72 @@ function paintMessage(m,box){
     el.appendChild(row);
   }
   var body=document.createElement("div");
+  body.className="body";
   body.innerHTML=m.role==="user"?esc(m.content):mdToHtml(m.content);
+  /* the copy button on a code block, and a copy button on the whole answer */
+  if(m.role!=="user"){
+    body.addEventListener("click",function(e){
+      var b=e.target.closest&&e.target.closest(".copy");
+      if(!b)return;
+      var box=b.closest(".code");
+      copyFrom(box&&box.querySelector("code")?box.querySelector("code"):body);
+      b.textContent="copied";
+      setTimeout(function(){b.textContent="copy"},1400);
+    });
+    var all=document.createElement("button");
+    all.className="copyall";
+    all.type="button";
+    all.textContent="copy answer";
+    all.onclick=function(){
+      copyFrom(body);
+      all.textContent="copied";
+      setTimeout(function(){all.textContent="copy answer"},1400);
+    };
+    el.appendChild(all);
+  }
   el.appendChild(body);
   box.appendChild(el);
+}
+/* what is on the screen and nothing else - the copy buttons, the little language
+   tag and the maths markup are all taken out first, so what lands on the clipboard
+   is the answer itself */
+function cleanText(node){
+  var c=node.cloneNode(true);
+  c.querySelectorAll("button,.clang,.copyall,.typing").forEach(function(n){n.remove()});
+  /* maths is kept as the symbols a person would read */
+  c.querySelectorAll(".math").forEach(function(m){
+    m.querySelectorAll(".frac").forEach(function(f){
+      var top=f.querySelector("i"),bot=f.querySelectorAll("i")[1];
+      f.replaceWith(document.createTextNode(((top&&top.textContent)||"")+" / "+((bot&&bot.textContent)||"")));
+    });
+    m.querySelectorAll(".sqrt").forEach(function(t){
+      t.replaceWith(document.createTextNode("√"+(t.textContent||"")));
+    });
+    if(m.classList.contains("big"))m.replaceWith(document.createTextNode(m.textContent||""));
+  });
+  var t=(c.innerText!==undefined?c.innerText:c.textContent)||"";
+  return t.replace(/[ \t]+\n/g,"\n").replace(/\n{3,}/g,"\n\n").trim();
+}
+function copyFrom(node){
+  return copyText(cleanText(node));
+}
+function copyText(text){
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text);
+      return true;
+    }
+  }catch(e){}
+  try{
+    var ta=document.createElement("textarea");
+    ta.value=text;
+    ta.style.cssText="position:fixed;left:-9999px;top:0";
+    document.body.appendChild(ta);
+    ta.select();
+    var done=document.execCommand("copy");
+    ta.remove();
+    return done;
+  }catch(e){return false}
 }
 function push(m){
   messages.push(m);
@@ -1225,6 +1850,29 @@ document.addEventListener("keydown",function(e){
 var clips=[];
 var MAX_CLIP=4*1024*1024;   /* nothing is resized, so this is only the api ceiling */
 
+/* A canvas hands back "data:image/jpeg;base64,....". Putting that text straight
+   into a File would make the file contain the address rather than the picture,
+   and reading it back would encode it a second time - which is exactly what the
+   model was refusing. The bytes are unpacked first. */
+function dataUrlToBlob(url){
+  var s=String(url||"");
+  var i=s.indexOf(",");
+  if(i<0)return null;
+  var head=s.slice(0,i);
+  var body=s.slice(i+1);
+  var mime=(/^data:([^;,]+)/i.exec(head)||[])[1]||"application/octet-stream";
+  var bin;
+  try{
+    if(/;base64/i.test(head)){
+      var raw=atob(body);
+      bin=new Uint8Array(raw.length);
+      for(var k=0;k<raw.length;k++)bin[k]=raw.charCodeAt(k);
+    }else{
+      bin=new TextEncoder().encode(decodeURIComponent(body));
+    }
+  }catch(e){return null}
+  return new Blob([bin],{type:mime});
+}
 function readClip(file,ephemeral){
   if(!file)return;
   if(!/^image\//.test(file.type)){toast("that is not an image","bad");return}
@@ -1295,32 +1943,83 @@ document.addEventListener("paste",function(e){
 });
 
 /* ---------- one frame of the screen, kept in memory ---------- */
-function grabScreen(){
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getDisplayMedia){
-    toast("this browser cannot share the screen. use the paperclip instead","bad");return;
-  }
-  var stream=null;
-  navigator.mediaDevices.getDisplayMedia({video:{frameRate:1},audio:false}).then(function(s){
-    stream=s;
+/* ---------- taking a picture of a tab ----------
+   It behaves like a screenshot, not a live share: you pick a tab, one picture is
+   taken, the screen is let go of straight away, and nothing is recorded anywhere.
+   Two things used to go wrong. Browsers that do not know the newer options reject
+   the whole request, so there is a plain fallback. And a full screen picture is
+   megabytes of base64, far more than a model can use, so it is shrunk and turned
+   into a jpeg before it goes anywhere. */
+function screenOptions(){
+  /* Nothing beyond the plain request. preferCurrentTab was the problem: it tells
+     Chrome to open the picker with THIS tab already chosen, which is exactly what
+     stops anyone picking another one. Leaving it off leaves the picker free, and
+     any option a browser does not recognise makes it refuse the whole request. */
+  var base={video:{frameRate:1},audio:false};
+  return {rich:base,base:base};
+}
+function askForScreen(){
+  var o=screenOptions();
+  return navigator.mediaDevices.getDisplayMedia(o.rich).catch(function(e){
+    /* a refusal is an answer, not a problem to go round again */
+    if(e&&(e.name==="NotAllowedError"||e.name==="AbortError"))throw e;
+    return navigator.mediaDevices.getDisplayMedia(o.base);
+  });
+}
+/* one frame, shrunk to something a model can read and a person can send */
+function shotFromVideo(v){
+  var w=v.videoWidth||1280,h=v.videoHeight||720;
+  var scale=Math.min(1,1400/w);
+  var c=document.createElement("canvas");
+  c.width=Math.max(2,Math.round(w*scale));
+  c.height=Math.max(2,Math.round(h*scale));
+  var ctx=c.getContext("2d");
+  ctx.fillStyle="#000";
+  ctx.fillRect(0,0,c.width,c.height);
+  ctx.drawImage(v,0,0,c.width,c.height);
+  var out="";
+  try{out=NATIVE_TO_DATA_URL.call(c,"image/jpeg",0.82)}catch(e){}
+  if(!out){try{out=NATIVE_TO_DATA_URL.call(c,"image/png")}catch(e){}}
+  return out;
+}
+function shotMime(dataUrl){
+  var m=/^data:([^;,]+)/i.exec(String(dataUrl||""));
+  return m?m[1]:"image/jpeg";
+}
+function shotClip(dataUrl){
+  return {name:"screen.jpg",dataUrl:dataUrl,mime:shotMime(dataUrl),
+          bytes:Math.round(String(dataUrl).length*0.75),w:0,h:0,ephemeral:true};
+}
+/* plays the stream into a video element, takes one frame, then lets go of it */
+function takeShot(){
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getDisplayMedia)
+    return Promise.reject(new Error("this browser cannot take a picture of the screen"));
+  return askForScreen().then(function(s){
     var v=document.createElement("video");
     v.srcObject=s;v.muted=true;v.playsInline=true;
     v.play().catch(function(){});
     return new Promise(function(res){
       if(v.videoWidth)return res();
       v.onloadedmetadata=function(){res()};
-      setTimeout(res,2500);
+      setTimeout(res,3000);
     }).then(function(){
-      var c=document.createElement("canvas");
-      c.width=v.videoWidth||1280;c.height=v.videoHeight||720;
-      c.getContext("2d").drawImage(v,0,0,c.width,c.height);
-      var out="";
-      try{out=NATIVE_TO_DATA_URL.call(c,"image/png")}catch(e){}
+      var out=shotFromVideo(v);
       try{s.getTracks().forEach(function(t){t.stop()})}catch(e){}
-      if(!out){toast("could not read the screen","bad");return}
-      readClip(new File([out],"screen.png",{type:"image/png"}),true);
-      toast("screen attached - nothing is written to disk");
+      if(!out)throw new Error("the browser handed back an empty picture");
+      return out;
     });
-  }).catch(function(){/* cancelled, which is fine */});
+  });
+}
+function grabScreen(){
+  takeShot().then(function(out){
+    var blob=dataUrlToBlob(out);
+    if(!blob)throw new Error("that picture could not be unpacked");
+    readClip(new File([blob],"screen.jpg",{type:shotMime(out)}),true);
+    toast("picture of your screen attached - nothing was recorded");
+  }).catch(function(e){
+    if(e&&(e.name==="NotAllowedError"||e.name==="AbortError"))return;
+    toast("could not read the screen - "+(e&&e.message?e.message:"something went wrong"),"bad");
+  });
 }
 $("shotBtn").onclick=grabScreen;
 
@@ -1329,10 +2028,13 @@ $("shotBtn").onclick=grabScreen;
    ============================================================ */
 var SYS="You are Orbit, a sharp and genuinely useful assistant who happens to live "+
   "next to a library of playable zones."+
-  "\n\nOn maths and anything with a right answer: work it out, show the steps, and do "+
-  "not guess. If you are unsure, say so plainly rather than inventing something."+
+  "\n\nOn maths and anything with a right answer: work it out one step at a time, then "+
+  "add the steps back up and check the total before you say it. Do not guess, and do "+
+  "not stop halfway. If you are unsure, say so plainly rather than inventing something."+
   "\nOn questions and explanations: answer directly first, then add detail if it helps. "+
   "Plain language, no waffle."+
+  "\nOn formatting: use markdown. Put code in fenced blocks with the language named, "+
+  "and write maths in LaTeX between dollar signs."+
   "\nOn images: you may be shown pictures read by another model along with a note of what "+
   "it saw. Trust the text over your own guess."+
   "\nOn games: when someone wants a zone to play, answer from the list Orbit gives you and "+
@@ -1351,38 +2053,88 @@ function typing(on){
   box.scrollTop=box.scrollHeight;
 }
 
+/* if one model is busy or rate limited, the next one on the account is tried, so a
+   question is not lost to somebody else's traffic */
 async function groqAsk(history){
-  var res=await fetchWithTimeout(GROQ_URL,{
-    method:"POST",
-    headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiKey},
-    body:JSON.stringify({
-      model:settings.model||"openai/gpt-oss-120b",
-      messages:[{role:"system",content:SYS}].concat(history),
-      temperature:settings.temperature,
-      max_tokens:settings.maxTokens
-    })
-  },120000);
-  if(!res.ok){
-    var j=null;
-    try{j=await res.json()}catch(e){}
-    var why=(j&&j.error&&j.error.message)||("the server said "+res.status);
-    if(res.status===401||res.status===403&&/api key/i.test(why))
+  var picked=settings.model||"openai/gpt-oss-120b";
+  var order=[picked].concat(models.filter(function(m){return m!==picked}));
+  var tried=[];
+  lastAnswerModel=picked;
+  var maxTries=Math.min(order.length,5);
+  for(var i=0;i<maxTries;i++){
+    var model=order[i];
+    var res=await fetchWithTimeout(GROQ_URL,{
+      method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiKey},
+      body:JSON.stringify({
+        model:model,
+        messages:[{role:"system",content:SYS}].concat(history),
+        temperature:settings.temperature,
+        max_tokens:settings.maxTokens
+      })
+    },120000);
+    if(res.ok){
+      var j=await res.json();
+      var c=j.choices&&j.choices[0];
+      var m=c&&c.message;
+      /* some models put the answer in a different field, or think first and answer
+         in a second one */
+      var t=(m&&(m.content||m.reasoning_content||m.reasoning))||"";
+      if(typeof t!=="string")t="";
+      if(Array.isArray(m&&m.content)){
+        t=m.content.map(function(p){return p.text||p.content||""}).join("");
+      }
+      if(t.trim()){
+        /* which model actually answered is kept for the label under the answer, not
+           written into the answer itself */
+        lastAnswerModel=model;
+        return t.trim();
+      }
+      tried.push(model+" (empty)");
+      continue;
+    }
+    var why=null;
+    try{var j2=await res.json();why=(j2&&j2.error&&j2.error.message)||("the server said "+res.status)}catch(e){
+      why="the server said "+res.status;
+    }
+    if(res.status===401||(res.status===403&&/api key/i.test(why)))
       throw new Error("the chat key was refused. it may have been revoked, or the "+
         "Generative AI API may not be enabled for it - put a working key in settings.");
     if(res.status===403)
       throw new Error("groq blocked the request rather than refusing the key "+
         "(403). that is a network or filter problem, not a bad key.");
-    throw new Error(why);
+    tried.push(model+" ("+res.status+")");
+    /* a model that needs its terms accepted, or is simply gone, is skipped rather
+       than treated as the end of the road */
+    if(res.status!==429&&res.status<500&&res.status!==404)continue;
+    if(i>=Math.min(order.length,5)-1)throw new Error(why+" ["+tried.join(", ")+"]");
   }
-  var j=await res.json();
-  var c=j.choices&&j.choices[0];
-  var t=c&&c.message&&c.message.content;
-  if(!t)throw new Error("empty answer"+(c&&c.finish_reason==="length"?" - it ran past the length limit":""));
-  return t.trim();
+  throw new Error("every chat model was busy"+(tried.length?" ["+tried.join(", ")+"]":""));
 }
 
 function gemModel(){return lsGet("orbitGemModel",GEM_MODELS[0])}
-function imagePart(c){return {inline_data:{mime_type:c.mime||"image/png",data:c.dataUrl.split(",")[1]||""}}}
+function imagePart(c){
+  c=saneClip(c);
+  var s=String(c&&c.dataUrl||"");
+  var mime=(/^data:([^;,]+)/i.exec(s)||[])[1]||c.mime||"image/png";
+  return {inline_data:{mime_type:mime,data:s.split(",")[1]||""}};
+}
+/* A picture that has been base64'd twice on its way here is refused by the model
+   with a plain 400, which says nothing useful. If the payload does not start like
+   an image, one layer is peeled off and it is tried again. */
+function saneClip(c){
+  if(!c||!c.dataUrl)return c;
+  var s=String(c.dataUrl);
+  var i=s.indexOf(",");
+  if(i<0)return c;
+  var head=s.slice(i+1, i+13);
+  if(/^(iVBORw0|\/9j\/|\/wA|RIFF|UklGR|Qk0|GIF8)/.test(head))return c;
+  try{
+    var raw=atob(s.slice(i+1));
+    if(/^data:image\//i.test(raw))return Object.assign({},c,{dataUrl:raw});
+  }catch(e){}
+  return c;
+}
 
 async function geminiAsk(prompt,shots,history){
   if(!gemKey)throw new Error("no picture key is set. add one in settings.");
@@ -1490,7 +2242,7 @@ async function send(){
         ? "\n\nIf the question is about what to play, these zones exist: "+zoneNames().join(", ")+"."
         : "";
       var reply=await groqAsk(history);
-      push({role:"assistant",content:reply+note,via:modelLabel(settings.model)});
+      push({role:"assistant",content:reply+note,via:modelLabel(lastAnswerModel||settings.model)});
     }
   }catch(e){
     var msg=String(e.message||e);
@@ -1699,7 +2451,7 @@ $("pxUrl").addEventListener("keydown",function(e){
   if(e.key==="Enter"){e.preventDefault();pxGo(this.value)}
 });
 $("pxNew").onclick=function(){pxGo($("pxUrl").value,true)};
-$("pageOpen").onclick=function(){
+if($("pageOpen"))$("pageOpen").onclick=function(){
   var v=$("pageInput").value.trim();
   if(!v){toast("type a link or a search first");return}
   pxGo(v,true);
@@ -1742,7 +2494,7 @@ $("pxAway").onclick=function(){
   toast("opened in a new tab");
 };
 $("pxRead").onclick=function(){askAboutPage($("pxUrl").value)};
-$("pageGo").onclick=function(){
+if($("pageGo"))$("pageGo").onclick=function(){
   var v=$("pageInput").value.trim();
   if(!v){toast("type a link or a search first");return}
   askAboutPage(v);
@@ -1753,12 +2505,30 @@ $("pageGo").onclick=function(){
    raw address of the game's html file, and an image - but a kind and a few tags let
    them show up in the same filters everyone else's games use.
    ============================================================ */
-var LS_MINE="orbitGames";var MINE_SEED=[
-  {id:"m-vulpez-movies",name:"Vulpez Movies",
+var LS_MINE="orbitGames";
+/* ============================================================
+   GAMES TO HIDE
+   Put a zone name in here, exactly as it is written in the list, and it will not
+   show up anywhere in the app. To change it, edit this table in the code.
+   ============================================================ */
+var HIDE_GAMES=[
+  "[!] COMMENTS",
+  "[!] SUGGEST YOUR GAMES HERE AT .gg/ZF4YZZCBZ6"
+];
+function isHiddenZone(name){
+  var n=String(name||"").trim().toLowerCase();
+  for(var i=0;i<HIDE_GAMES.length;i++){
+    var h=String(HIDE_GAMES[i]||"").trim();
+    if(h&&(h==="*"||h.toLowerCase()===n))return true;
+  }
+  return false;
+}
+var MINE_SEED=[
+  {id:"m-vulpez-movies",name:"Vulpez Movies",builtIn:true,
    link:"https://raw.githubusercontent.com/L3br00n/MovieHtml/refs/heads/main/index.html",
    icon:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAYAAABccqhmAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAn2SURBVHhe7dRZlhs3EAVR73/T7UPJtKlws4lCYchMxP1ssYAcHvTXX5IkSZIkSZIkScf4+vr64t+UmztVk0dQnvhvysmdqplhqcedqtlrWAxMfu5TzRiWB/5GuXCfD/yN9AuD8sTfKQfu8Ym/k35hUF7xt4qN+3vF30q/MCiv+FvFxv0Rf6/DMSDf4TeKiXv7Dr/R4RiQd/idYuG+3uF3OhwD8g6/Uyzc1zv8TgdjOD7h94qBe/qE3+tQDMYn/F4xcE+f8HsdisFowTO0F/fTgmfoQAzFFTxLe3AvV/AsHYaBuIJnaQ/u5QqepcMwEFfxPK3FfVzF83QQhqEXz9U63EUPnqlDMAi9eK7W4B568VwdgkG4g2drLs7/Dp6tQzAId/BszcX538XzVRwDMALv0Byc+wi8Q8UxAKPwHo3FeY/Ce1QcAzAK79FYnPcovEeFcfmj8T6NwTmPxvtUFBc/A+/UfZzxaLxPRXHxM/BO3cP5zsA7VRCXPhPvVh/OdSberWK48Jl4t/pwrjPxbhXDhc/G+3UN5zkb71chXPYqrENtOMdVWIeK4KJXYR1qwzmuwjpUBBe9EmvRzzi/lViLiuCiV2It+hnntxJrUQFc8g6sSd/j3HZgTUqOC96FdelPnNcurEvJccG7sC79ifPahXUpMS53N9an3zin3VifkuJiI2CNp+N8ImCNSoqLjYA1no7ziYA1KiEuNRLWeirOJRLWqmS40EhY66k4l0hYq5LhQqNhvafhPKJhvUqEy4yKdZ+Cc4iKdSsJLjIq1n0KziEq1q0kuMjIWHt17D8y1q4kuMjoWH9l7D0y1q4EuMQM2ENV7DsD9qDguMAs2Ec17DcL9qHguMAs2Ec17DcL9qHAuLxs2E8V7DMb9qOguLiM2FN27C8j9qSguLiM2FN27C8j9qSAuLTM2FtW7Csz9qZguLDs2F9G7Ckz9qZguLDs2F827Cc79qdAuKwq2GcW7KMK9qkguKgq2GcW7KMK9qkguKhK2Gt0rL8S9qoguKhq2O9ds8+tiv0qAC6pIvZ8x8qzK2LP2owLqop99+CZT/xdD55ZFfvWZlxQVez7Kp5H/P1VPK8q9q2NuJzq2H8rnvMOv2vFc6pj/9qEizkBZ9CCZ7zD71rwjBNwBtqEizkBZ/AJv/+E33/C70/AGWgDLuUknMU7/K4Vz3mH352Es9BiXMhpOA/i76/iecTfn4bz0GJcyGk4j1f8bS+e+4q/PQ3nocW4kBNxJg/8zV08/4G/ORXnokW4iFNxLg/8zV08/4G/ORXnokW4iJOtmMuKOzJ6nYsW4iJOt2ImK+7IhrnUAlyCtBPzqcm4AGkn5lOTcQHSTsynJuLwpQiYU03CwUsRMKeahIOXImBONQGHLkXCvGowDlyKhHnVYBy4FAnzqsE4cCkaZlaDcNBSRMytBuGgpYiYWw3CQUsRMbcagEOWImN+dRMHLEXG/OomDliKjPnVDRyulAFzrE4crJQBc6xOHKyUAXOsDhyqlAnzrIs4UCkT5lkXcaBSJsyzLuJApWyYaTXiIKWMmGs14iCljJhrNeIgpYyYazXgEKXMmG814BClrJhtNeAQpayYbTXgEKWMmGs14iCljJhrNeIgpYyYazXiIKWMmGs14iCljJhrNeIgpYyYazXiIKWMmGs14iCljJhrNeIgpYyYazXiIKWMmGs14iCzYB9P/J2+x7k98XdZsA814iCjY/3v8Dv9xjm9w++iY/1qxEFGxto/4fen43w+4feRsXZdwGFGxJqv4Fmn4Tyu4FlRsW5dwGFGw3p78MxTcA49eGY0rFcXcaDRsN4ePPMUnEMPnhkN69VFHGgkrPUOnl0d+7+DZ0fCWnURBxoJa72L51fFvu/i+ZGwVl3EgUbCWu/i+VWx77t4fiSsVRdxoFGwzlF4TzXsdxTeEwXrVAcONQLWOArvqYb9jsJ7ImCN6sTBRsAaR+E91bDfUXhPBKxRnTjYCFjjSLyrCvY5Eu+KgDWqEwcbAWsciXdVwT5H4l0RsEZ14mAjYI0j8a4q2OdIvCsC1qhOHGwErHEk3lUF+xyJd0XAGnUDh7sb6xuJd1XBPkfiXbuxPt3EAUfAGkfhPVWwz1F4TwSsUTdxwBGwxlF4TxXscxTeEwFr1AAc8m6sbxTeUwX7HIX3RMAaNQCHHAFrHIF3VME+R+AdEbBGDcJBR8AaR+AdVbDPEXhHBKxRg3DQUbDOo3h2Nez3Lp4fAWvUQBx2BKzxDp5dDfu9g2dHwBo1GAceBevsxXOrYb+9eG4UrFODceBRsM4ePLMq9t2DZ0bBOjUYBx4Ja72CZ1XH/q/gWZGwVk3AoUfCWlvxnOrYfyueEwlr1SQcfESs+R1+dxrO4x1+FxFr1iQcfGSs/RV/eyrO5RV/Gxlr10QcvrQT86nJuABpJ+ZTC3AJ0i7MphbgEqQdmEstwkVIOzCXWojLkFZiHrUYFyKtxDxqMS5EWol51AZcirQCc6hNuBhpBeZQG3E50kzMnzbjgqSZmD8FwCVJMzB3CoKLkmZg7hQIlyWNxLwpGC5MGol5U0BcmjQCc6aguDhpBOZMgXF50l3MmALj8qQ7mC8lwCVKvZgtJcAlSj2YKyXCZUpXME9KhguVrmCelBCXKrVgjpQYlyt9wgwpMS5X+gnzowK4ZOk7zI2K4KKl7zA3KoTLll4xLyqIS5eemBUVxKVLD8yJCuPydTbmQwdgCHQuZkMHYAh0JuZCB2EYdBbmQQdiKHQG5kCHYjB0BuZAB2M4VBv3L/mfwCG4d+lfDItq4b6lPzAwqoX7lv6HoVEN3LP0FsOj3Lhf6SOGSDlxr1Izhkm5cJ/SJQyUcuE+pcsYKuXAPUrdGC7Fxv1JtzFkiol7k4Zh2BQL9yUNx9ApBu5Jmobh037ckTQNw6e9uB9pOoZQe3Av0jIMo9biPqTlGEqtwT1I2zCcmovzl7ZjSDUH5y6FwbBqLM5bCoeh1RicsxQSg6sxOGcpLIZX93C+UngMsfpwrlIaDLOu4TyldBhqteEcpbQYbv2M85PSY8j1Pc5NKoNh1584L6kchl7/4aykchh6/cY5SWUx/KfjfKTy+AhOxblIx+BjOA3nIR2Hj+IUnIN0LD6O6ti/dDw+kqrYt6R/8LFUw34lAR9NFexT0ht8PNmxP0k/4APKjv1J+oCPKCv2JakRH1M27EfSRXxUWbAPSZ34uKJj/ZJu4iOLinVLGoSPLRrWK2kwProoWKekSfj4dmN9kibjI9yFdUlahI9xNdYjaTE+ylVYh6RN+Dhn4/2SNuMjnYX3SgqCj3U03icpGD7aUXiPpKD4eO/i+ZKC4yPuxXMlJcHHfBXPk5QMH3UrniMpKT7uT/i9pOT4yN/hd5IK4YN/4u8kFeXjlw7n45ckSZKko/wNSNLvW8nOzPYAAAAASUVORK5CYII=",kind:"tool",tags:"movies, video, film",author:"L3br00n",
    note:"films and shows, in a page"},
-  {id:"m-pink-bike",name:"Pink Bike",
+  {id:"m-pink-bike",name:"Pink Bike",builtIn:true,
    link:"https://raw.githubusercontent.com/brickyosu/ugs-files-sorted/refs/heads/main/P/clpinkbike.html",
    icon:"https://es.pinkbike.org/246/sprt/i/share/grimdonutgame.jpg",kind:"game",
    tags:"pink, bike, classic",author:"brickyosu",note:"the pink one"}
@@ -1771,14 +2541,23 @@ var MINE_BLANK="data:image/svg+xml,"+encodeURIComponent(
 
 function mineAll(){
   var raw=lsGet(LS_MINE,"");
-  if(!raw){
-    lsSet(LS_MINE,JSON.stringify(MINE_SEED));
-    return MINE_SEED.slice();
+  var list=null;
+  if(raw){
+    try{
+      var parsed=JSON.parse(raw);
+      if(Array.isArray(parsed))list=parsed;
+    }catch(e){}
   }
-  try{
-    var list=JSON.parse(raw);
-    return Array.isArray(list)?list:[];
-  }catch(e){return []}
+  if(!list)list=JSON.parse(JSON.stringify(MINE_SEED));
+  /* the two that came with the file are always in the list, whatever happened to
+     the saved copy */
+  MINE_SEED.forEach(function(seed){
+    var found=list.filter(function(m){return m.id===seed.id})[0];
+    if(found)found.builtIn=true;
+    else{seed.builtIn=true;list.unshift(seed)}
+  });
+  lsSet(LS_MINE,JSON.stringify(list));
+  return list;
 }
 function mineSave(list){lsSet(LS_MINE,JSON.stringify(list))}
 function cleanTag(t){
@@ -1804,6 +2583,11 @@ var mineEdits=[];
 /* ---------- putting them in the list ---------- */
 function syncMineZones(){
   if(typeof zones==="undefined"||!zones.length)return false;
+  /* anything in the hide table is taken out before anything else happens, so it
+     never appears in the grid, the search, the filters or the random picker */
+  for(var h=zones.length-1;h>=0;h--){
+    if(isHiddenZone(zones[h].name))zones.splice(h,1);
+  }
   var mine=mineAll().map(mineZone);
   for(var i=zones.length-1;i>=0;i--){
     if(zones[i]&&zones[i].special&&zones[i].special.indexOf("user")>-1)zones.splice(i,1);
@@ -1836,6 +2620,16 @@ function syncMineZones(){
     sel.value=keep.indexOf(was)>-1?was:"none";
   }
   if(typeof sortZones==="function")sortZones();
+  /* the featured row is drawn separately, so it has to be redrawn too or the
+     hidden ones keep showing up at the top */
+  try{
+    if(typeof displayFeaturedZones==="function"){
+      var featured=zones.filter(function(z){return z.featured});
+      if(featured.length)displayFeaturedZones(featured);
+      var wrap=$("featuredZonesWrapper");
+      if(wrap)wrap.hidden=!featured.length;
+    }
+  }catch(e){}
   return true;
 }
 (function watchForZoneList(){
@@ -1860,10 +2654,8 @@ function installZoneHooks(){
   RAW_OPEN=window.openZone;
   var RAW_CLOSE=window.closeZone;
   window.openZone=function(z){
-    if(!z||!z.special||z.special.indexOf("user")<0||!z.mine){
-      return RAW_OPEN.apply(this,arguments);
-    }
-    playMineZone(z);
+    if(!z)return;
+    playAnyZone(z);
   };
   /* alice.js takes the frame out of the page when a zone closes, and then forgets
      where it put it. Keeping it there means fullscreen, download and open in a new
@@ -1871,11 +2663,14 @@ function installZoneHooks(){
   window.closeZone=function(){
     var v=$("zoneViewer");
     if(!v)return;
+    zoneToken++;
     v.hidden=false;
     v.style.display="none";
     var f=$("zoneFrame");
     if(f){
-      try{f.contentDocument.open();f.contentDocument.write("");f.contentDocument.close()}catch(e){}
+      /* blanking it is what stops the music, the timers and the loop of whatever
+         was playing */
+      try{f.src="about:blank"}catch(e){}
     }
   };
   window.fullscreenZone=function(){
@@ -1892,8 +2687,41 @@ installZoneHooks=function(){
   /* the tab cloak lives in the markup as oninput, and alice.js has its own version
      that quietly does nothing when the page has no icon link */
   window.cloakIcon=myCloakIcon;
+
+  /* ---- the featured row gets out of the way when a filter is on ----
+     Sorting by id or picking a tag means you want that list, not the four things
+     somebody featured. It folds away, and the arrow is still there to open it. */
+  ["filterZones","filterZones2","sortZones"].forEach(function(name){
+    var raw=window[name];
+    if(typeof raw!=="function")return;
+    window[name]=function(){
+      var out=raw.apply(this,arguments);
+      foldFeatured();
+      return out;
+    };
+  });
+  var onFilterChange=function(){foldFeatured()};
+  ["sortOptions","filterOptions"].forEach(function(id){
+    var el=$(id);
+    if(el)el.addEventListener("change",onFilterChange);
+  });
+  var s=$("searchBar");
+  if(s)s.addEventListener("input",function(){
+    if(s.value.trim())foldFeatured();
+  });
 };
 window.__orbitAfterAlice=installZoneHooks;
+function foldFeatured(){
+  var w=$("featuredZonesWrapper");
+  if(!w)return;
+  var sort=$("sortOptions")?$("sortOptions").value:"";
+  var tag=$("filterOptions")?$("filterOptions").value:"none";
+  var q=$("searchBar")?$("searchBar").value.trim():"";
+  var on=(sort&&sort!=="name")||(tag&&tag!=="none")||!!q;
+  if(!on)return;
+  w.removeAttribute("open");
+  delete w.dataset.opened;
+}
 function zoneFrameNow(){
   var f=$("zoneFrame");
   if(!f){
@@ -1902,6 +2730,76 @@ function zoneFrameNow(){
     $("zoneViewer").appendChild(f);
   }
   return f;
+}
+/* A game that is still running keeps its music going even after the next one is on
+   screen - the timers, the web audio and the media elements all live on. So before
+   anything else is written, the frame is navigated away to a blank page and the
+   browser is given a moment to actually throw the old game out. One frame is kept
+   and reused, so nothing is ever left behind in the background. */
+/* A game that is still running keeps its music going even after the next one is on
+   screen - the timers, the web audio and the media elements all live on. So the
+   frame is sent to a blank page and taken out of the page before the next game gets
+   one, and nothing from the last game is left running behind. */
+function freshFrame(){
+  var old=$("zoneFrame");
+  if(old){
+    try{
+      var d=old.contentDocument;
+      if(d){
+        Array.prototype.forEach.call(d.querySelectorAll("audio,video"),function(m){
+          try{m.pause();m.removeAttribute("src");m.load()}catch(e){}
+        });
+      }
+    }catch(e){}
+    try{old.src="about:blank"}catch(e){}
+    try{if(old.parentNode)old.parentNode.removeChild(old)}catch(e){}
+  }
+  var f=document.createElement("iframe");
+  f.id="zoneFrame";
+  f.setAttribute("scrolling","no");
+  $("zoneViewer").appendChild(f);
+  return f;
+}
+/* a brand new frame has its blank page ready at once, but this waits for it anyway
+   rather than assuming */
+function frameDoc(f){
+  return new Promise(function(res){
+    var n=0;
+    (function look(){
+      var d=null;
+      try{d=f.contentDocument}catch(e){}
+      if(d)return res(d);
+      if(n++<50)return setTimeout(look,40);
+      res(null);
+    })();
+  });
+}
+function writeInto(f,html){
+  return frameDoc(f).then(function(d){
+    if(!d)return false;
+    d.open();
+    d.write(html);
+    d.close();
+    return true;
+  });
+}
+function zoneUrl(z){
+  if(z.mine)return z.mine.link;
+  return String(z.url||"").replace("{COVER_URL}",coverURL).replace("{HTML_URL}",htmlURL);
+}
+function zoneLoading(f,title){
+  return writeInto(f,'<!doctype html><html><head><meta charset="utf-8"><title>'+esc(title)+
+    '</title><style>html,body{background:#0b0d10;color:#9aa0a8;font:14px system-ui;margin:0;'+
+    'height:100%;display:grid;place-items:center}</style></head><body>loading '+esc(title)+
+    '...</body></html>');
+}
+function zoneFailed(f,title,msg){
+  return writeInto(f,'<!doctype html><html><head><meta charset="utf-8"><style>html,body{background:#0b0d10;'+
+    'color:#e5484d;font:15px system-ui;margin:0;height:100%;display:grid;place-items:center;'+
+    'text-align:center;padding:24px}</style></head><body><div><b>could not load '+esc(title)+
+    '</b><br><br>'+esc(msg)+
+    '<br><br><span style="color:#82878f">check the raw link in your games table</span>'+
+    '</div></body></html>');
 }
 function showZoneHead(z){
   $("zoneName").textContent=z.name;
@@ -1913,40 +2811,43 @@ function showZoneHead(z){
   v.style.display="block";
   v.hidden=true;
 }
-function playMineZone(z){
-  var f=zoneFrameNow();
-  var m=z.mine||{};
+/* every game - the ones from the zone list and the ones added here - goes through
+   this, so they all get a clean frame and the old one is always shut down */
+function playAnyZone(z){
+  if(!z)return;
+  var raw=String(z.url||"");
+  /* a zone whose url is a website rather than a file still opens in a tab, the way
+     it always did */
+  if(!z.mine&&/^https?:\/\//i.test(raw)){
+    RAW_OPEN(z);
+    return;
+  }
+  var url=zoneUrl(z);
+  if(!/^https?:/i.test(url)){RAW_OPEN(z);return}
+  /* if another game is asked for while this one is still on its way, this one is
+     dropped rather than landing on top of it */
+  var token=++zoneToken;
   showZoneHead(z);
-  var doc=f.contentDocument;
-  doc.open();
-  doc.write('<!doctype html><html><head><meta charset="utf-8"><title>'+esc(z.name)+
-    '</title><style>html,body{background:#0b0d10;color:#9aa0a8;font:14px system-ui;margin:0;'+
-    'height:100%;display:grid;place-items:center}</style></head><body>loading '+esc(z.name)+
-    '...</body></html>');
-  doc.close();
-  try{
-    fetch(z.url+"?t="+Date.now(),{redirect:"follow"}).then(function(res){
+  var f=freshFrame();
+  zoneLoading(f,z.name).then(function(){
+    return fetch(url+"?t="+Date.now(),{redirect:"follow"}).then(function(res){
       if(!res.ok)throw new Error("the server said "+res.status);
       return res.text();
-    }).then(function(html){
-      if(!html||html.length<10)throw new Error("that file came back empty");
-      var d=f.contentDocument;
-      d.open();d.write(html);d.close();
-    }).catch(function(err){
-      var d=f.contentDocument;
-      d.open();
-      d.write('<!doctype html><html><head><meta charset="utf-8"><style>html,body{background:#0b0d10;'+
-        'color:#e5484d;font:15px system-ui;margin:0;height:100%;display:grid;place-items:center;'+
-        'text-align:center;padding:24px}</style></head><body><div><b>could not load it</b><br><br>'+
-        esc(err.message)+'<br><br><span style="color:#82878f">check the raw link in your games table</span>'+
-        '</div></body></html>');
-      d.close();
-      toast("could not load "+z.name,"bad");
     });
-  }catch(e){
+  }).then(function(html){
+    if(token!==zoneToken||!html)return;
+    if(html.length<10)throw new Error("that file came back empty");
+    return writeInto(f,html).then(function(okw){
+      if(okw===false&&token===zoneToken)zoneFailed(f,z.name,"the frame went away");
+    });
+  }).catch(function(err){
+    if(token!==zoneToken)return;
+    zoneFailed(f,z.name,err.message);
     toast("could not load "+z.name,"bad");
-  }
+  });
 }
+var zoneToken=0;
+function playMineZone(z){playAnyZone(z)}
 /* alice.js takes the frame out of the page when a zone closes, and then forgets
    where it put it. Keeping it there means fullscreen, download and open in a new
    tab keep working for games that were added here - see installZoneHooks. */
@@ -2051,24 +2952,35 @@ function paintMineTable(){
     play.title="play it now";
     play.textContent="▶";
     play.onclick=function(){playMineZone(mineZone(m,i))};
-    var ed=document.createElement("button");
-    ed.className="mini";
-    ed.title="change it";
-    ed.textContent="✎";
-    ed.onclick=function(){openMineForm(i)};
-    var del=document.createElement("button");
-    del.className="mini del";
-    del.title="take it out";
-    del.textContent="×";
-    del.onclick=function(){
-      var l=mineAll();
-      l.splice(i,1);
-      mineSave(l);
-      syncMineZones();
-      paintMineTable();
-      toast("removed "+m.name);
-    };
-    box.append(play,ed,del);
+    box.appendChild(play);
+    /* the ones that came with the file are not optional, so there is no edit or
+       remove button on them */
+    if(!m.builtIn){
+      var ed=document.createElement("button");
+      ed.className="mini";
+      ed.title="change it";
+      ed.textContent="✎";
+      ed.onclick=function(){openMineForm(i)};
+      var del=document.createElement("button");
+      del.className="mini del";
+      del.title="take it out";
+      del.textContent="×";
+      del.onclick=function(){
+        var l=mineAll();
+        l.splice(i,1);
+        mineSave(l);
+        syncMineZones();
+        paintMineTable();
+        toast("removed "+m.name);
+      };
+      box.append(ed,del);
+    }else{
+      var lock=document.createElement("span");
+      lock.className="m-lock";
+      lock.title="this one is part of the file - it cannot be removed";
+      lock.textContent="always here";
+      box.appendChild(lock);
+    }
     td.appendChild(box);
     tr.appendChild(td);
 
@@ -2093,9 +3005,12 @@ function fillKindList(){
     dl.appendChild(o);
   });
 }
+/* the table used to live in settings. the games themselves are still in the list
+   and still work - they are added by putting them in MINE_SEED above, or by
+   calling ORBIT.addMine({name,link,icon,kind,tags,author}) from the console */
 function openMineForm(i){
   var form=$("mineForm");
-  if(!form)return;
+  if(!form){toast("games are added in the code now");return}
   mineEditing=(i===undefined||i<0)?-1:i;
   var m=mineEditing>=0?mineAll()[mineEditing]:null;
   $("mineFormTitle").textContent=mineEditing>=0?"Change this game":"Add a game";
@@ -2110,7 +3025,31 @@ function openMineForm(i){
   paintMinePreview();
   form.hidden=false;
   $("mfName").focus();
-  form.scrollIntoView({block:"nearest",behavior:"smooth"});
+}
+function paintMinePreview(){
+  var box=$("mfPreview");
+  if(!box)return;
+  var v=$("mfIcon")?$("mfIcon").value.trim():"";
+  box.style.backgroundImage=v?"url(\""+v.replace(/"/g,"")+"\")":"none";
+}
+function addMine(rec){
+  var list=mineAll();
+  var seed={
+    id:rec.id||("m-"+Date.now().toString(36)),
+    name:String(rec.name||"untitled").slice(0,60),
+    link:String(rec.link||""),
+    icon:rec.icon||MINE_BLANK,
+    kind:cleanTag(rec.kind)||"game",
+    tags:String(rec.tags||"").split(",").map(cleanTag).filter(Boolean).join(", "),
+    author:rec.author||"",
+    note:rec.note||""
+  };
+  list.push(seed);
+  mineSave(list);
+  syncMineZones();
+  paintMineTable();
+  toast("added "+seed.name);
+  return seed;
 }
 function closeMineForm(){
   var form=$("mineForm");
@@ -2155,12 +3094,20 @@ function saveMineForm(){
   fillKindList();
   toast((mineEditing>=0?"changed ":"added ")+rec.name);
 }
-$("mineAdd").onclick=function(){openMineForm(-1)};
-$("mfSave").onclick=saveMineForm;
-$("mfCancel").onclick=closeMineForm;
-$("mfIcon").addEventListener("input",paintMinePreview);
+/* the table that used to be in settings is gone, so these are only wired up when
+   the fields are actually on the page */
+["mineAdd","mfSave","mfCancel"].forEach(function(id){
+  var el=$(id);
+  if(!el)return;
+  if(id==="mineAdd")el.onclick=function(){openMineForm(-1)};
+  if(id==="mfSave")el.onclick=saveMineForm;
+  if(id==="mfCancel")el.onclick=closeMineForm;
+});
+if($("mfIcon"))$("mfIcon").addEventListener("input",paintMinePreview);
 ["mfName","mfLink","mfKind","mfTags"].forEach(function(id){
-  $(id).addEventListener("keydown",function(e){
+  var el=$(id);
+  if(!el)return;
+  el.addEventListener("keydown",function(e){
     if(e.key==="Enter"){e.preventDefault();saveMineForm()}
   });
 });
@@ -2190,7 +3137,7 @@ var ytHost=lsGet("orbitYtHost","");
 var ytMode="videos";
 var ytSort="relevance";
 var ytSorts=["relevance","views","newest","oldest"];
-var ytPage={url:"",title:"",mode:"videos",channel:null};
+var ytPage={url:"",title:"",mode:"videos",channel:null,page:"home"};
 var ytNow={id:"",title:"",who:""};
 var YT_TIME=9000;
 
@@ -2254,13 +3201,35 @@ function ytFetch(path){
 function ytSearch(q,mode,sort){
   mode=mode||ytMode;
   var filter=mode==="channels"?"channels":"videos";
-  var path="/search?filter="+filter+"&q="+encodeURIComponent(q);
-  return ytFetch(path).then(function(j){
-    var items=(j.items||[]).map(function(v,i){
-      return normalise(v,i,mode);
+  /* one search gives about twenty. a couple of close variants on top give a
+     noticeably fuller list without going anywhere near a rate limit */
+  var words=String(q).split(/\s+/).filter(Boolean);
+  var variants=[q];
+  if(mode==="videos"&&words.length>1){
+    variants.push(words.slice(0,-1).join(" "));
+    variants.push(words.join(" ")+" official");
+  }
+  var uniq=[];
+  variants.forEach(function(v){if(uniq.indexOf(v)<0)uniq.push(v)});
+  var jobs=uniq.slice(0,3).map(function(v){
+    return ytFetch("/search?filter="+filter+"&q="+encodeURIComponent(v))
+      .then(function(j){return j.items||[]})
+      .catch(function(){return []});
+  });
+  return Promise.all(jobs).then(function(all){
+    var seen={},out=[];
+    all.forEach(function(list){
+      list.forEach(function(v){
+        var o=normalise(v,0,mode);
+        if(!o.id&&mode!=="channels")return;
+        var key=mode==="channels"?("c:"+o.cid):("v:"+o.id);
+        if(seen[key])return;
+        seen[key]=1;
+        out.push(o);
+      });
     });
-    if(mode!=="channels")items=ytOrder(items,sort);
-    return items;
+    if(mode!=="channels")out=ytOrder(out,sort);
+    return out;
   });
 }
 function normalise(v,i,mode){
@@ -2295,14 +3264,97 @@ function ytChannelInfo(cid){
             thumb:c.avatarUrl||"",desc:c.description||""};
   });
 }
-/* there is no channel-videos call on these mirrors, so their name is searched and
-   the results are kept only if they really are from that channel */
-function ytChannelVideos(info,sort){
+/* a channel's own videos. these mirrors have no channel-videos call, so the
+   channel's name is searched and only the results that really are theirs are kept */
+function ytSearchChannel(info,sort){
   var q=(info.name||"").replace(/\s*-\s*topic$/i,"").trim();
   return ytSearch(q,"videos",sort).then(function(items){
     var mine=items.filter(function(v){return v.cid&&v.cid===info.cid});
-    return mine.length?mine:items;
+    return mine.length>=4?mine:items;
   });
+}
+function ytChannelVideos(info,sort){
+  return ytSearchChannel(info,sort);
+}
+/* open a channel straight into the player screen, the way youtube does */
+function ytSearchChannelAndOpen(info){
+  var q=(info.name||"").replace(/\s*-\s*topic$/i,"").trim();
+  ytPage={url:"",title:info.name,mode:"videos",channel:info,page:"home"};
+  ytMoreRound=0;
+  ytRailSync();
+  $("ytBack").hidden=false;
+  $("ytPlayer").hidden=true;
+  $("ytUrl").value="https://www.youtube.com/channel/"+info.cid;
+  paintChannelPage(info,"loading...");
+  ytBusy(true);
+  return ytChannelInfo(info.cid).then(function(full){
+    ytPage.title=full.name||info.name;
+    info.name=full.name||info.name;
+    info.sub=full.sub||info.sub;
+    info.thumb=full.thumb||info.thumb;
+    info.desc=full.desc||info.desc;
+    return ytSearchChannel(info,ytSort);
+  }).then(function(vids){
+    ytBusy(false);
+    paintChannelPage(info,null,vids);
+  }).catch(function(e){
+    ytBusy(false);
+    paintChannelPage(info,"could not load that channel ("+e.message+")");
+  });
+}
+function paintChannelPage(info,note,vids){
+  var feed=$("ytFeed");
+  if(!feed)return;
+  feed.innerHTML="";
+  var head=document.createElement("div");
+  head.className="yt-chan-head";
+  var av=document.createElement("img");
+  av.src=info.thumb||MINE_BLANK;
+  av.alt="";
+  av.onerror=function(){this.style.visibility="hidden"};
+  var txt=document.createElement("div");
+  txt.className="yt-chan-head-txt";
+  var nm=document.createElement("b");
+  nm.textContent=info.name||"channel";
+  var sub=document.createElement("i");
+  sub.textContent=(info.sub?ytCount(info.sub)+" subscribers":"channel")+
+    (info.desc?" · "+info.desc.replace(/\s+/g," ").slice(0,140):"");
+  txt.append(nm,sub);
+  var subBtn=document.createElement("button");
+  subBtn.className="small-btn";
+  var isOn=!!ytSubOf(info.cid);
+  subBtn.textContent=isOn?"Subscribed":"Subscribe";
+  if(isOn){subBtn.classList.add("on");subBtn.style.color="var(--acc)";subBtn.style.borderColor="var(--acc)"}
+  subBtn.onclick=function(){
+    ytToggleSub({cid:info.cid,name:info.name,thumb:info.thumb,sub:info.sub||0});
+    var now=!!ytSubOf(info.cid);
+    subBtn.textContent=now?"Subscribed":"Subscribe";
+    subBtn.style.color=now?"var(--acc)":"";
+    subBtn.style.borderColor=now?"var(--acc)":"";
+  };
+  var back=document.createElement("button");
+  back.className="small-btn";
+  back.textContent="back";
+  back.onclick=function(){ytBack()};
+  head.append(av,txt,subBtn,back);
+  feed.appendChild(head);
+  if(note){
+    var n=document.createElement("div");
+    n.className="yt-loading";
+    n.textContent=note;
+    feed.appendChild(n);
+  }
+  (vids||[]).forEach(function(x){feed.appendChild(ytCard(x))});
+  if(vids&&!vids.length){
+    var e2=document.createElement("div");
+    e2.className="yt-note";
+    e2.textContent="no videos came back for this channel";
+    feed.appendChild(e2);
+  }
+  if(vids&&vids.length){
+    ytFeedItems=vids.slice();
+    ytMoreReady(true);
+  }
 }
 function ytTrending(){
   return ytFetch("/trending?region=US").then(function(j){
@@ -2317,6 +3369,8 @@ var YT_PLAY='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.2v13.6L1
 function ytCard(v){
   var c=document.createElement("button");
   c.className="yt-card";
+  c.dataset.id=v.id||v.cid||"";
+  c.dataset.cid=v.cid||"";
   c.title=v.title||v.name||"";
   if(v.kind==="channel"){
     var im=document.createElement("img");
@@ -2367,9 +3421,21 @@ function ytCard(v){
   }
   return c;
 }
+/* a search that was already on its way must not paint over the page the
+   reader has since moved to, which is what happens if you turn to subscriptions
+   while the front page is still loading */
+function ytFeedIsMain(){
+  return ytPage.page==="home"||ytPage.page==="search"||ytPage.page==="channel";
+}
+/* every page gets a number. a result that comes back for an older one is dropped
+   rather than pasted over whatever you are looking at now */
+var ytGen=0;
+function ytNewGen(){ytGen++;return ytGen}
+function ytGenIs(g){return g===ytGen}
 function ytPaint(items,note){
   var box=$("ytFeed");
   if(!box)return;
+  if(!ytFeedIsMain())return;
   box.innerHTML="";
   if(note){
     var n=document.createElement("div");
@@ -2388,6 +3454,28 @@ function ytPaint(items,note){
   }
   items.forEach(function(v){box.appendChild(ytCard(v))});
   box.scrollTop=0;
+  ytFeedItems=items.slice();
+  ytMoreReady(ytPage.page==="home"||ytPage.page==="search"||ytPage.page==="channel");
+}
+function ytMoreReady(on){
+  var w=$("ytMoreWrap");
+  if(!w)return;
+  w.hidden=!on;
+  var n=$("ytMoreN");
+  if(on&&n)n.textContent=ytFeedItems.length+" loaded";
+}
+/* placeholders while it is on its way, so the page never just sits empty */
+function ytSkeleton(rows){
+  var box=$("ytFeed");
+  if(!box)return;
+  if(!ytFeedIsMain())return;
+  box.innerHTML="";
+  var n=rows||12;
+  for(var i=0;i<n;i++){
+    var d=document.createElement("div");
+    d.className="yt-skel";
+    box.appendChild(d);
+  }
 }
 function ytBusy(on){
   var hint=$("ytHint");
@@ -2396,27 +3484,256 @@ function ytBusy(on){
     "Real results, straight from YouTube. Pick a video and it plays right here; pick a channel and you get their uploads.";
 }
 
+/* ---------- what has been watched, so the front page can react to it ---------- */
+var LS_SEEN="orbitYtSeen";
+var LS_SUBS="orbitYtSubs";
+var LS_CACHE="orbitYtCache";
+var ytSeen=[];
+try{ytSeen=JSON.parse(lsGet(LS_SEEN,"[]"))||[]}catch(e){ytSeen=[]}
+var ytSubs=[];
+try{ytSubs=JSON.parse(lsGet(LS_SUBS,"[]"))||[]}catch(e){ytSubs=[]}
+function ytSubOf(cid){return ytSubs.filter(function(s){return s.cid===cid})[0]||null}
+function ytSaveSubs(){
+  lsSet(LS_SUBS,JSON.stringify(ytSubs));
+  ytPaintCounts();
+  /* if the list is on screen, redraw it so the change is visible at once */
+  if(ytPage.page==="subs"&&$("ytFeed"))ytSubsPage();
+}
+function ytToggleSub(info){
+  if(!info||!info.cid)return false;
+  var have=ytSubOf(info.cid);
+  if(have){
+    ytSubs=ytSubs.filter(function(s){return s.cid!==info.cid});
+    ytSaveSubs();
+    paintSubBtn();
+    toast("unsubscribed from "+info.name);
+    return false;
+  }
+  ytSubs.unshift({cid:info.cid,name:info.name||"channel",thumb:info.thumb||"",sub:info.sub||0});
+  ytSubs=ytSubs.slice(0,60);
+  ytSaveSubs();
+  paintSubBtn();
+  toast("subscribed to "+(info.name||"that channel"));
+  return true;
+}
+function paintSubBtn(){
+  var b=$("ytSubBtn");
+  if(!b)return;
+  var on=!!ytSubOf(ytNowChan.cid);
+  b.textContent=on?"Subscribed":"Subscribe";
+  b.classList.toggle("on",on);
+  b.style.borderColor=on?"var(--acc)":"";
+  b.style.color=on?"var(--acc)":"";
+}
+function ytPaintCounts(){
+  var s=$("ytSubN"),h=$("ytHisN");
+  if(s){s.textContent=ytSubs.length||"";s.hidden=!ytSubs.length}
+  if(h){h.textContent=ytSeen.length||"";h.hidden=!ytSeen.length}
+}
+function ytRemember(v){
+  if(!v||!v.id)return;
+  ytSeen=ytSeen.filter(function(x){return x.id!==v.id});
+  ytSeen.unshift({
+    id:v.id,title:v.title||"",who:v.who||"",cid:v.cid||"",thumb:v.thumb||"",
+    views:v.views||0,dur:v.dur||"",when:Date.now(),like:!!v.like
+  });
+  ytSeen=ytSeen.slice(0,40);
+  lsSet(LS_SEEN,JSON.stringify(ytSeen));
+  ytPaintCounts();
+  if(ytPage.page==="history")ytHome();
+}
+function ytSeenOf(id){
+  return ytSeen.filter(function(x){return x.id===id})[0]||null;
+}
+/* the words that come up most in what has been watched - this is what the front
+   page searches for, so it starts with something you actually like */
+function ytTaste(){
+  var words={};
+  ytSeen.forEach(function(s){
+    String(s.title||"").toLowerCase().split(/[^a-z0-9' ]+/).forEach(function(w){
+      if(w.length>3&&!/^(the|and|with|that|this|for|from|your|you|are|was|have|part|full|video|official|hd)$/.test(w))
+        words[w]=(words[w]||0)+1;
+    });
+  });
+  var top=Object.keys(words).sort(function(a,b){return words[b]-words[a]}).slice(0,3);
+  if(top.length)return top;
+  return ["lofi beats"];
+}
+/* the last answer is kept, so opening the tab shows something straight away instead
+   of an empty box while the network catches up */
+function ytCachePut(key,items){
+  try{
+    var all=JSON.parse(lsGet(LS_CACHE,"{}"))||{};
+    all[key]={at:Date.now(),items:items.slice(0,40)};
+    lsSet(LS_CACHE,JSON.stringify(all));
+  }catch(e){}
+}
+function ytCacheGet(key,age){
+  try{
+    var all=JSON.parse(lsGet(LS_CACHE,"{}"))||{};
+    var hit=all[key];
+    if(hit&&(!age||Date.now()-hit.at<age))return hit.items;
+  }catch(e){}
+  return null;
+}
+
 /* ---------- playing ---------- */
+var ytNowChan={};
 function ytPlay(v){
   var id=v&&v.id?v.id:ytId(v);
   if(!id){toast("that does not look like a video link","bad");return}
-  ytNow={id:id,title:v.title||"video",who:v.who||""};
+  if(v&&v.title)ytRemember(v);
+  ytNow={id:id,title:v&&v.title?v.title:"video",who:v&&v.who?v.who:"",views:v?v.views:0};
+  ytNowChan={cid:v?v.cid:"",name:v?v.who:"",thumb:v?v.thumb:"",sub:0};
   $("ytNowTitle").textContent=ytNow.title;
-  $("ytNowWho").textContent=ytNow.who;
+  $("ytNowWho").textContent=ytNow.who+(ytCount(ytNow.views)?" · "+ytCount(ytNow.views):"");
   var f=$("ytFrame");
   f.src=YT_EMBED+id+"?"+YT_EMBED_Q;
   $("ytPlayer").hidden=false;
   $("ytUrl").value="https://www.youtube.com/watch?v="+id;
+  paintLike();
+  paintNowChannel();
+  ytUpNext(v);
+}
+/* the channel under the video, with the real name and subscriber count */
+function paintNowChannel(){
+  var box=$("ytNowChan");
+  if(!box)return;
+  var c=ytNowChan;
+  if(!c.cid||!c.name){box.hidden=true;return}
+  box.hidden=false;
+  box.hidden=false;
+  $("ytNowChanName").textContent=c.name;
+  $("ytNowChanSubs").textContent="their channel";
+  var av=$("ytNowAvatar");
+  av.src=c.thumb||MINE_BLANK;
+  av.alt=c.name;
+  av.onerror=function(){this.style.visibility="hidden"};
+  /* one quiet ask for the details, so it can say how big they are */
+  ytChannelInfo(c.cid).then(function(info){
+    if(!ytNowChan.cid||ytNowChan.cid!==c.cid)return;
+    $("ytNowChanName").textContent=info.name||c.name;
+    ytNowChan.name=info.name||c.name;
+    ytNowChan.sub=info.sub||0;
+    $("ytNowChanSubs").textContent=info.sub?ytCount(info.sub)+" subscribers":"their channel";
+    if(info.thumb){av.src=info.thumb;ytNowChan.thumb=info.thumb}
+    paintSubBtn();
+  }).catch(function(){});
+  paintSubBtn();
+}
+function openNowChannel(){
+  if(!ytNowChan.cid){toast("no channel for this one");return}
+  ytSearchChannelAndOpen(ytNowChan);
+}
+$("ytSeeAll").onclick=function(e){e.stopPropagation();openNowChannel()};
+$("ytSubBtn").onclick=function(e){
+  e.stopPropagation();
+  ytToggleSub({cid:ytNowChan.cid,name:ytNowChan.name,thumb:ytNowChan.thumb,
+               sub:ytNowChan.sub||0});
+};
+$("ytNowChan").onclick=function(e){
+  if(e.target&&e.target.closest("#ytSubBtn"))return;
+  openNowChannel();
+};
+function paintLike(){
+  var seen=ytSeenOf(ytNow.id);
+  $("ytLike").classList.toggle("on",!!(seen&&seen.like));
+  $("ytLikeCount").textContent=ytCount(ytNow.views)||"";
+}
+function ytUpNext(v){
+  var list=$("ytSideList");
+  if(!list)return;
+  list.innerHTML="";
+  var seed=(v&&(v.title||v.who))||ytTaste().join(" ");
+  var cache=ytCacheGet("upnext:"+seed,1000*60*60*12);
+  if(cache)ytPaintSide(cache.filter(function(x){return x.id!==ytNow.id}));
+  ytSearch(seed,"videos","relevance").then(function(items){
+    ytCachePut("upnext:"+seed,items);
+    ytPaintSide(items.filter(function(x){return x.id!==ytNow.id}));
+  }).catch(function(){
+    if(!list.childElementCount)list.innerHTML='<div class="yt-note">nothing to suggest</div>';
+  });
+}
+function ytPaintSide(items){
+  var list=$("ytSideList");
+  if(!list)return;
+  list.innerHTML="";
+  items.slice(0,20).forEach(function(v){
+    var row=document.createElement("div");
+    row.className="yt-row";
+    var th=document.createElement("div");
+    th.className="thumb";
+    var im=document.createElement("img");
+    im.src=v.thumb||MINE_BLANK;
+    im.alt="";
+    im.loading="lazy";
+    im.onerror=function(){this.style.visibility="hidden"};
+    th.appendChild(im);
+    if(v.dur){
+      var len=document.createElement("span");
+      len.className="len";
+      len.textContent=v.dur;
+      th.appendChild(len);
+    }
+    var meta=document.createElement("div");
+    meta.className="meta";
+    var b=document.createElement("b");
+    b.textContent=v.title;
+    var s=document.createElement("span");
+    s.textContent=v.who+(ytCount(v.views)?" · "+ytCount(v.views):"");
+    meta.append(b,s);
+    row.append(th,meta);
+    row.onclick=function(){ytPlay(v)};
+    list.appendChild(row);
+  });
+  if(!list.childElementCount)list.innerHTML='<div class="yt-note">nothing to suggest</div>';
 }
 function ytStop(){
   var f=$("ytFrame");
   f.removeAttribute("src");
   $("ytPlayer").hidden=true;
 }
-$("ytStop").onclick=ytStop;
-$("ytOpenWatch").onclick=function(){
-  if(!ytNow.id){toast("nothing is playing");return}
+$("ytStop")&&($("ytStop").onclick=ytStop);
+$("ytLike").onclick=function(){
+  var s=ytSeenOf(ytNow.id);
+  if(!s){ytRemember({id:ytNow.id,title:ytNow.title,who:ytNow.who,views:ytNow.views});s=ytSeenOf(ytNow.id)}
+  s.like=!s.like;
+  lsSet(LS_SEEN,JSON.stringify(ytSeen));
+  paintLike();
+  toast(s.like?"liked - the front page will lean that way now":"like taken off");
+};
+$("ytDislike").onclick=function(){
+  ytSeen=ytSeen.filter(function(x){return x.id!==ytNow.id});
+  lsSet(LS_SEEN,JSON.stringify(ytSeen));
+  paintLike();
+  toast("noted - less of that");
+};
+$("ytShare").onclick=function(){
+  var link="https://www.youtube.com/watch?v="+ytNow.id;
+  copyText(link);
+  toast("link copied - "+link);
+};
+$("ytComments").onclick=function(){
+  window.open("https://www.youtube.com/watch?v="+ytNow.id+"#comments","_blank","noopener");
+  toast("comments open on youtube");
+};
+$("ytWatch").onclick=function(){
   window.open("https://www.youtube.com/watch?v="+ytNow.id,"_blank","noopener");
+};
+$("ytTheatre").onclick=function(){
+  var p=$("ytPlayer");
+  p.classList.toggle("theatre");
+  this.classList.toggle("on",p.classList.contains("theatre"));
+};
+$("ytSideToggle").onclick=function(){
+  var s=$("ytSide");
+  s.hidden=!s.hidden;
+  this.textContent=s.hidden?"show":"hide";
+};
+$("ytFull").onclick=function(){
+  var f=$("ytFrame");
+  if(f.requestFullscreen)f.requestFullscreen();
+  else if(f.webkitRequestFullscreen)f.webkitRequestFullscreen();
 };
 $("ytAsk").onclick=function(){
   var what=ytNow.id?ytNow.title:$("ytUrl").value.trim();
@@ -2428,64 +3745,437 @@ $("ytAsk").onclick=function(){
   setTab("chat");
 };
 
-/* ---------- pages ---------- */
-function ytHome(){
-  ytPage={url:"",title:"For You",mode:ytMode,channel:null};
-  $("ytBack").hidden=true;
-  $("ytStop").click&&ytStop();
-  $("ytPlayer").hidden=true;
+/* ---------- the pages on the left ---------- */
+var ytMoreRound=0;
+var ytMoreBusy=false;
+var ytFeedItems=[];
+var YT_SHORTCUTS=["shorts","shorts compilation","music shorts","game shorts","60 second shorts"];
+
+function ytRailSync(){
+  Array.prototype.forEach.call(document.querySelectorAll("#ytRail .yt-rail-b"),function(b){
+    b.classList.toggle("on",b.dataset.go===ytPage.page);
+  });
+  $("ytShorts").hidden=ytPage.page!=="shorts";
+  $("ytFeed").hidden=ytPage.page==="shorts";
+}
+function ytGoRail(page){
+  /* every rail press starts a fresh page straight away. nothing has to be
+     visited first, and nothing that is still on its way can take it back */
+  ytNewGen();
+  ytPage.page=page;
+  ytRailSync();
+  $("ytMoreWrap").hidden=true;
+  if(page==="shorts")ytShorts();
+  else if(page==="subs")ytSubsPage();
+  else if(page==="history")ytHistoryPage();
+  else ytHome();
+}
+document.addEventListener("click",function(e){
+  var b=e.target.closest&&e.target.closest("#ytRail .yt-rail-b");
+  if(b)ytGoRail(b.dataset.go);
+});
+
+/* ---------- load more ---------- */
+function ytExtraQuery(){
+  if(ytPage.channel){
+    var words=(ytPage.channel.name||"").replace(/\s*-\s*topic$/i,"").trim().split(/\s+/);
+    return ytPage.channel.name+" "+YT_SHORTCUTS[ytMoreRound%YT_SHORTCUTS.length];
+  }
+  if(ytPage.url)return ytPage.url+" "+YT_SHORTCUTS[ytMoreRound%YT_SHORTCUTS.length];
+  /* the front page already used every taste word, so reaching for more means
+     asking for a different kind of thing rather than the same thing twice */
+  return YT_SHORTCUTS[ytMoreRound%YT_SHORTCUTS.length];
+}
+function ytLoadMore(){
+  if(ytMoreBusy)return;
+  ytMoreBusy=true;
+  var btn=$("ytMore");
+  if(btn){btn.disabled=true;btn.textContent="looking..."}
+  var before=ytFeedItems.length;
+  ytExtraQuery();
+  ytMoreRound++;
+  var jobs=[ytExtraQuery()];
+  /* a couple of near neighbours, so the next page is not just more of the same */
+  var words=ytExtraQuery().split(/\s+/);
+  if(words.length>1)jobs.push(words.slice(0,-1).join(" "));
+  if(!ytPage.url&&!ytPage.channel)jobs.push(ytTrending());
+  Promise.all(jobs.map(function(q){
+    return ytFetch("/search?filter=videos&q="+encodeURIComponent(q))
+      .then(function(j){return j.items||[]})
+      .catch(function(){return []});
+  })).then(function(all){
+    var seen={},add=[];
+    ytFeedItems.forEach(function(v){seen[v.id]=1});
+    all.forEach(function(list){
+      list.forEach(function(raw){
+        var v=normalise(raw,0,"videos");
+        if(!v.id||seen[v.id])return;
+        seen[v.id]=1;
+        add.push(v);
+      });
+    });
+    ytMoreBusy=false;
+    if(btn){btn.disabled=false;btn.textContent="Load more"}
+    if(!add.length){
+      var n=$("ytMoreN");
+      if(n)n.textContent="nothing more came back";
+      return;
+    }
+    ytFeedItems=ytFeedItems.concat(add);
+    var feed=$("ytFeed");
+    add.forEach(function(v){feed.appendChild(ytCard(v))});
+    var m=$("ytMoreN");
+    if(m)m.textContent=ytFeedItems.length+" loaded";
+  }).catch(function(e){
+    ytMoreBusy=false;
+    if(btn){btn.disabled=false;btn.textContent="Load more"}
+    var n=$("ytMoreN");
+    if(n)n.textContent="could not load more ("+e.message+")";
+  });
+}
+$("ytMore").onclick=ytLoadMore;
+
+/* ---------- shorts ---------- */
+function ytShorts(){
+  var col=$("ytShortsCol");
+  if(!col)return;
+  if(col.childElementCount)return;
+  var g=ytNewGen();
   ytBusy(true);
-  ytTrending().then(function(items){
+  col.innerHTML='<div class="yt-loading">finding shorts...</div>';
+  /* one search gives about twenty and only some are marked as shorts, so a few
+     are asked for at once and the genuinely short ones are kept */
+  var qs=YT_SHORTCUTS.slice(0,4).map(function(q){return q+" shorts"});
+  var jobs=qs.map(function(q){return ytSearch(q,"videos","relevance")});
+  Promise.all(jobs.map(function(p){return p.catch(function(){return []})}))
+    .then(function(all){
+      var seen={},out=[];
+      all.forEach(function(list){
+        list.forEach(function(v){
+          var isShort=v.short;
+          if(!isShort){
+            var m=/^(\d+):(\d\d)$/.exec(v.dur||"");
+            isShort=!!(m&&(+m[1])*60+(+m[2])<60);
+          }
+          if(!isShort||seen[v.id])return;
+          seen[v.id]=1;
+          out.push(v);
+        });
+      });
+      if(out.length>=6)return out;
+      /* nothing was flagged, or barely anything was, so the word alone stands in */
+      return ytSearch("shorts","videos","relevance").then(function(items){
+        items.forEach(function(v){if(!seen[v.id]){seen[v.id]=1;out.push(v)}});
+        return out;
+      });
+    }).then(function(list){
+      if(!ytGenIs(g)||ytPage.page!=="shorts")return;
+      ytBusy(false);
+      paintShorts(list.slice(0,40));
+    }).catch(function(e){
+      if(!ytGenIs(g))return;
+      ytBusy(false);
+      col.innerHTML='<div class="yt-loading">could not reach youtube ('+e.message+')</div>';
+    });
+}
+function paintShorts(list){
+  var col=$("ytShortsCol");
+  col.innerHTML="";
+  ytShortList=list;
+  ytShortLive=[];
+  list.forEach(function(v,i){
+    var s=document.createElement("div");
+    s.className="yt-short";
+    var fr=document.createElement("div");
+    fr.className="frame";
+    var im=document.createElement("img");
+    im.src=v.thumb||MINE_BLANK;
+    im.alt="";
+    im.loading="lazy";
+    im.className="poster";
+    im.onerror=function(){this.style.visibility="hidden"};
+    fr.appendChild(im);
+    var pl=document.createElement("span");
+    pl.className="playico";
+    pl.innerHTML=YT_PLAY;
+    fr.appendChild(pl);
+    var cap=document.createElement("div");
+    cap.className="cap";
+    var b=document.createElement("b");
+    b.textContent=v.title||"short";
+    var sp=document.createElement("span");
+    var av=document.createElement("img");
+    av.src=v.thumb||MINE_BLANK;
+    av.alt="";
+    av.onerror=function(){this.style.visibility="hidden"};
+    var nm=document.createElement("i");
+    nm.style.fontStyle="normal";
+    nm.textContent=(v.who||"")+(v.dur?" · "+v.dur:"")+(ytCount(v.views)?" · "+ytCount(v.views):"");
+    sp.append(av,nm);
+    cap.append(b,sp);
+    s.append(fr,cap);
+    s.dataset.i=i;
+    s.onclick=function(e){
+      if(e.target&&e.target.closest(".yt-short-play"))return;
+      ytPlay(v);
+    };
+    var open=document.createElement("button");
+    open.className="yt-short-play";
+    open.textContent="open";
+    open.title="watch this one full size";
+    open.onclick=function(e){e.stopPropagation();ytPlay(v)};
+    cap.appendChild(open);
+    col.appendChild(s);
+    ytShortLive.push({el:s,iframe:null,v:v});
+  });
+  syncShortFrames();
+}
+var ytShortList=[];
+var ytShortLive=[];
+var ytShortCentre=-1;
+/* A frame is only built for the short you are on and the ones either side of it.
+   Doing it by measuring on scroll rather than by watching for intersections is
+   what makes it keep working: forty players never exist at once, and the one in
+   the middle is always the one that is loaded. */
+function ytShortAtCentre(){
+  var col=$("ytShortsCol");
+  if(!col)return -1;
+  var mid=col.getBoundingClientRect().top+col.getBoundingClientRect().height/2;
+  var at=0,nearest=1e9;
+  ytShortLive.forEach(function(rec,i){
+    var r=rec.el.getBoundingClientRect();
+    var d=Math.abs(r.top+r.height/2-mid);
+    if(d<nearest){nearest=d;at=i}
+  });
+  return ytShortLive.length?at:-1;
+}
+function syncShortFrames(){
+  var centre=ytShortAtCentre();
+  if(centre<0)return;
+  ytShortCentre=centre;
+  ytShortLive.forEach(function(rec,i){
+    if(Math.abs(i-centre)<=1)mountShort(rec);
+    else dropShort(rec);
+  });
+}
+function mountShort(rec){
+  if(rec.iframe||!rec.v.id)return;
+  var fr=rec.el.querySelector(".frame");
+  var ifr=document.createElement("iframe");
+  ifr.className="yt-short-frame";
+  ifr.allow="autoplay; encrypted-media; picture-in-picture";
+  ifr.allowFullscreen=true;
+  ifr.title=rec.v.title||"short";
+  ifr.src=YT_EMBED+rec.v.id+"?autoplay=1&mute=1&controls=0&loop=1&playlist="+
+            rec.v.id+"&rel=0&iv_load_policy=3&modestbranding=1&playsinline=1&fs=0&disablekb=1";
+  fr.appendChild(ifr);
+  rec.iframe=ifr;
+  var p=rec.el.querySelector(".playico");
+  if(p)p.style.display="none";
+  var po=rec.el.querySelector(".poster");
+  if(po)po.style.display="none";
+}
+function dropShort(rec){
+  if(!rec.iframe)return;
+  rec.iframe.remove();
+  rec.iframe=null;
+  var p=rec.el.querySelector(".playico");
+  if(p)p.style.display="";
+  var po=rec.el.querySelector(".poster");
+  if(po)po.style.display="";
+}
+(function(){
+  var ticking=false;
+  var onScroll=function(){
+    if(ticking)return;
+    ticking=true;
+    requestAnimationFrame(function(){
+      ticking=false;
+      if(ytPage.page==="shorts")syncShortFrames();
+    });
+  };
+  if(typeof document!=="undefined")document.addEventListener("scroll",onScroll,true);
+})();
+function ytShortMove(dir){
+  var col=$("ytShortsCol");
+  if(!col)return;
+  var box=col;
+  var items=col.querySelectorAll(".yt-short");
+  if(!items.length)return;
+  /* whichever short is nearest the middle of the window is the one you are on,
+     so the next arrow press moves to the one above or below it */
+  var mid=box.getBoundingClientRect().top+box.getBoundingClientRect().height/2;
+  var at=0,nearest=1e9;
+  for(var i=0;i<items.length;i++){
+    var r=items[i].getBoundingClientRect();
+    var d=Math.abs(r.top+r.height/2-mid);
+    if(d<nearest){nearest=d;at=i}
+  }
+  var next=Math.max(0,Math.min(items.length-1,at+dir));
+  /* a straight jump rather than a glide: it matches how shorts behave, and a
+     glide can be left half finished if the tab is closed or hidden mid-move */
+  items[next].scrollIntoView({block:"center",behavior:"auto"});
+  setTimeout(syncShortFrames,60);
+}
+document.addEventListener("keydown",function(e){
+  if(activeTab!=="youtube"||ytPage.page!=="shorts")return;
+  var t=e.target&&e.target.tagName;
+  if(t==="INPUT"||t==="TEXTAREA")return;
+  if(e.key==="ArrowDown"||e.key==="PageDown"){e.preventDefault();ytShortMove(1)}
+  else if(e.key==="ArrowUp"||e.key==="PageUp"){e.preventDefault();ytShortMove(-1)}
+  else if(e.key==="Home"){e.preventDefault();ytShortMove(-99)}
+  else if(e.key==="End"){e.preventDefault();ytShortMove(99)}
+});
+
+/* ---------- subscriptions ---------- */
+function ytSubsPage(){
+  var feed=$("ytFeed");
+  feed.innerHTML="";
+  var add=document.createElement("div");
+  add.className="yt-sub-add";
+  var inp=document.createElement("input");
+  inp.className="yt-url";
+  inp.placeholder="search a channel and add it to your subscriptions";
+  var go=document.createElement("button");
+  go.className="small-btn";
+  go.textContent="Find";
+  var find=function(){
+    var q=inp.value.trim();
+    if(!q){toast("type a channel name");return}
+    ytBusy(true);
+    ytSearch(q,"channels","relevance").then(function(list){
+      ytBusy(false);
+      if(!list.length){toast("no channel called that");return}
+      var c=list[0];
+      ytToggleSub({cid:c.cid,name:c.name,thumb:c.thumb,sub:c.sub});
+      inp.value="";
+      ytSubsPage();
+    }).catch(function(e){ytBusy(false);toast(e.message,"bad")});
+  };
+  go.onclick=find;
+  inp.addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();find()}});
+  add.append(inp,go);
+  feed.appendChild(add);
+
+  if(!ytSubs.length){
+    var n=document.createElement("div");
+    n.className="yt-note";
+    n.style.gridColumn="1/-1";
+    n.textContent="no channels yet. open a channel and press subscribe, or find one above.";
+    feed.appendChild(n);
+    return;
+  }
+  ytSubs.forEach(function(s){
+    var row=document.createElement("div");
+    row.className="yt-sub-row";
+    var im=document.createElement("img");
+    im.src=s.thumb||MINE_BLANK;
+    im.alt="";
+    im.onerror=function(){this.src=MINE_BLANK};
+    var t=document.createElement("div");
+    t.className="t";
+    var b=document.createElement("b");
+    b.textContent=s.name;
+    var sp=document.createElement("span");
+    sp.textContent=s.sub?ytCount(s.sub):"subscribed";
+    t.append(b,sp);
+    var see=document.createElement("button");
+    see.className="small-btn";
+    see.textContent="Videos";
+    see.onclick=function(){
+      ytPage.page="home";
+      ytSearchChannelAndOpen({cid:s.cid,name:s.name,thumb:s.thumb,sub:s.sub});
+    };
+    var un=document.createElement("button");
+    un.className="small-btn";
+    un.textContent="Remove";
+    un.onclick=function(){ytToggleSub(s);ytSubsPage()};
+    row.append(im,t,see,un);
+    feed.appendChild(row);
+  });
+}
+
+/* ---------- history ---------- */
+function ytHistoryPage(){
+  var feed=$("ytFeed");
+  feed.innerHTML="";
+  if(!ytSeen.length){
+    var n=document.createElement("div");
+    n.className="yt-note";
+    n.style.gridColumn="1/-1";
+    n.textContent="nothing watched yet";
+    feed.appendChild(n);
+    return;
+  }
+  var clear=document.createElement("div");
+  clear.className="yt-note";
+  clear.style.gridColumn="1/-1";
+  clear.style.cursor="pointer";
+  clear.textContent="clear the whole history ("+ytSeen.length+(ytSeen.length===1?" video":" videos")+")";
+  clear.onclick=function(){
+    ytSeen=[];
+    lsSet(LS_SEEN,"[]");
+    ytPaintCounts();
+    ytHistoryPage();
+  };
+  feed.appendChild(clear);
+  ytSeen.forEach(function(s){
+    var v={kind:"video",id:s.id,title:s.title,who:s.who,cid:s.cid,thumb:s.thumb,
+           views:s.views,dur:s.dur,like:s.like};
+    feed.appendChild(ytCard(v));
+  });
+}
+  /* ---------- the front page ---------- */
+function ytHome(){
+  var g=ytNewGen();
+  ytPage.page="home";
+  ytPage.channel=null;
+  ytPage.url="";
+  ytMoreRound=0;
+  ytRailSync();
+  $("ytBack").hidden=true;
+  $("ytPlayer").hidden=true;
+  $("ytSort").textContent=ytSort.charAt(0).toUpperCase()+ytSort.slice(1);
+  var taste=ytTaste();
+  var label=ytSeen.length
+    ?"Because you watched "+ytSeen[0].who+" and "+(ytSeen[1]?ytSeen[1].who:"a few others")
+    :"Start here - swap these out for anything you like";
+  /* whatever was here last time goes up straight away, so the tab is never empty */
+  var cached=ytCacheGet("home",1000*60*60*24);
+  if(cached&&cached.length){
+    ytPaint(cached,label);
+  }else{
+    ytPaint([],label);
+  }
+  ytBusy(true);
+  var build=function(){
+    var jobs=taste.map(function(q){return ytSearch(q,"videos","relevance")});
+    return Promise.all(jobs).then(function(all){
+      var seen={},out=[];
+      all.forEach(function(list){
+        list.forEach(function(v){
+          if(seen[v.id])return;
+          seen[v.id]=1;
+          out.push(v);
+        });
+      });
+      return ytOrder(out,ytSort==="relevance"?"views":ytSort);
+    });
+  };
+  build().then(function(items){
+    if(!ytGenIs(g))return;
     ytBusy(false);
-    ytPaint(items,"For you - what YouTube is showing right now, biggest first.");
+    if(!items.length)return;
+    ytCachePut("home",items);
+    ytPaint(items,label);
   }).catch(function(e){
     ytBusy(false);
-    ytPaint(null,"could not reach youtube just now ("+e.message+"). it will try again when you press go.");
+    if(!document.querySelectorAll("#ytFeed .yt-card").length)
+      ytPaint(null,"could not reach youtube just now ("+e.message+"). press search to try again.");
   });
 }
 function openChannel(v){
-  ytPage={url:"",title:v.name,mode:"videos",channel:v};
-  $("ytBack").hidden=false;
-  $("ytPlayer").hidden=true;
-  $("ytUrl").value="https://www.youtube.com/channel/"+v.cid;
-  ytBusy(true);
-  ytChannelInfo(v.cid).then(function(info){
-    ytPage.title=info.name||v.name;
-    return ytChannelVideos(info,ytSort).then(function(vids){
-      ytBusy(false);
-      $("ytFeed").innerHTML="";
-      var head=document.createElement("div");
-      head.style.cssText="grid-column:1/-1;display:flex;gap:13px;align-items:center;"+
-        "padding:4px 2px 12px;border-bottom:1px solid var(--line);margin-bottom:4px";
-      var av=document.createElement("img");
-      av.src=info.thumb||v.thumb||MINE_BLANK;
-      av.alt="";
-      av.style.cssText="width:64px;height:64px;border-radius:50%;object-fit:cover;"+
-        "border:1px solid var(--line);background:var(--surf2)";
-      av.onerror=function(){this.style.visibility="hidden"};
-      var txt=document.createElement("div");
-      var nm=document.createElement("div");
-      nm.style.cssText="font-family:'Staatliches',sans-serif;font-size:19px;letter-spacing:1.2px";
-      nm.textContent=info.name||v.name;
-      var sub=document.createElement("div");
-      sub.style.cssText="font-size:11px;color:var(--mut);margin-top:3px";
-      sub.textContent=(info.sub?ytSubs(info.sub):"")+
-        (info.desc?" · "+info.desc.replace(/\s+/g," ").slice(0,120):"");
-      txt.append(nm,sub);
-      head.append(av,txt);
-      $("ytFeed").appendChild(head);
-      vids.forEach(function(x){$("ytFeed").appendChild(ytCard(x))});
-      if(!vids.length){
-        var none=document.createElement("div");
-        none.className="yt-note";
-        none.textContent="no videos came back for this channel";
-        $("ytFeed").appendChild(none);
-      }
-    });
-  }).catch(function(e){
-    ytBusy(false);
-    ytPaint(null,"could not load that channel ("+e.message+")");
-  });
+  ytSearchChannelAndOpen(v);
 }
 function ytGo(){
   var raw=$("ytUrl").value.trim();
@@ -2496,18 +4186,30 @@ function ytGo(){
     ytPlay({id:id,title:raw,who:""});
     return;
   }
-  ytPage={url:raw,title:raw,mode:ytMode,channel:null};
+  ytPage={url:raw,title:raw,mode:ytMode,channel:null,page:"search"};
+  ytMoreRound=0;
+  ytRailSync();
   $("ytBack").hidden=false;
   $("ytPlayer").hidden=true;
   ytBusy(true);
+  /* whatever came back for this search last time goes up straight away */
+  var key="q:"+ytMode+":"+ytSort+":"+raw;
+  var cached=ytCacheGet(key,1000*60*60*24*7);
+  if(cached&&cached.length)ytPaint(cached,"");
+  else ytSkeleton(12);
   ytSearch(raw,ytMode,ytSort).then(function(items){
     ytBusy(false);
+    if(!items.length){
+      if(!cached)ytPaint(null,"nothing came back for that");
+      return;
+    }
+    ytCachePut(key,items);
     ytPaint(items,ytMode==="channels"?
       "Channels matching “"+raw+"”. Pick one to see their videos.":
-      "Videos matching “"+raw+"”.");
+      items.length+" videos matching “"+raw+"”.");
   }).catch(function(e){
     ytBusy(false);
-    ytPaint(null,"could not reach youtube just now ("+e.message+")");
+    if(!cached)ytPaint(null,"could not reach youtube just now ("+e.message+")");
   });
 }
 $("ytGo").onclick=ytGo;
@@ -2535,6 +4237,14 @@ $("ytSort").onclick=function(){
   else if(ytPage.url)ytGo();
 };
 $("ytSort").textContent="Relevance";
+/* the tab opens on the front page, and the front page is built around what has been
+   watched, so it changes as you use it */
+var _ytSetTab=setTab;
+setTab=function(id){
+  var was=activeTab;
+  _ytSetTab(id);
+  if(id==="youtube"&&was!=="youtube")ytHome();
+};
 
 /* ============================================================
    8d. THE TAB ICON
@@ -2547,41 +4257,206 @@ function setFavicon(url){
   if(!v)v=MINE_BLANK;
   if(!/^(https?:|data:|blob:)/i.test(v))v="https://"+v;
   var old=document.querySelectorAll("link[rel~='icon']");
-  Array.prototype.forEach.call(old,function(l){l.parentNode.removeChild(l)});
+  Array.prototype.forEach.call(old,function(l){
+    if(l.parentNode)l.parentNode.removeChild(l);
+  });
   var link=document.createElement("link");
   link.id="orbitFav";
   link.rel="icon";
   link.type=/data:image\/svg/i.test(v)?"image/svg+xml":(/data:/i.test(v)?"":"image/png");
   link.href=v;
   document.head.appendChild(link);
-  try{localStorage.setItem("orbitFav",v)}catch(e){}
+  /* a browser will happily show the old one if the new picture never arrives, so
+     the picture is checked first and the reader is told when it is not usable */
+  if(/^data:/i.test(v)){
+    try{localStorage.setItem("orbitFav",v)}catch(e){}
+    return link;
+  }
+  var probe=new Image();
+  probe.onload=function(){
+    try{localStorage.setItem("orbitFav",v)}catch(e){}
+    var n=$("favNote");
+    if(n)n.textContent="icon changed";
+  };
+  probe.onerror=function(){
+    if(v!==MINE_BLANK){
+      setFavicon("");
+      var m=$("favNote");
+      if(m)m.textContent="that address did not load a picture - the icon has been put back";
+    }
+  };
+  probe.src=v;
   return link;
 }
 function myCloakIcon(url){
   var v=String(url||"").trim();
   if(!v)v=MINE_BLANK;
   setFavicon(v);
+  var n=$("favNote");
+  if(n&&/^https?:/i.test(v))n.textContent="checking that picture...";
 }
-window.cloakName=function(name){
-  document.title=String(name||"").trim()||"ORBIT";
-  try{localStorage.setItem("orbitTitle",document.title)}catch(e){}
-};
 (function restoreCloak(){
   var f=lsGet("orbitFav",""),t=lsGet("orbitTitle","");
   if(f)setFavicon(f);
   if(t)document.title=t;
+  var tn=$("tabName"),ti=$("tabIcon");
+  if(tn)tn.value=document.title;
+  if(ti&&f)ti.value=f;
+  if($("tabNameGo"))$("tabNameGo").onclick=function(){
+    cloakName($("tabName").value);
+    toast("the tab now says "+document.title);
+  };
+  if($("tabIconGo"))$("tabIconGo").onclick=function(){
+    var v=$("tabIcon").value.trim();
+    if(!v){toast("put a picture address in first");return}
+    setFavicon(v);
+  };
+  if($("tabIconClear"))$("tabIconClear").onclick=function(){
+    $("tabIcon").value="";
+    setFavicon("");
+    toast("icon put back");
+  };
+  if($("cloakFind"))$("cloakFind").onclick=cloakFindZone;
+  if($("cloakGo"))$("cloakGo").onclick=cloakStart;
+  if($("cloakPickIcon"))$("cloakPickIcon").onclick=function(){
+    var d=cloakDomainOf($("cloakDomain").value.trim()||$("cloakZone").value.trim());
+    if(!d){toast("put a domain in the box","bad");return}
+    $("cloakDomain").value=d;
+    toast("icon taken from "+d);
+  };
+  if($("cloakZone"))$("cloakZone").addEventListener("keydown",function(e){
+    if(e.key==="Enter"){e.preventDefault();cloakFindZone()}
+  });
 })();
+
+/* ---------- opening something in a new tab, with the tab dressed up ----------
+   about:blank opened from here keeps this origin, so its title and icon can still
+   be changed after the page has been written into it */
+var cloakPick=null;
+function cloakDomainOf(raw){
+  var s=String(raw||"").trim();
+  if(!s)return "";
+  if(!/^https?:\/\//i.test(s))s="https://"+s;
+  var m=/^https?:\/\/([^\/?#]+)/i.exec(s);
+  if(!m)return "";
+  return m[1].replace(/^www\./i,"");
+}
+function cloakFindZone(){
+  var q=$("cloakZone").value.trim();
+  var note=$("cloakFound");
+  if(!q){note.textContent="Type a zone name or paste a link.";cloakPick=null;return}
+  var list=(typeof zones!=="undefined"&&zones)?zones:[];
+  var hit=list.filter(function(z){
+    return String(z.name||"").toLowerCase().indexOf(q.toLowerCase())>=0;
+  })[0];
+  if(!hit&&/^https?:\/\//i.test(q))hit={name:q,url:q};
+  if(!hit){
+    note.textContent="No zone called \""+q+"\" here. Paste a link instead.";
+    cloakPick=null;
+    return;
+  }
+  cloakPick={name:hit.name,url:hit.url||hit.link||q};
+  note.textContent="Picked: "+hit.name;
+  if(!$("cloakTitle").value)$("cloakTitle").value=hit.name;
+  var d=cloakDomainOf(hit.url||hit.link||"");
+  if(d&&!$("cloakDomain").value)$("cloakDomain").value=d;
+}
+function cloakIconUrl(domain){
+  var d=String(domain||"").trim();
+  if(!d)return "";
+  if(!/^https?:\/\//i.test(d))d="https://"+d;
+  return "https://www.google.com/s2/favicons?domain="+encodeURIComponent(d)+"&sz=64";
+}
+function cloakApply(win,title,icon){
+  if(!win||win.closed)return;
+  try{
+    if(title)win.document.title=title;
+  }catch(e){}
+  if(!icon)return;
+  try{
+    var d=win.document;
+    d.querySelectorAll("link[rel~='icon'], link[rel='shortcut icon']").forEach(function(el){
+      el.parentNode.removeChild(el);
+    });
+    var a=d.createElement("link");
+    a.rel="icon";
+    a.href=icon;
+    d.head.appendChild(a);
+    /* some browsers only look at the older form, so it gets one too */
+    var b=d.createElement("link");
+    b.rel="shortcut icon";
+    b.type="image/x-icon";
+    b.href=icon;
+    d.head.appendChild(b);
+  }catch(e){}
+}
+function cloakStart(){
+  if(!cloakPick)cloakFindZone();
+  if(!cloakPick){toast("pick a zone first","bad");return}
+  var note=$("cloakNote");
+  var title=$("cloakTitle").value.trim()||cloakPick.name;
+  var icon=cloakIconUrl($("cloakDomain").value.trim());
+  var win=window.open("about:blank","_blank");
+  if(!win){toast("the browser blocked the new tab","bad");return}
+  note.textContent="opening "+cloakPick.name+"...";
+  fetch(cloakPick.url).then(function(r){
+    if(!r.ok)throw new Error("that address answered "+r.status);
+    return r.text();
+  }).then(function(html){
+    /* a base tag stops anything relative in the page looking for itself next to
+       about:blank and finding nothing */
+    var base="<base href=\""+String(cloakPick.url).replace(/[^\/?#]*(?:[?#].*)?$/,"")+"\">";
+    var doc=win.document;
+    doc.open();
+    doc.write(base+html);
+    doc.close();
+    cloakApply(win,title,icon);
+    /* the page may set its own title or icon a moment later, so the same two
+       things are put back a few times over the next second */
+    var tries=0;
+    var timer=setInterval(function(){
+      if(!win||win.closed){clearInterval(timer);return}
+      cloakApply(win,title,icon);
+      if(++tries>=20)clearInterval(timer);
+    },50);
+    note.textContent="Opened in a new tab as \""+title+"\".";
+  }).catch(function(e){
+    note.textContent="Could not open it: "+e.message;
+    try{win.close()}catch(e2){}
+  });
+}
+
+/* once the reader opens it themselves, it stays open while they work */
+document.addEventListener("toggle",function(e){
+  var w=e.target;
+  if(!w||w.id!=="featuredZonesWrapper")return;
+  w.dataset.opened=w.open?"1":"0";
+},true);
 
 /* ============================================================
    8e. WHAT'S NEW
    ============================================================ */
 var NEWS=[
-  {when:"9 Oct 2026",what:"YouTube is in here properly",
+  {when:"11 Oct 2026",what:"The camera actually works now",
+   body:"Picking a tab takes one picture of it, shrinks it to something sensible and hands it "+
+        "straight to Gemini. Nothing is recorded and nothing is saved to disk. Pick any tab or "+
+        "window in the chooser, then ask about what is on it."},
+  {when:"11 Oct 2026",what:"Shorts, on the left",
+   body:"A Shorts column that goes down instead of across. Scroll it, or use the up and down "+
+        "arrows, and it moves one at a time."},
+  {when:"11 Oct 2026",what:"Subscriptions and history",
+   body:"Subscribe to a channel from under a video or from a channel page. Both lists are kept "+
+        "on this machine, and History keeps the last forty."},
+  {when:"11 Oct 2026",what:"Load more",
+   body:"At the bottom of a search or the front page. It goes back out for more rather than "+
+        "repeating what is already there."},
+  {when:"11 Oct 2026",what:"YouTube is in here properly",
    body:"Real search results, channels you can open and browse, sorting by most viewed "+
         "or newest, and video pages that play in the window through youtube-nocookie."},
   {when:"9 Oct 2026",what:"Games you add yourself",
-   body:"A table in settings. A name, a raw link and an icon is all it takes - kind and tags "+
-        "are optional and become filters. They play in the same window as everything else."},
+   body:"A table near the top of the app. A name, a raw link and an icon is all it takes - kind "+
+        "and tags are optional and become filters. Anything on the hide list is dropped from "+
+        "the grid and from the filters."},
   {when:"9 Oct 2026",what:"Games fill the window",
    body:"The game frame used to sit in a 300 pixel corner. It now fills the screen, and games "+
         "drawn for a small window are put in the middle instead of stuck in the corner."},
@@ -2629,13 +4504,169 @@ function showNews(){
 function markNews(){
   var dot=$("newsDot");
   if(!dot)return;
-  dot.hidden=lsGet(NEWS_SEEEN,"")===NEWS[0].what;
+  dot.hidden=false;
+}
+/* it opens every time, because that is the point of it */
+function newsOnOpen(){
+  setTimeout(function(){
+    if($("popupOverlay")&&$("popupOverlay").style.display!=="flex")showNews();
+  },700);
 }
 markNews();
+newsOnOpen();
 
 
 /* ============================================================
-   9. SETTINGS
+   7b. THE ASSISTANT, POPPED OUT
+   A small window you can leave open over a game. It shares the same keys and the
+   same markdown, and if you say something like "solve this" it grabs one frame of
+   your screen on its own and looks at it.
+   ============================================================ */
+var aiHistory=[];
+var aiBusy=false;
+var aiLog=$("aiLog");
+/* words that mean "look at what is on my screen" */
+var AI_LOOK=/\b(solve|fix|do|complete|finish|answer|help|what|whats|how|why|explain|debug|translate|convert|read)\b[^.?!]{0,40}\b(this|that|it|screen|here|my code|this code|error|problem|question|maths?|math|sum|homework|exercise)\b|\b(solve|fix|do)\s+(this|that|it)\b|\b(this|that)\s+(code|error|problem|equation|question)\b/i;
+function aiOpen(){
+  var d=$("aiDock");
+  if(!d)return;
+  d.hidden=false;
+  $("aiModelName").textContent=String(settings.model||"").replace(/^openai\//,"");
+  if(!aiLog.childElementCount){
+    var w=document.createElement("div");
+    w.className="ai-msg ai-ai";
+    w.innerHTML="Ask me anything here. Say <b>solve this</b> and I will take a look at "+
+      "your screen first - the picture is never written to disk.";
+    aiLog.appendChild(w);
+  }
+  $("aiInput").focus();
+}
+function aiShut(){
+  var d=$("aiDock");
+  if(d)d.hidden=true;
+}
+$("popAi").onclick=aiOpen;
+$("aiClose").onclick=aiShut;
+$("aiSend").onclick=function(){aiSend()};
+$("aiInput").addEventListener("keydown",function(e){
+  if(e.key==="Enter"){e.preventDefault();aiSend()}
+});
+function aiSay(text,cls,shot){
+  var d=document.createElement("div");
+  d.className="ai-msg "+(cls||"ai-ai");
+  if(shot){
+    var im=document.createElement("div");
+    im.className="ai-shot";
+    var img=document.createElement("img");
+    img.src=shot;
+    img.alt="your screen";
+    im.appendChild(img);
+    d.appendChild(im);
+  }
+  var b=document.createElement("div");
+  b.className="body";
+  b.innerHTML=cls==="ai-you"?esc(text):mdToHtml(text);
+  d.appendChild(b);
+  if(cls!=="ai-you"){
+    b.addEventListener("click",function(e){
+      var c=e.target.closest&&e.target.closest(".copy");
+      if(!c)return;
+      var box=c.closest(".code");
+      copyFrom(box&&box.querySelector("code")?box.querySelector("code"):b);
+      c.textContent="copied";
+      setTimeout(function(){c.textContent="copy"},1400);
+    });
+  }
+  aiLog.appendChild(d);
+  aiLog.scrollTop=aiLog.scrollHeight;
+  return b;
+}
+/* one frame of the screen, as a picture, or nothing if the browser says no */
+/* the same screenshot the camera button takes, so both behave alike */
+function grabFrame(){
+  return takeShot().then(function(out){return shotClip(out)});
+}
+function aiSend(){
+  if(aiBusy)return;
+  var box=$("aiInput");
+  var text=box.value.trim();
+  if(!text){toast("type something first");return}
+  box.value="";
+  aiSay(text,"ai-you");
+  var wantScreen=AI_LOOK.test(text)&&!clips.length;
+  aiBusy=true;
+  var note=$("aiNote");
+  if(wantScreen){
+    note.textContent="looking at your screen...";
+    grabFrame().then(function(dataUrl){
+      note.textContent="";
+      var clip={name:"screen.png",dataUrl:dataUrl,bytes:Math.round(dataUrl.length*0.75),
+                mime:"image/png",w:0,h:0,ephemeral:true};
+      aiHistory.push({role:"user",text:text,shots:[clip]});
+      aiAnswer("I am looking at your screen. "+text,clip);
+    }).catch(function(e){
+      note.textContent="";
+      aiHistory.push({role:"user",text:text});
+      aiAnswer(text,null,"I could not see your screen ("+e.message+"). Answering from words only.");
+    });
+  }else{
+    aiHistory.push({role:"user",text:text});
+    aiAnswer(text,null);
+  }
+}
+var SCREEN_PROMPT="\n\n[A picture of the user's screen is attached. Read it carefully before "+
+    "you answer: read the text, code, error message, numbers and equations that are actually on it, "+
+    "and answer about that specific thing. Quote the exact words or lines you can read. If part "+
+    "of it is too small or too blurry to read, say which part instead of guessing.]";
+function aiAnswer(text,clip,prefix){
+  var note=$("aiNote");
+  var wait=document.createElement("div");
+  wait.className="ai-msg ai-ai";
+  wait.innerHTML='<span class="typing"><i></i><i></i><i></i></span>';
+  aiLog.appendChild(wait);
+  aiLog.scrollTop=aiLog.scrollHeight;
+  note.textContent=clip?"gemini is looking at it...":"thinking...";
+  var turn=(prefix||text)+(clip?SCREEN_PROMPT:"");
+  var run=clip
+    ? geminiAsk(turn,[clip],[].concat(
+        aiHistory.slice(-4,-1).map(function(h){
+          return {text:h.text,shots:h.shots};
+        })))
+    : groqAsk(aiHistory.map(function(h){return {role:h.role,content:h.text}}).concat(
+        [{role:"user",content:prefix||text}]));
+  run.then(function(answer){
+    wait.remove();
+    aiSay(answer,"ai-ai",clip?clip.dataUrl:null);
+    aiHistory.push({role:"assistant",text:answer});
+    aiHistory=aiHistory.slice(-8);
+    note.textContent="";
+    aiBusy=false;
+  }).catch(function(e){
+    wait.remove();
+    aiSay("That did not work: "+(e.message||e),"ai-ai");
+    note.textContent="";
+    aiBusy=false;
+  });
+}
+$("aiShot").onclick=function(){
+  var note=$("aiNote");
+  note.textContent="looking at your screen...";
+  grabFrame().then(function(dataUrl){
+    note.textContent="";
+    $("aiShot").classList.add("on");
+    aiSay("Here is your screen. What do you want done with it?","ai-you",dataUrl);
+    aiHistory.push({role:"user",text:"Here is my screen.",shots:[
+      {name:"screen.jpg",dataUrl:dataUrl,bytes:Math.round(dataUrl.length*0.75),mime:shotMime(dataUrl)}
+    ]});
+  }).catch(function(e){
+    note.textContent="";
+    if(e&&(e.name==="NotAllowedError"||e.name==="AbortError"))return;
+    toast(e.message||"no screen","bad");
+  });
+};
+
+/* ============================================================
+   8. SETTINGS
    ============================================================ */
 function paintSettings(){
   $("apiKey").value=apiKey;
@@ -2645,23 +4676,33 @@ function paintSettings(){
   $("tempVal").textContent=settings.temperature.toFixed(1);
   $("maxTok").value=settings.maxTokens;
   $("maxVal").textContent=settings.maxTokens+" tokens";
-  var sel=$("modelSelect");
-  sel.innerHTML="";
-  if(models.length){
-    models.forEach(function(m){
+  paintModelPickers();
+}
+/* the same list, in the chat tab and in settings, always in step */
+function paintModelPickers(){
+  /* models is a plain list of names, not objects */
+  var list=models.length?models.slice():[];
+  if(list.indexOf(settings.model)<0)list.unshift(settings.model||"openai/gpt-oss-120b");
+  ["modelSelect","chatModel"].forEach(function(id){
+    var sel=$(id);
+    if(!sel)return;
+    sel.innerHTML="";
+    list.forEach(function(m){
       var o=document.createElement("option");
-      o.value=m.id;o.textContent=(m.id||"").replace(/^openai\//,"");
-      if(m.id===settings.model)o.selected=true;
+      o.value=m;
+      o.textContent=String(m).replace(/^openai\//,"");
+      if(m===settings.model)o.selected=true;
       sel.appendChild(o);
     });
-  }else{
-    var o=document.createElement("option");
-    o.value=settings.model||"openai/gpt-oss-120b";
-    o.textContent=(settings.model||"openai/gpt-oss-120b").replace(/^openai\//,"");
-    o.selected=true;
-    sel.appendChild(o);
-  }
+    sel.value=settings.model;
+  });
 }
+$("chatModel").addEventListener("change",function(){
+  settings.model=this.value;
+  lsSet(LS.settings,JSON.stringify(settings));
+  paintModelPickers();
+  toast("answering with "+String(this.value).replace(/^openai\//,""));
+});
 $("temp").addEventListener("input",function(){settings.temperature=parseFloat(this.value);$("tempVal").textContent=this.value});
 $("maxTok").addEventListener("input",function(){settings.maxTokens=parseInt(this.value,10);$("maxVal").textContent=this.value+" tokens"});
 $("showKey").onclick=function(){var e=$("apiKey");e.type=e.type==="password"?"text":"password"};
@@ -2741,6 +4782,21 @@ $("orbitImport").onchange=function(e){
 
 paintSettings();
 
+/* the model list is fetched straight away, so the picker in the chat tab has
+   something in it without anyone having to press test first */
+(async function(){
+  try{
+    var res=await fetchWithTimeout(GROQ_MODELS_URL,{headers:{"Authorization":"Bearer "+apiKey}},15000);
+    if(!res.ok)return;
+    var j=await res.json();
+    var good=(j.data||[]).filter(function(m){return !BAD_MODEL.test(m.id||"")});
+    if(!good.length)return;
+    models=good.map(function(m){return m.id});
+    if(models.indexOf(settings.model)<0)settings.model=models[0];
+    paintModelPickers();
+  }catch(e){}
+})();
+
 /* the theme comes back the way it was left */
 applyTheme(lsGet(LS.theme,"orbit"),true);
 
@@ -2756,9 +4812,23 @@ window.ORBIT={
   zoneBrief:zoneBrief, pxGo:pxGo, pxTarget:pxTarget,
   ytGo:ytGo, ytSearch:ytSearch, ytHome:ytHome, ytPlay:ytPlay, ytId:ytId,
   ytTrending:ytTrending, ytChannel:openChannel,
-  mine:mineAll, mineSync:syncMineZones, minePaint:paintMineTable,
+  mine:mineAll, mineSync:syncMineZones, minePaint:paintMineTable, addMine:addMine,
   news:function(){return NEWS}, showNews:showNews,
-  setFavicon:setFavicon,
+  markdown:mdToHtml, setFavicon:setFavicon,
+  takeShot:takeShot, shotFromVideo:shotFromVideo, shotClip:shotClip,
+  screenOptions:screenOptions, askForScreen:askForScreen, shotMime:shotMime,
+  cloakDomainOf:cloakDomainOf, cloakIconUrl:cloakIconUrl,
+  cloakFind:cloakFindZone, cloakApply:cloakApply, cloakStart:cloakStart,
+  screenPrompt:function(){return SCREEN_PROMPT},
+  imagePart:imagePart, cleanText:cleanText, copyFrom:copyFrom,
+  gemAsk:geminiAsk, groqAsk:groqAsk,
+  hidden:function(n){return isHiddenZone(n)}, hideList:function(){return HIDE_GAMES.slice()},
+  aiOpen:aiOpen, aiAsk:function(t){$("aiInput").value=t;aiSend()},
+  youtubeTaste:ytTaste, youtubeSeen:function(){return ytSeen.slice()},
+  ytSubs:function(){return ytSubs.slice()}, ytToggleSub:ytToggleSub,
+  setNowChannel:function(c){ytNowChan=c;paintSubBtn()},
+  ytGoRail:ytGoRail, ytLoadMore:ytLoadMore, ytShortMove:ytShortMove,
+  goTab:function(n){setTab(n)},
   recentre:recentreZone,
   googleTabs:function(){return pxTabs},
   chats:function(){return chats}, messages:function(){return messages},
