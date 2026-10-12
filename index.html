@@ -501,6 +501,21 @@ details[open] summary{color:var(--tx)}
 .math .frac i:first-child{border-bottom:1px solid currentColor;padding-bottom:1px}
 .math .frac i:last-child{padding-top:1px}
 .math .sqrt{border-top:1px solid currentColor;padding:0 .12em 0 .06em;margin-left:-.04em}
+.math .boxed{border:1px solid currentColor;border-radius:4px;padding:.02em .3em;margin:0 .08em}
+/* latex spacing, kept as empty boxes so a copied answer carries no stray marks */
+.math .sp1{display:inline-block;width:.18em}
+.math .sp2{display:inline-block;width:.5em}
+.math .sp4{display:inline-block;width:1.1em}
+.math .spm{display:inline-block;width:0;margin-left:-.18em}
+/* ---------- task lists and pictures in an answer ---------- */
+.ans li.task,.ai-log li.task{list-style:none;position:relative;padding-left:1.6em}
+.ans li.task .tick,.ai-log li.task .tick{position:absolute;left:0;top:.2em;width:1.05em;height:1.05em;
+  border:1.5px solid var(--line2);border-radius:4px;display:inline-grid;place-items:center;
+  font-size:9px;line-height:1;color:var(--mut)}
+.ans li.task .tick.on,.ai-log li.task .tick.on{background:var(--acc);border-color:var(--acc);color:var(--bg)}
+.ans a.pic,.ai-log a.pic{display:inline-block;margin:6px 0}
+.ans a.pic img,.ai-log a.pic img{max-width:min(100%,420px);height:auto;border-radius:9px;
+  border:1px solid var(--line);display:block}
 
 /* ---------- what's new ---------- */
 .news{display:flex;flex-direction:column;gap:2px;margin-top:6px}
@@ -545,7 +560,7 @@ details[open] summary{color:var(--tx)}
   background:#000;display:grid;place-items:center;overflow:hidden}
 .yt-short .frame img.poster{width:100%;height:100%;object-fit:cover;display:block}
 .yt-short .frame .yt-short-frame{position:absolute;inset:0;width:100%;height:100%;
-  border:0;display:block;background:#000}
+  border:0;display:block;background:transparent}
 .yt-short-play{margin-top:8px;font-size:10.5px;padding:4px 11px;border-radius:99px;
   border:1px solid var(--line2);background:transparent;color:var(--mut);cursor:pointer}
 .yt-short-play:hover{color:var(--tx);border-color:var(--acc)}
@@ -561,6 +576,7 @@ details[open] summary{color:var(--tx)}
 .yt-short .cap span img{width:20px;height:20px;border-radius:50%;object-fit:cover;
   border:1px solid var(--line)}
 /* ---------- subscriptions ---------- */
+.yt-card.chan{border-color:var(--line2);background:var(--surf2)}
 .yt-sub-row{display:flex;align-items:center;gap:11px;padding:10px 12px;grid-column:1/-1;
   border:1px solid var(--line);border-radius:11px;background:var(--surf);
   transition:border-color .16s,background .16s}
@@ -925,7 +941,6 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding:18px 20px 44px}
     <div class="yt-wrap">
       <nav class="yt-rail" id="ytRail">
         <button class="yt-rail-b on" data-go="home"><span>Home</span></button>
-        <button class="yt-rail-b" data-go="shorts"><span>Shorts</span></button>
         <button class="yt-rail-b" data-go="subs"><span>Subscriptions</span><i class="n" id="ytSubN"></i></button>
         <button class="yt-rail-b" data-go="history"><span>History</span><i class="n" id="ytHisN"></i></button>
       </nav>
@@ -1038,7 +1053,14 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding:18px 20px 44px}
           <input type="password" id="gemKey" autocomplete="off">
           <button class="small-btn" id="showGem">Show</button>
         </div>
-        <div class="note">Only used when you attach a picture. Groq cannot see images, so this is what makes that work.</div>
+        <div class="note">Only needed if you pick Gemini below. The groq key can read
+          pictures too, so this can be left empty.</div>
+        <div class="row">
+          <select id="picProvider" class="msel" title="who looks at the picture"></select>
+          <select id="picModel" class="msel" title="which model looks at the picture"></select>
+        </div>
+        <div class="note" id="picNote">Gemini and the groq vision models are both asked to read
+          a screenshot. Whichever key is missing is skipped.</div>
         <div class="actions" style="border:0;padding-top:10px;margin:0">
           <button class="act" id="testGem">Test key</button>
         </div>
@@ -1076,58 +1098,6 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding:18px 20px 44px}
         <textarea id="persona" rows="4" placeholder="Optional. Anything you add here is added to how Orbit behaves."></textarea>
         <div class="note">Maths and facts are checked and worked through step by step unless you tell it otherwise.</div>
       </div>
-      <h3>this tab</h3>
-      <div class="field">
-        <label>What the tab says</label>
-        <div class="row">
-          <input type="text" id="tabName" placeholder="ORBIT" autocomplete="off">
-          <button class="small-btn" id="tabNameGo">Set</button>
-        </div>
-        <div class="note">The name in the tab at the top of the window.</div>
-      </div>
-      <div class="field">
-        <label>The picture on the tab</label>
-        <div class="row">
-          <input type="text" id="tabIcon" placeholder="https://.../icon.png" autocomplete="off">
-          <button class="small-btn" id="tabIconGo">Set</button>
-          <button class="small-btn" id="tabIconClear">Clear</button>
-        </div>
-        <div class="note">Any picture address, or a data: link. It is checked first, so
-          if the address does not load a picture you are told instead of being left
-          wondering. Small square pictures look best.</div>
-        <div class="note" id="favNote"></div>
-      </div>
-
-      <h3>open in a new tab</h3>
-        <div class="field">
-          <label>The zone to open</label>
-          <div class="row">
-            <input type="text" id="cloakZone" placeholder="type a zone name, or a raw link" autocomplete="off">
-            <button class="small-btn" id="cloakFind">Find</button>
-          </div>
-          <div class="note" id="cloakFound">Nothing picked yet.</div>
-        </div>
-        <div class="field">
-          <label>What the new tab says</label>
-          <div class="row">
-            <input type="text" id="cloakTitle" placeholder="the tab title" autocomplete="off">
-          </div>
-        </div>
-        <div class="field">
-          <label>The picture on the new tab</label>
-          <div class="row">
-            <input type="text" id="cloakDomain" placeholder="docs.google.com" autocomplete="off">
-            <button class="small-btn" id="cloakPickIcon">Use google's icon</button>
-          </div>
-          <div class="note">A bare domain is enough - the icon is fetched from Google's
-            favicon service. Leave it empty to keep whatever the page brings with it.</div>
-        </div>
-        <div class="actions" style="border:0;padding-top:4px;margin:0">
-          <button class="act" id="cloakGo">Open it in a new tab</button>
-        </div>
-        <div class="note" id="cloakNote"></div>
-      </div>
-
       <h3>your data</h3>
       <div class="field">
         <label>Back up, or move to another browser</label>
@@ -1155,7 +1125,7 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding:18px 20px 44px}
     <input type="file" id="importData" style="display:none;" onchange="loadData(event)">
   </div>
   <div class="credit">
-    ORBIT &middot; zones by DAKNUX &middot; reed i made this &middot; holy rebrand
+    ORBIT &middot; zones by ORBIT &middot; reed i made this &middot; holy rebrand
   </div>
 </footer>
 
@@ -1235,14 +1205,24 @@ var LS={key:"orbitGroqKey",gemKey:"orbitGeminiKey",model:"orbitModel",settings:"
         chats:"orbitChats",active:"orbitActive",marks:"orbitMarks",pxUrl:"orbitPxUrl",
         fav:"orbitFav",theme:"orbitTheme"};
 
-var DEFAULT_KEY="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";
-var OLD_GEM="AQ.Ab8RN6JK_-s31crhZNCjOM7IjXGILo0GkM0Fv5NaLsXBNmP4yA";
+var DEFAULT_KEY="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";
 var DEFAULT_GEM="AQ.Ab8RN6LfZ6xbmPmu30YI5XOzo7dzdg4eyA81bktv26RkJIyWyg";
 
 var GROQ_URL="https://api.groq.com/openai/v1/chat/completions";
 var GROQ_MODELS_URL="https://api.groq.com/openai/v1/models";
 var GEMINI_HOST="https://generativelanguage.googleapis.com/v1beta/models/";
 var GEM_MODELS=["gemini-3.8-flash","gemini-3.6-flash","gemini-3.5-flash","gemini-3.1-flash-lite","gemini-flash-latest"];
+/* Groq serves a handful of models that can look at a picture, but not to every
+   key - a 404 here means the account cannot reach that model at all. The list is
+   therefore read off the key itself once it is known, and the names below are only
+   a starting point for a key whose model list could not be fetched. */
+var VISION_MODEL=/vl|vision|scout|maverick/i;
+var GROQ_VISION_FALLBACK=["qwen/qwen2.5-vl-32b-instruct","meta-llama/llama-4-scout-17b-16e-instruct",
+                          "meta-llama/llama-4-maverick-17b-128e-instruct"];
+var visionModels=GROQ_VISION_FALLBACK.slice();
+var visionKnown=false;
+/* what the last check of the chat key said, so the page can be honest about it */
+var keyCheck="";
 /* groq also serves guard models and whisper on the models list; neither can chat */
 var BAD_MODEL=/guard|whisper|whisper-large|omni-moderation/i;
 /* whichever model actually produced the last answer */
@@ -1255,9 +1235,14 @@ var settings=Object.assign({model:"",temperature:.7,maxTokens:3072,persona:""},
                            JSON.parse(lsGet(LS.settings,"null")||"{}"));
 var apiKey=lsGet(LS.key,DEFAULT_KEY);
 var gemKey=lsGet(LS.gemKey,DEFAULT_GEM);
-/* the picture key was replaced, so a browser that still had the old one saved is
-   given the new one rather than quietly failing */
+/* Both keys have been replaced at some point. A browser that still has an old one
+   saved would quietly keep using it and report that the new key was refused, so
+   a saved key that is known to be finished is swapped for the current one. */
+var OLD_GEM="AQ.Ab8RN6JK_-s31crhZNCjOM7IjXGILo0GkM0Fv5NaLsXBNmP4yA";
+var RETIRED_KEYS=["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",
+                  OLD_GEM];
 if(gemKey===OLD_GEM){gemKey=DEFAULT_GEM;lsSet(LS.gemKey,gemKey)}
+if(RETIRED_KEYS.indexOf(apiKey)>=0){apiKey=DEFAULT_KEY;lsSet(LS.key,apiKey)}
 var models=[];
 
 /* ============================================================
@@ -1467,7 +1452,7 @@ var MATH_WORDS={
 function looksMath(s){
   if(!s)return false;
   var t=String(s).replace(/\s+/g," ").trim();
-  if(!t||t.length>180)return false;
+  if(!t||t.length>400)return false;
   /* latex wins over everything else - it can only be maths */
   if(/\\[a-zA-Z]/.test(t))return true;
   if(/[=+\-*/^_<>|]/.test(t)&&(/[\dxn]/i.test(t)||/[a-zA-Z]/.test(t)))return true;
@@ -1483,12 +1468,35 @@ function mathGroup(inner){
   t=t.replace(/^\{(.*)\}$/,"$1");
   return t;
 }
+/* Spacing is part of how an equation reads, so each command gets a real width
+   instead of being dropped. They are empty spans rather than characters, which
+   keeps the text clean when the answer is copied out. */
+function latexSpacing(out){
+  /* the punctuation commands never take a letter after them, so they need no
+     lookahead - and having one meant "\;x" slipped through untouched */
+  out=out.replace(/\\qquad/g,'<span class="sp4"></span>');
+  out=out.replace(/\\quad/g,'<span class="sp2"></span>');
+  out=out.replace(/\\thinspace/g,'<span class="sp1"></span>');
+  out=out.replace(/\\[,;]/g,'<span class="sp1"></span>');
+  out=out.replace(/\\:/g,'<span class="sp2"></span>');
+  out=out.replace(/\\!/g,'<span class="spm"></span>');
+  /* \ followed by a plain space is an explicit space */
+  out=out.replace(/\\ (?=[^ ])/g," ");
+  return out;
+}
 function latexToText(s){
   var out=String(s==null?"":s);
-  out=out.replace(/\\(?:left|right|displaystyle|textstyle|!|,|;|:|quad|qquad|thinspace|enspace|smallspace)\b/g,"");
+  out=latexSpacing(out);
+  /* these are dropped: they only affect size, and a big display is decided by
+     the \(..\) or \[..\] the maths came in */
+  out=out.replace(/\\(?:left|right|displaystyle|textstyle|limits|nolimits)(?![a-zA-Z])/g,"");
   out=out.replace(/\\begin\{[^}]*\}|\\end\{[^}]*\}/g,"");
-  out=out.replace(/\\(?:text|mathrm|mbox|mathbf|mathit|operatorname)\{([^{}]*)\}/g,"$1");
-  out=out.replace(/\\\\/g,"\n");
+  out=out.replace(/\\(?:text|mathrm|mbox|textbf|mathit|operatorname|textnormal)\{([^{}]*)\}/g,"$1");
+  out=out.replace(/\\begin\{[a-z]*matrix\}/gi,"").replace(/\\end\{[a-z]*matrix\}/gi,"");
+  out=out.replace(/\\\\/g," ");
+  /* \boxed{96} - a value the answer is really pointing at */
+  out=out.replace(/\\(?:boxed|fbox|framebox)\{([^{}]*)\}/g,
+    '<span class="boxed">$1</span>');
   /* \frac{a}{b} and \frac ab */
   out=out.replace(/\\d?frac\{([^{}]*)\}\{([^{}]*)\}/g,
     '<span class="frac"><i>$1</i><i>$2</i></span>');
@@ -1517,17 +1525,38 @@ function latexToText(s){
   out=out.replace(/[ \t]{2,}/g," ");
   return out;
 }
-/* $$..$$ on its own, then $..$ inline */
+/* LaTeX comes in four flavours and all four were being missed: $$..$$, $..$,
+   \[..\] and \(..\). The bracket forms are what a model reaches for the moment
+   it writes a long equation, so they are taken out before the dollar forms.
+
+   The brackets themselves already say "this is maths", so whatever sits between
+   them is taken - a line holding nothing but \(a \, b\) was being refused as not
+   maths and left on the page as raw text. Dollars are not trusted on their own,
+   or "$5 and $10 and $15" turns into three equations. */
 function pullMath(src,store){
-  src=src.replace(/\$\$([\s\S]+?)\$\$/g,function(_,inner){
-    if(!looksMath(inner))return _;
-    store.push('<span class="math big">'+latexToText(inner.trim())+"</span>");
+  var show=function(inner,big){
+    store.push('<span class="math'+(big?" big":"")+'">'+latexToText(inner.trim())+"</span>");
     return " @@M"+(store.length-1)+"@@ ";
+  };
+  var takeForced=function(inner,big){
+    if(!String(inner).trim())return null;
+    return show(inner,big);
+  };
+  var takeIfMath=function(inner,big){
+    if(!looksMath(inner))return null;
+    return show(inner,big);
+  };
+  src=src.replace(/\\\[([\s\S]+?)\\\]/g,function(_,inner){
+    return takeForced(inner,true)||_;
+  });
+  src=src.replace(/\\\(([\s\S]+?)\\\)/g,function(_,inner){
+    return takeForced(inner,false)||_;
+  });
+  src=src.replace(/\$\$([\s\S]+?)\$\$/g,function(_,inner){
+    return takeIfMath(inner,true)||_;
   });
   src=src.replace(/\$([^$\n]{1,180})\$/g,function(_,inner){
-    if(!looksMath(inner))return _;
-    store.push('<span class="math">'+latexToText(inner)+"</span>");
-    return " @@M"+(store.length-1)+"@@ ";
+    return takeIfMath(inner,false)||_;
   });
   return src;
 }
@@ -1539,6 +1568,20 @@ function pullMath(src,store){
    and every character is left exactly as the model wrote it, so symbols like ×, ’
    and – survive and the whole thing can be copied back out again.
    ============================================================ */
+/* a few shortcodes, because ":smile:" written out is worse than the face */
+var EMOJI={
+  smile:"\uD83D\uDE04", grinning:"\uD83D\uDE01", grin:"\uD83D\uDE01", joy:"\uD83D\uDE02",
+  heart:"❤️", thumbsup:"\uD83D\uDC4D", "+1":"\uD83D\uDC4D", thumbsdown:"\uD83D\uDC4E",
+  "-1":"\uD83D\uDC4E", ok_hand:"\uD83D\uDC4C", clap:"\uD83D\uDC4F", wave:"\uD83D\uDC4B",
+  fire:"\uD83D\uDD25", tada:"\uD83C\uDF89", rocket:"\uD83D\uDE80", eyes:"\uD83D\uDC40",
+  cry:"\uD83D\uDE22", sob:"\uD83D\uDE2D", laugh:"\uD83D\uDE06", star:"⭐", sparkles:"✨",
+  check:"✅", white_check_mark:"✅", x:"❌", warning:"⚠️", bulb:"\uD83D\uDCA1",
+  zap:"⚡", hundred:"\uD83D\uDCAF", 100:"\uD83D\uDCAF", thinking:"\uD83E\uDD14",
+  coffee:"☕", beer:"\uD83C\uDF7A", pizza:"\uD83C\uDF55", rocket2:"\uD83D\uDE80",
+  bug:"\uD83D\uDC1B", lock:"\uD83D\uDD12", bell:"\uD83D\uDD14", book:"\uD83D\uDCD6",
+  memo:"\uD83D\uDCDD", pencil:"\uD83D\uDCDD", trash:"\uD83D\uDDD1", hourglass:"⌛",
+  white_check:"✅", heavy_check_mark:"✔️", x_mark:"❌", no_entry:"⛔", boom:"\uD83D\uDCA5"
+};
 function mdToHtml(t){
   var src=String(t==null?"":t).replace(/\r\n?/g,"\n");
   /* pull fenced code out first so nothing inside it gets touched */
@@ -1546,6 +1589,20 @@ function mdToHtml(t){
   src=src.replace(/```([a-zA-Z0-9+#._-]*)\n?([\s\S]*?)(?:```|$)/g,function(_,lang,code){
     blocks.push({lang:lang||"",code:code.replace(/\n$/,"")});
     return "@@CODE"+(blocks.length-1)+"@@";
+  });
+/* a backslash in front of punctuation is an escape, not latex. this has to
+     happen before inline code is found, or an escaped backtick reads as the start
+     of a code span and the pair either side of it is swallowed whole. letters are
+     left alone so \alpha still reaches the maths renderer as latex, and round
+     brackets are left alone too or \(..\) would never reach it at all */
+/* An escaped backtick is punctuation, not a code delimiter, so it is parked on
+     a private codepoint before inline code is found and put back afterwards.
+     Without this, \`word\` reads as a code span and loses both of its marks.
+     Exclamation is deliberately not in the list: markdown has nothing to escape
+     with it, and latex \! is a spacing command worth keeping. */
+  var ESC_TICK="";
+  src=src.replace(/\\([\\`*_{}#+\-.>|~])/g,function(_,c){
+    return c==="`"?ESC_TICK:c;
   });
   /* and inline code, so its contents are safe from every other rule */
   var codes=[];
@@ -1556,6 +1613,10 @@ function mdToHtml(t){
   /* and maths, which the model writes in latex */
   var maths=[];
   src=pullMath(src,maths);
+  /* a model that wants a line break sometimes writes <br> rather than a blank
+     line. it is the one tag allowed through, and it becomes a real break rather
+     than being shown to the reader as the words br. */
+  src=src.replace(/<\s*br\s*\/?\s*>/gi,"\n");
 
   var lines=esc(src).split("\n");
   var out=[];
@@ -1623,7 +1684,10 @@ function mdToHtml(t){
     if(ul){
       if(list!=="ul"){closeList();out.push("<ul>");list="ul"}
       endItem();
-      out.push("<li>"+ul[1]);
+      /* - [ ] and - [x] become a box you can see, ticked or not */
+      var box=ul[1].match(/^\[([ xX])\]\s+(.*)$/);
+      out.push(box?"<li class=\"task\"><span class=\"tick"+(box[1]===" "?"":" on")+
+        "\">"+(box[1]===" "?"":"&#10003;")+"</span>"+box[2]:"<li>"+ul[1]);
       continuing=true;
       continue;
     }
@@ -1641,6 +1705,10 @@ function mdToHtml(t){
   closeList();
 
   var html=out.join("");
+  /* pictures, before links, so the ! is not left hanging on the front of one */
+  html=html.replace(/!\[([^\]]{0,120})\]\((https?:\/\/[^\s)"']{1,400})\)/g,
+    '<a class="pic" href="$2" target="_blank" rel="noopener">'+
+    '<img src="$2" alt="$1" loading="lazy" referrerpolicy="no-referrer"></a>');
   /* links, but only the plain ones - nothing that could run */
   html=html.replace(/\[([^\]]{1,120})\]\((https?:\/\/[^\s)"']{1,400})\)/g,
     '<a href="$2" target="_blank" rel="noopener">$1</a>');
@@ -1651,6 +1719,11 @@ function mdToHtml(t){
   html=html.replace(/(^|[^*\w])\*([^*\n]+)\*(?!\*)/g,"$1<i>$2</i>");
   html=html.replace(/(^|[^_\w])_([^_\n]+)_(?!_)/g,"$1<i>$2</i>");
   html=html.replace(/~~([^~]+)~~/g,"<del>$1</del>");
+  /* shortcodes last, and only the ones actually in the list */
+  html=html.replace(/:([a-z0-9_+-]{1,24}):/g,function(m,w){
+    var hit=EMOJI[w]||EMOJI[w.toLowerCase()];
+    return hit||m;
+  });
 
   /* put the code back, with a copy button that takes the text straight off the
      page, so whatever is copied is exactly what is on screen */
@@ -1663,6 +1736,7 @@ function mdToHtml(t){
   });
   html=html.replace(/@@IC(\d+)@@/g,function(_,n){return "<code>"+esc(codes[+n])+"</code>"});
   html=html.replace(/@@M(\d+)@@/g,function(_,n){return maths[+n]});
+  html=html.split(ESC_TICK).join("&#96;");
   return html;
 }
 async function fetchWithTimeout(url,opts,ms,signal){
@@ -2055,6 +2129,25 @@ function typing(on){
 
 /* if one model is busy or rate limited, the next one on the account is tried, so a
    question is not lost to somebody else's traffic */
+/* One place to say what a dead key means, so the reader is told which key it was
+   and what to do about it rather than just seeing a number. */
+function keyRefused(who,status){
+  var builtIn=(who==="chat")?apiKey===DEFAULT_KEY:gemKey===DEFAULT_GEM;
+  return "That did not work: the "+who+" key was refused ("+status+"). "+
+    (builtIn
+      ? "The one built into this file has been revoked, so nothing that uses it can work. "
+      : "The key saved in this browser has been revoked. ")+
+    "Paste a working one into Settings and it will be used from then on.";
+}
+function keyRefusedGem(status){
+  var builtIn=gemKey===DEFAULT_GEM;
+  return "That did not work: the picture key was refused ("+status+"). "+
+    (builtIn
+      ? "The one built into this file has been revoked. "
+      : "The key saved in this browser has been revoked. ")+
+    "Paste a working one into Settings and pictures will read again.";
+}
+
 async function groqAsk(history){
   var picked=settings.model||"openai/gpt-oss-120b";
   var order=[picked].concat(models.filter(function(m){return m!==picked}));
@@ -2098,8 +2191,7 @@ async function groqAsk(history){
       why="the server said "+res.status;
     }
     if(res.status===401||(res.status===403&&/api key/i.test(why)))
-      throw new Error("the chat key was refused. it may have been revoked, or the "+
-        "Generative AI API may not be enabled for it - put a working key in settings.");
+      throw new Error(keyRefused("chat",res.status));
     if(res.status===403)
       throw new Error("groq blocked the request rather than refusing the key "+
         "(403). that is a network or filter problem, not a bad key.");
@@ -2136,10 +2228,96 @@ function saneClip(c){
   return c;
 }
 
+/* ---------- which model is asked to look ---------- */
+function picProvider(){return lsGet("orbitPicProvider","gemini")==="groq"?"groq":"gemini"}
+function picModel(){
+  var m=lsGet("orbitPicModel","");
+  if(picProvider()==="groq"){
+    var list=visionKnown?visionModels:GROQ_VISION_FALLBACK;
+    return list.indexOf(m)>=0?m:(list[0]||"");
+  }
+  return GEM_MODELS.indexOf(m)>=0?m:gemModel();
+}
+function imageUrlPart(c){
+  c=saneClip(c);
+  return {type:"image_url",image_url:{url:String(c&&c.dataUrl||"")}};
+}
+async function groqVisionAsk(prompt,shots,history){
+  if(!apiKey)throw new Error("no chat key is set. add one in settings.");
+  if(visionKnown&&!visionModels.length)
+    throw new Error("no model on this groq key can read a picture. "+
+      "groq only serves those to some keys - ask for qwen2.5-vl or llama 4 vision, "+
+      "or turn gemini back on for pictures.");
+  var picked=picModel();
+  var order=visionKnown?[picked].concat(visionModels.filter(function(m){return m!==picked}))
+                        :[picked].concat(GROQ_VISION_FALLBACK.filter(function(m){return m!==picked}));
+  var tried=[];
+  for(var i=0;i<Math.min(order.length,4);i++){
+    var model=order[i];
+    var messages=[{role:"system",content:SYS}];
+    (history||[]).forEach(function(h){
+      var parts=[];
+      if(h.text)parts.push({type:"text",text:h.text});
+      (h.shots||[]).forEach(function(c){parts.push(imageUrlPart(c))});
+      messages.push({role:"user",content:parts.length===1&&parts[0].text?parts[0].text:parts});
+    });
+    var parts2=[];
+    parts2.push({type:"text",text:prompt});
+    (shots||[]).forEach(function(c){parts2.push(imageUrlPart(c))});
+    messages.push({role:"user",content:parts2});
+    var res=await fetchWithTimeout(GROQ_URL,{
+      method:"POST",
+      headers:{"Content-Type":"application/json","Authorization":"Bearer "+apiKey},
+      body:JSON.stringify({
+        model:model,
+        messages:messages,
+        temperature:0.3,
+        max_tokens:settings.maxTokens
+      })
+    },120000);
+    if(res.status===401||res.status===403)
+      throw new Error("the chat key was refused ("+res.status+"). put a working one in settings.");
+    if(res.ok){
+      var j=await res.json();
+      var c=j.choices&&j.choices[0];
+      var m=c&&c.message;
+      var t=(m&&(m.content||m.reasoning_content||m.reasoning))||"";
+      if(typeof t!=="string")t="";
+      if(Array.isArray(m&&m.content))
+        t=m.content.map(function(p){return p.text||p.content||""}).join("");
+      if(t&&t.trim()){lastAnswerModel=model;return t.trim()}
+      tried.push(model+" (empty)");
+    }else{
+      tried.push(model+" ("+res.status+")");
+    }
+  }
+  throw new Error("no groq model would read it"+(tried.length?" ["+tried.join(", ")+"]":""));
+}
+/* One way in for anything with a picture on it. The provider in settings is tried
+   first, and if its key is the problem the other one is tried before giving up,
+   so a dead picture key does not take screen reading with it. */
+async function askPicture(prompt,shots,history){
+  var first=picProvider(), second=first==="gemini"?"groq":"gemini";
+  var run=function(which){
+    return which==="gemini"?geminiAsk(prompt,shots,history)
+                        :groqVisionAsk(prompt,shots,history);
+  };
+  try{
+    return await run(first);
+  }catch(e){
+    if(second==="gemini"&&!gemKey)throw e;
+    if(second==="groq"&&!apiKey)throw e;
+    try{
+      return await run(second);
+    }catch(e2){
+      throw e2&&e2.message?e2:e;
+    }
+  }
+}
 async function geminiAsk(prompt,shots,history){
-  if(!gemKey)throw new Error("no picture key is set. add one in settings.");
   var order=[gemModel()].concat(GEM_MODELS.filter(function(m){return m!==gemModel()}));
   var tried=[];
+  if(!gemKey)throw new Error("no picture key is set. add one in settings.");
   for(var i=0;i<order.length;i++){
     var model=order[i];
     var parts=[];
@@ -2159,8 +2337,7 @@ async function geminiAsk(prompt,shots,history){
       })
     },120000);
     if(res.status===401||res.status===403)
-      throw new Error("that picture key was refused ("+res.status+"). it may have been revoked - "+
-        "put a working one in settings and pictures will read again.");
+      throw new Error(keyRefusedGem(res.status));
     if(res.ok){
       var j=await res.json();
       var c=(j.candidates||[])[0];
@@ -2232,7 +2409,7 @@ async function send(){
       }).slice(-2).map(function(m){
         return {text:m.content,shots:m.shots};
       });
-      var answer=await geminiAsk(text,shot,hist);
+      var answer=await askPicture(text,shot,hist);
       push({role:"assistant",content:answer,via:"Gemini"});
     }else{
       /* the question just asked is already the last entry, so the whole tail goes
@@ -2531,29 +2708,7 @@ var MINE_SEED=[
   {id:"m-pink-bike",name:"Pink Bike",builtIn:true,
    link:"https://raw.githubusercontent.com/brickyosu/ugs-files-sorted/refs/heads/main/P/clpinkbike.html",
    icon:"https://es.pinkbike.org/246/sprt/i/share/grimdonutgame.jpg",kind:"game",
-   tags:"pink, bike, classic",author:"brickyosu",note:"the pink one"},
-{
-    id: "m-gang-beasts-wasm",
-    name: "Gang Beasts WASM",
-    builtIn: true,
-    link: "https://raw.githubusercontent.com/L3br00n/Gang-Beasts/refs/heads/main/gangbeasts",
-    icon: "https://pbs.twimg.com/profile_images/1220018529254223873/0n1ouu1F_400x400.jpg",
-    kind: "game",
-    tags: "gang beasts, fighting, multiplayer, physics, party",
-    author: "L3br00n",
-    note: "Gang Beasts browser port powered by WebAssembly"
-  },
-  {
-    id: "m-superflight",
-    name: "Superflight",
-    builtIn: true,
-    link: "https://raw.githubusercontent.com/L3br00n/Gang-Beasts/refs/heads/main/superflight",
-    icon: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDlHz8ovA4HJAV7xbIxgD8Du5_rOY-vVgvtv1yoO5_L2WTsi8h563WruMF&s=10",
-    kind: "game",
-    tags: "superflight, flying, wingsuit, arcade, 3d",
-    author: "L3br00n",
-    note: "A fast-paced wingsuit flying game"
-  }
+   tags:"pink, bike, classic",author:"brickyosu",note:"the pink one"}
 ];
 /* nothing to show for a game with no picture, so it gets a plain one of its own */
 var MINE_BLANK="data:image/svg+xml,"+encodeURIComponent(
@@ -2731,6 +2886,18 @@ installZoneHooks=function(){
   if(s)s.addEventListener("input",function(){
     if(s.value.trim())foldFeatured();
   });
+  /* the little settings box on the zones tab used to offer a tab cloak of its
+     own, which only renamed this tab and so was not worth having next to the
+     real one. alice draws that box first, so this runs after it and takes the
+     button back out again */
+  var sb=$("settings");
+  if(sb)sb.addEventListener("click",function(){
+    var body=$("popupBody");
+    if(!body)return;
+    var keep=body.innerHTML.replace(/<button class="settings-button" onclick="tabCloak\(\)">[\s\S]*?<\/button>\s*(<br\s*\/?>\s*)?/gi,"");
+    body.innerHTML=keep;
+    body.contentEditable=false;
+  });
 };
 window.__orbitAfterAlice=installZoneHooks;
 function foldFeatured(){
@@ -2885,11 +3052,12 @@ function myAboutBlank(){
   if(!z)return;
   var url=mineUrl(z);
   if(!/^https?:/i.test(url)){toast("that one needs a real link","bad");return}
-  fetch(url+"?t="+Date.now()).then(function(r){return r.text()}).then(function(html){
-    var w=window.open("about:blank","_blank");
-    if(w){w.document.open();w.document.write(html);w.document.close()}
-    else toast("your browser blocked the new tab");
-  }).catch(function(e){toast("could not read it - "+e.message,"bad")});
+  /* this is the cloak, run from the zone on screen: the game goes in a new tab
+     and the tab is then given the name and icon asked for */
+  cloakPick={name:z.name||"",url:url};
+  var title=(lsGet("cloakTitle","")||z.name||"").trim();
+  var dom=(lsGet("cloakDomain","")||cloakDomainOf(url)||"").trim();
+  cloakOpen(url,title,dom).catch(function(e){toast("could not read it - "+e.message,"bad")});
 };
 function myDownloadZone(){
   var z=zoneOnScreen();
@@ -3454,9 +3622,11 @@ function ytFeedIsMain(){
 var ytGen=0;
 function ytNewGen(){ytGen++;return ytGen}
 function ytGenIs(g){return g===ytGen}
-function ytPaint(items,note){
+function ytPaint(items,note,g){
   var box=$("ytFeed");
   if(!box)return;
+  /* a result for a page you have already left is dropped, not pasted over it */
+  if(g!==undefined&&!ytGenIs(g))return;
   if(!ytFeedIsMain())return;
   box.innerHTML="";
   if(note){
@@ -3487,9 +3657,10 @@ function ytMoreReady(on){
   if(on&&n)n.textContent=ytFeedItems.length+" loaded";
 }
 /* placeholders while it is on its way, so the page never just sits empty */
-function ytSkeleton(rows){
+function ytSkeleton(rows,g){
   var box=$("ytFeed");
   if(!box)return;
+  if(g!==undefined&&!ytGenIs(g))return;
   if(!ytFeedIsMain())return;
   box.innerHTML="";
   var n=rows||12;
@@ -3512,11 +3683,11 @@ var LS_SUBS="orbitYtSubs";
 var LS_CACHE="orbitYtCache";
 var ytSeen=[];
 try{ytSeen=JSON.parse(lsGet(LS_SEEN,"[]"))||[]}catch(e){ytSeen=[]}
-var ytSubs=[];
-try{ytSubs=JSON.parse(lsGet(LS_SUBS,"[]"))||[]}catch(e){ytSubs=[]}
-function ytSubOf(cid){return ytSubs.filter(function(s){return s.cid===cid})[0]||null}
+var ytSubsList=[];
+try{ytSubsList=JSON.parse(lsGet(LS_SUBS,"[]"))||[]}catch(e){ytSubsList=[]}
+function ytSubOf(cid){return ytSubsList.filter(function(s){return s.cid===cid})[0]||null}
 function ytSaveSubs(){
-  lsSet(LS_SUBS,JSON.stringify(ytSubs));
+  lsSet(LS_SUBS,JSON.stringify(ytSubsList));
   ytPaintCounts();
   /* if the list is on screen, redraw it so the change is visible at once */
   if(ytPage.page==="subs"&&$("ytFeed"))ytSubsPage();
@@ -3525,14 +3696,14 @@ function ytToggleSub(info){
   if(!info||!info.cid)return false;
   var have=ytSubOf(info.cid);
   if(have){
-    ytSubs=ytSubs.filter(function(s){return s.cid!==info.cid});
+    ytSubsList=ytSubsList.filter(function(s){return s.cid!==info.cid});
     ytSaveSubs();
     paintSubBtn();
     toast("unsubscribed from "+info.name);
     return false;
   }
-  ytSubs.unshift({cid:info.cid,name:info.name||"channel",thumb:info.thumb||"",sub:info.sub||0});
-  ytSubs=ytSubs.slice(0,60);
+  ytSubsList.unshift({cid:info.cid,name:info.name||"channel",thumb:info.thumb||"",sub:info.sub||0});
+  ytSubsList=ytSubsList.slice(0,60);
   ytSaveSubs();
   paintSubBtn();
   toast("subscribed to "+(info.name||"that channel"));
@@ -3549,7 +3720,7 @@ function paintSubBtn(){
 }
 function ytPaintCounts(){
   var s=$("ytSubN"),h=$("ytHisN");
-  if(s){s.textContent=ytSubs.length||"";s.hidden=!ytSubs.length}
+  if(s){s.textContent=ytSubsList.length||"";s.hidden=!ytSubsList.length}
   if(h){h.textContent=ytSeen.length||"";h.hidden=!ytSeen.length}
 }
 function ytRemember(v){
@@ -3710,10 +3881,14 @@ function ytPaintSide(items){
   });
   if(!list.childElementCount)list.innerHTML='<div class="yt-note">nothing to suggest</div>';
 }
+/* Closing has to take the sound with it. Hiding the frame on its own leaves the
+   video playing where nothing can see it, which is how a tab ends up talking to
+   you after you thought you had shut it. */
 function ytStop(){
   var f=$("ytFrame");
-  f.removeAttribute("src");
+  if(f)f.setAttribute("src","about:blank");
   $("ytPlayer").hidden=true;
+  ytShortsPlaying(false);
 }
 $("ytStop")&&($("ytStop").onclick=ytStop);
 $("ytLike").onclick=function(){
@@ -3765,6 +3940,22 @@ $("ytAsk").onclick=function(){
     "\n\nWhat is it about, and is it worth my time?";
   resize();
   setTab("chat");
+};
+
+/* leaving the tab has to take any sound with it, same as closing the player */
+function ytLeaving(){
+  if(ytPage.page==="shorts")ytShortsPlaying(false);
+  if($("ytPlayer")&&!$("ytPlayer").hidden){
+    var f=$("ytFrame");
+    if(f)f.setAttribute("src","about:blank");
+    $("ytPlayer").hidden=true;
+  }
+}
+var _setTab=setTab;
+setTab=function(id){
+  var was=activeTab;
+  _setTab(id);
+  if(was==="youtube"&&id!=="youtube")ytLeaving();
 };
 
 /* ---------- the pages on the left ---------- */
@@ -3997,6 +4188,11 @@ function mountShort(rec){
   var po=rec.el.querySelector(".poster");
   if(po)po.style.display="none";
 }
+/* when the player is shut, or the tab is left, nothing keeps playing behind it */
+function ytShortsPlaying(on){
+  if(on)return;
+  ytShortLive.forEach(dropShort);
+}
 function dropShort(rec){
   if(!rec.iframe)return;
   rec.iframe.remove();
@@ -4079,7 +4275,7 @@ function ytSubsPage(){
   add.append(inp,go);
   feed.appendChild(add);
 
-  if(!ytSubs.length){
+  if(!ytSubsList.length){
     var n=document.createElement("div");
     n.className="yt-note";
     n.style.gridColumn="1/-1";
@@ -4087,7 +4283,7 @@ function ytSubsPage(){
     feed.appendChild(n);
     return;
   }
-  ytSubs.forEach(function(s){
+  ytSubsList.forEach(function(s){
     var row=document.createElement("div");
     row.className="yt-sub-row";
     var im=document.createElement("img");
@@ -4164,11 +4360,7 @@ function ytHome(){
     :"Start here - swap these out for anything you like";
   /* whatever was here last time goes up straight away, so the tab is never empty */
   var cached=ytCacheGet("home",1000*60*60*24);
-  if(cached&&cached.length){
-    ytPaint(cached,label);
-  }else{
-    ytPaint([],label);
-  }
+  ytPaint(cached&&cached.length?cached:[],label,g);
   ytBusy(true);
   var build=function(){
     var jobs=taste.map(function(q){return ytSearch(q,"videos","relevance")});
@@ -4189,25 +4381,59 @@ function ytHome(){
     ytBusy(false);
     if(!items.length)return;
     ytCachePut("home",items);
-    ytPaint(items,label);
+    ytPaint(items,label,g);
   }).catch(function(e){
     ytBusy(false);
     if(!document.querySelectorAll("#ytFeed .yt-card").length)
-      ytPaint(null,"could not reach youtube just now ("+e.message+"). press search to try again.");
+      ytPaint(null,"could not reach youtube just now ("+e.message+"). press search to try again.",g);
   });
 }
 function openChannel(v){
   ytSearchChannelAndOpen(v);
 }
+/* Searching a plain word used to give one or the other. Typing "flight" should
+   hand back the channels called flight AND what they have actually uploaded,
+   which is nearly always what was wanted. */
+function ytSearchWide(q,sort){
+  sort=sort||ytSort;
+  return Promise.all([
+    ytSearch(q,"videos",sort),
+    ytSearch(q,"channels","relevance")
+  ]).then(function(r){
+    var vids=r[0]||[], chans=(r[1]||[]).slice(0,6);
+    if(!chans.length)return {videos:vids,channels:[],extra:[]};
+    /* only bother with the top one, and only when its name really does sit in
+       the word that was typed */
+    var word=String(q).toLowerCase();
+    var top=chans.filter(function(c){
+      return (c.name||"").toLowerCase().indexOf(word)>=0;
+    })[0]||chans[0];
+    if(!top)return {videos:vids,channels:chans,extra:[]};
+    return ytSearchChannel(top,"relevance").then(function(list){
+      var have={};
+      vids.forEach(function(v){have[v.id]=1});
+      var extra=list.filter(function(v){return !have[v.id]}).slice(0,12);
+      return {videos:vids,channels:chans,extra:extra,from:top};
+    }).catch(function(){
+      return {videos:vids,channels:chans,extra:[]};
+    });
+  });
+}
 function ytGo(){
   var raw=$("ytUrl").value.trim();
   if(!raw){toast("type something to look for");return}
-  var id=ytId(raw);
+  /* A bare eleven character word is almost never meant to be a video. YouTube
+     ids are exactly that long, so "flightreact" or "javascript" used to be
+     played back as an id and the search never happened at all. Only something
+     that looks like an address counts as a link. */
+  var looksLikeLink=/^(https?:\/\/|\/\/|www\.|youtu\.?be)/i.test(raw)|/[?&#]v=/.test(raw);
+  var id=looksLikeLink?ytId(raw):"";
   if(id){
     /* a link is a video, whatever is in the box */
     ytPlay({id:id,title:raw,who:""});
     return;
   }
+  var g=ytNewGen();
   ytPage={url:raw,title:raw,mode:ytMode,channel:null,page:"search"};
   ytMoreRound=0;
   ytRailSync();
@@ -4217,22 +4443,67 @@ function ytGo(){
   /* whatever came back for this search last time goes up straight away */
   var key="q:"+ytMode+":"+ytSort+":"+raw;
   var cached=ytCacheGet(key,1000*60*60*24*7);
-  if(cached&&cached.length)ytPaint(cached,"");
-  else ytSkeleton(12);
-  ytSearch(raw,ytMode,ytSort).then(function(items){
+  if(cached&&cached.length)ytPaint(cached,"",g);
+  else ytSkeleton(12,g);
+  if(ytMode!=="videos"){
+    ytSearch(raw,ytMode,ytSort).then(function(items){
+      ytBusy(false);
+      if(!items.length){
+        if(!cached)ytPaint(null,"nothing came back for that");
+        return;
+      }
+      ytCachePut(key,items);
+      ytPaint(items,ytMode==="channels"?
+        "Channels matching “"+raw+"”. Pick one to see their videos.":
+        items.length+" videos matching “"+raw+"”.");
+    }).catch(function(e){
+      ytBusy(false);
+      if(!cached)ytPaint(null,"could not reach youtube just now ("+e.message+")");
+    });
+    return;
+  }
+  /* a plain word gets both: the channels called that, and what they posted */
+  ytSearchWide(raw,ytSort).then(function(res){
     ytBusy(false);
-    if(!items.length){
+    if(!ytGenIs(g)||ytPage.url!==raw)return;
+    var items=res.videos.concat(res.extra);
+    if(!items.length&&!res.channels.length){
       if(!cached)ytPaint(null,"nothing came back for that");
       return;
     }
     ytCachePut(key,items);
-    ytPaint(items,ytMode==="channels"?
-      "Channels matching “"+raw+"”. Pick one to see their videos.":
-      items.length+" videos matching “"+raw+"”.");
+    ytPaintWide(items,ytWideNote(raw,res),res.channels,g);
   }).catch(function(e){
     ytBusy(false);
     if(!cached)ytPaint(null,"could not reach youtube just now ("+e.message+")");
   });
+}
+function ytWideNote(raw,res){
+  var bits=[res.videos.length+" videos"];
+  if(res.channels.length)bits.push(res.channels.length+" channels");
+  var note=bits.join(" · ")+" for “"+raw+"”.";
+  if(res.extra.length&&res.from)note+=" Including what "+res.from.name+" has posted.";
+  return note;
+}
+function ytPaintWide(items,note,chans,g){
+  ytPaint(items,note,g);
+  if(chans&&chans.length)ytPaintChannels(chans);
+}
+function ytPaintChannels(chans){
+  var feed=$("ytFeed");
+  if(!feed||!chans.length)return;
+  /* the cards go in first at the front, then the heading in front of those,
+     otherwise each insert pushes the heading further down the list */
+  chans.slice().reverse().forEach(function(c){
+    var card=ytCard(c);
+    card.classList.add("chan");
+    feed.insertBefore(card,feed.firstChild);
+  });
+  var head=document.createElement("div");
+  head.className="yt-note";
+  head.style.gridColumn="1/-1";
+  head.textContent="channels";
+  feed.insertBefore(head,feed.firstChild);
 }
 $("ytGo").onclick=ytGo;
 $("ytUrl").addEventListener("keydown",function(e){
@@ -4325,7 +4596,7 @@ function myCloakIcon(url){
   if(tn)tn.value=document.title;
   if(ti&&f)ti.value=f;
   if($("tabNameGo"))$("tabNameGo").onclick=function(){
-    cloakName($("tabName").value);
+    setTabTitle($("tabName").value);
     toast("the tab now says "+document.title);
   };
   if($("tabIconGo"))$("tabIconGo").onclick=function(){
@@ -4355,6 +4626,11 @@ function myCloakIcon(url){
    about:blank opened from here keeps this origin, so its title and icon can still
    be changed after the page has been written into it */
 var cloakPick=null;
+function setTabTitle(text){
+  var t=String(text||"").trim();
+  document.title=t||"ORBIT";
+  return document.title;
+}
 function cloakDomainOf(raw){
   var s=String(raw||"").trim();
   if(!s)return "";
@@ -4412,22 +4688,17 @@ function cloakApply(win,title,icon){
     d.head.appendChild(b);
   }catch(e){}
 }
-function cloakStart(){
-  if(!cloakPick)cloakFindZone();
-  if(!cloakPick){toast("pick a zone first","bad");return}
-  var note=$("cloakNote");
-  var title=$("cloakTitle").value.trim()||cloakPick.name;
-  var icon=cloakIconUrl($("cloakDomain").value.trim());
+function cloakOpen(url,title,domain){
   var win=window.open("about:blank","_blank");
-  if(!win){toast("the browser blocked the new tab","bad");return}
-  note.textContent="opening "+cloakPick.name+"...";
-  fetch(cloakPick.url).then(function(r){
+  if(!win){toast("your browser blocked the new tab","bad");return Promise.reject(new Error("blocked"))}
+  var icon=cloakIconUrl(domain);
+  return fetch(url).then(function(r){
     if(!r.ok)throw new Error("that address answered "+r.status);
     return r.text();
   }).then(function(html){
     /* a base tag stops anything relative in the page looking for itself next to
        about:blank and finding nothing */
-    var base="<base href=\""+String(cloakPick.url).replace(/[^\/?#]*(?:[?#].*)?$/,"")+"\">";
+    var base="<base href=\""+String(url).replace(/[^\/?#]*(?:[?#].*)?$/,"")+"\">";
     var doc=win.document;
     doc.open();
     doc.write(base+html);
@@ -4441,10 +4712,25 @@ function cloakStart(){
       cloakApply(win,title,icon);
       if(++tries>=20)clearInterval(timer);
     },50);
+    return win;
+  }).catch(function(e){
+    try{win.close()}catch(e2){}
+    throw e;
+  });
+}
+function cloakStart(){
+  if(!cloakPick)cloakFindZone();
+  if(!cloakPick){toast("pick a zone first","bad");return}
+  var note=$("cloakNote");
+  var title=$("cloakTitle").value.trim()||cloakPick.name;
+  var dom=$("cloakDomain").value.trim();
+  lsSet("cloakTitle",title);
+  lsSet("cloakDomain",dom);
+  note.textContent="opening "+cloakPick.name+"...";
+  cloakOpen(cloakPick.url,title,dom).then(function(){
     note.textContent="Opened in a new tab as \""+title+"\".";
   }).catch(function(e){
     note.textContent="Could not open it: "+e.message;
-    try{win.close()}catch(e2){}
   });
 }
 
@@ -4650,7 +4936,7 @@ function aiAnswer(text,clip,prefix){
   note.textContent=clip?"gemini is looking at it...":"thinking...";
   var turn=(prefix||text)+(clip?SCREEN_PROMPT:"");
   var run=clip
-    ? geminiAsk(turn,[clip],[].concat(
+    ? askPicture(turn,[clip],[].concat(
         aiHistory.slice(-4,-1).map(function(h){
           return {text:h.text,shots:h.shots};
         })))
@@ -4691,14 +4977,22 @@ $("aiShot").onclick=function(){
    8. SETTINGS
    ============================================================ */
 function paintSettings(){
-  $("apiKey").value=apiKey;
-  $("gemKey").value=gemKey;
+  /* A key that is being typed into is left alone. Repainting settings after a
+     check must not wipe out a key that has only just been pasted in. */
+  var a=$("apiKey"),g=$("gemKey");
+  if(a&&(!a.value.trim()||a.value.trim()===apiKey))a.value=apiKey;
+  if(g&&(!g.value.trim()||g.value.trim()===gemKey))g.value=gemKey;
   $("persona").value=settings.persona||"";
   $("temp").value=settings.temperature;
   $("tempVal").textContent=settings.temperature.toFixed(1);
   $("maxTok").value=settings.maxTokens;
   $("maxVal").textContent=settings.maxTokens+" tokens";
   paintModelPickers();
+  paintPicPickers();
+  /* whatever the last check said about the chat key is shown without waiting to
+     be asked, so a revoked key is visible the moment settings is opened */
+  var kn=$("keyNote");
+  if(kn&&keyCheck)kn.textContent=keyCheck;
 }
 /* the same list, in the chat tab and in settings, always in step */
 function paintModelPickers(){
@@ -4719,6 +5013,63 @@ function paintModelPickers(){
     sel.value=settings.model;
   });
 }
+function paintPicPickers(){
+  var pv=$("picProvider"),pm=$("picModel");
+  if(!pv||!pm)return;
+  var who=picProvider();
+  pv.innerHTML="";
+  [["gemini","Gemini"],["groq","Groq (Qwen / Llama 4)"]].forEach(function(p){
+    var o=document.createElement("option");
+    o.value=p[0];
+    o.textContent=p[1];
+    if(p[0]===who)o.selected=true;
+    pv.appendChild(o);
+  });
+  pv.value=who;
+  var list=who==="groq"?(visionKnown?visionModels.slice():GROQ_VISION_FALLBACK.slice())
+                 :GEM_MODELS.slice();
+  var chosen=picModel();
+  if(list.indexOf(chosen)<0)list.unshift(chosen);
+  pm.innerHTML="";
+  if(!list.length){
+    var none=document.createElement("option");
+    none.value="";
+    none.textContent="no model on this key can see";
+    pm.appendChild(none);
+    pm.value="";
+  }else{
+    list.forEach(function(m){
+      var o=document.createElement("option");
+      o.value=m;
+      o.textContent=String(m).replace(/^meta-llama\//,"").replace(/^qwen\//,"");
+      if(m===chosen)o.selected=true;
+      pm.appendChild(o);
+    });
+    pm.value=chosen;
+  }
+  var note=$("picNote");
+  if(note){
+    var missing="";
+    if(who==="groq"&&visionKnown&&!visionModels.length)
+      missing="This groq key has no model that can read a picture - groq only serves "+
+              "those to some keys. Pictures need gemini until one is turned on.";
+    else if(who==="groq"&&!apiKey)
+      missing="no chat key is set, so groq cannot be asked";
+    else if(who==="gemini"&&!gemKey)
+      missing="no picture key is set, so gemini cannot be asked";
+    note.textContent=missing||"Whichever key is missing is skipped and the other one is tried.";
+  }
+}
+$("picProvider")&&$("picProvider").addEventListener("change",function(){
+  lsSet("orbitPicProvider",this.value);
+  lsSet("orbitPicModel","");
+  paintPicPickers();
+  toast("pictures will be read by "+(this.value==="groq"?"groq":"gemini"));
+});
+$("picModel")&&$("picModel").addEventListener("change",function(){
+  lsSet("orbitPicModel",this.value);
+  toast("looking with "+this.value);
+});
 $("chatModel").addEventListener("change",function(){
   settings.model=this.value;
   lsSet(LS.settings,JSON.stringify(settings));
@@ -4729,32 +5080,78 @@ $("temp").addEventListener("input",function(){settings.temperature=parseFloat(th
 $("maxTok").addEventListener("input",function(){settings.maxTokens=parseInt(this.value,10);$("maxVal").textContent=this.value+" tokens"});
 $("showKey").onclick=function(){var e=$("apiKey");e.type=e.type==="password"?"text":"password"};
 $("showGem").onclick=function(){var e=$("gemKey");e.type=e.type==="password"?"text":"password"};
+/* The box is the truth. Whatever is typed is used straight away, so there is no
+   way to paste a key, forget to press save, and be told the old one is dead. */
+function adoptKeys(){
+  var a=$("apiKey"),g=$("gemKey");
+  if(a)apiKey=a.value.trim()||DEFAULT_KEY;
+  if(g)gemKey=g.value.trim()||DEFAULT_GEM;
+}
+["apiKey","gemKey"].forEach(function(id){
+  var el=$(id);
+  if(!el)return;
+  el.addEventListener("input",function(){
+    adoptKeys();
+    keyCheck="";
+    var kn=$("keyNote");
+    if(kn)kn.textContent="not checked yet - press Test key";
+  });
+});
 $("saveSettings").onclick=function(){
-  apiKey=$("apiKey").value.trim()||DEFAULT_KEY;
-  gemKey=$("gemKey").value.trim()||DEFAULT_GEM;
+  adoptKeys();
   settings.model=$("modelSelect").value||settings.model;
   settings.persona=$("persona").value;
   lsSet(LS.key,apiKey);lsSet(LS.gemKey,gemKey);lsSet(LS.model,settings.model);
   lsSet(LS.settings,JSON.stringify(settings));
-  toast("saved");
+  keyCheck="";
+  toast("saved - checking that key now");
+  testChatKey();
 };
-$("testKey").onclick=async function(){
-  var b=this;this.disabled=true;$("keyNote").textContent="trying...";
+/* One check, used by the button, by save, and at startup. It always reads the
+   key out of the box first, so what gets tested is what is on screen. */
+async function testChatKey(){
+  adoptKeys();
+  var kn=$("keyNote");
+  if(kn)kn.textContent="trying...";
   try{
     var res=await fetchWithTimeout(GROQ_MODELS_URL,{headers:{"Authorization":"Bearer "+apiKey}},15000);
-    if(!res.ok)throw new Error("the server said "+res.status);
+    if(!res.ok){
+      keyCheck="that key was refused ("+res.status+"). "+
+        (apiKey===DEFAULT_KEY
+          ? "The key built into this file has been revoked - paste your own into the box above."
+          : "Paste a working key into the box above.");
+      if(kn)kn.textContent=keyCheck;
+      return false;
+    }
     var j=await res.json();
     var good=(j.data||[]).filter(function(m){return !BAD_MODEL.test(m.id||"")});
+    if(!good.length)throw new Error("no chat models on this key");
     models=good.map(function(m){return m.id});
-    if(!models.length)throw new Error("no chat models on this key");
-    $("keyNote").textContent="that key works - "+models.length+" chat models";
-    paintSettings();
+    var seen=good.filter(function(m){return VISION_MODEL.test(m.id||"")})
+                 .map(function(m){return m.id});
+    visionModels=seen;
+    visionKnown=true;
+    if(models.indexOf(settings.model)<0)settings.model=models[0];
+    keyCheck="that key works - "+models.length+" chat models"+
+             (seen.length?" ("+seen.length+" of them can read pictures)":" (none of them can read pictures)");
+    if(kn)kn.textContent=keyCheck;
+    paintModelPickers();
+    paintPicPickers();
+    return true;
   }catch(e){
-    $("keyNote").textContent="that key did not work: "+e.message;
+    keyCheck="that key did not work: "+e.message;
+    if(kn)kn.textContent=keyCheck;
+    return false;
   }
+}
+$("testKey").onclick=async function(){
+  this.disabled=true;
+  var ok=await testChatKey();
   this.disabled=false;
+  if(ok)toast(keyCheck);
 };
 $("testGem").onclick=async function(){
+  adoptKeys();
   var b=this;this.disabled=true;$("gemNote").textContent="trying...";
   try{
     var res=await fetchWithTimeout(
@@ -4806,18 +5203,7 @@ paintSettings();
 
 /* the model list is fetched straight away, so the picker in the chat tab has
    something in it without anyone having to press test first */
-(async function(){
-  try{
-    var res=await fetchWithTimeout(GROQ_MODELS_URL,{headers:{"Authorization":"Bearer "+apiKey}},15000);
-    if(!res.ok)return;
-    var j=await res.json();
-    var good=(j.data||[]).filter(function(m){return !BAD_MODEL.test(m.id||"")});
-    if(!good.length)return;
-    models=good.map(function(m){return m.id});
-    if(models.indexOf(settings.model)<0)settings.model=models[0];
-    paintModelPickers();
-  }catch(e){}
-})();
+testChatKey().then(function(ok){ if(ok)paintSettings(); });
 
 /* the theme comes back the way it was left */
 applyTheme(lsGet(LS.theme,"orbit"),true);
@@ -4841,13 +5227,23 @@ window.ORBIT={
   screenOptions:screenOptions, askForScreen:askForScreen, shotMime:shotMime,
   cloakDomainOf:cloakDomainOf, cloakIconUrl:cloakIconUrl,
   cloakFind:cloakFindZone, cloakApply:cloakApply, cloakStart:cloakStart,
+  cloakOpen:cloakOpen, cloakName:setTabTitle,
   screenPrompt:function(){return SCREEN_PROMPT},
   imagePart:imagePart, cleanText:cleanText, copyFrom:copyFrom,
-  gemAsk:geminiAsk, groqAsk:groqAsk,
+  gemAsk:geminiAsk, groqAsk:groqAsk, askPicture:askPicture,
+  groqVisionAsk:groqVisionAsk, picProvider:picProvider, picModel:picModel,
+  pictureModels:function(){
+    var who=picProvider();
+    return who==="groq"?(visionKnown?visionModels.slice():GROQ_VISION_FALLBACK.slice())
+                     :GEM_MODELS.slice();
+  },
+  visionKnown:function(){return visionKnown}, keyCheck:function(){return keyCheck},
+  chatKey:function(){return apiKey}, pictureKey:function(){return gemKey},
   hidden:function(n){return isHiddenZone(n)}, hideList:function(){return HIDE_GAMES.slice()},
   aiOpen:aiOpen, aiAsk:function(t){$("aiInput").value=t;aiSend()},
   youtubeTaste:ytTaste, youtubeSeen:function(){return ytSeen.slice()},
-  ytSubs:function(){return ytSubs.slice()}, ytToggleSub:ytToggleSub,
+  ytSearchWide:ytSearchWide, ytStop:ytStop, ytLeaving:ytLeaving,
+  ytSubs:function(){return ytSubsList.slice()}, ytToggleSub:ytToggleSub,
   setNowChannel:function(c){ytNowChan=c;paintSubBtn()},
   ytGoRail:ytGoRail, ytLoadMore:ytLoadMore, ytShortMove:ytShortMove,
   goTab:function(n){setTab(n)},
