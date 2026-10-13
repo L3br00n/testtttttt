@@ -436,7 +436,19 @@ details[open] summary{color:var(--tx)}
   overflow:hidden;animation:popIn .2s cubic-bezier(.2,.8,.2,1)}
 @keyframes popIn{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
 .ai-bar{display:flex;align-items:center;gap:9px;padding:10px 12px;
-  border-bottom:1px solid var(--line);background:var(--surf2);flex-shrink:0}
+  border-bottom:1px solid var(--line);background:var(--surf2);flex-shrink:0;
+  cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none}
+.ai-bar.dragging{cursor:grabbing}
+.ai-bar.dragging .ai-panel{box-shadow:0 44px 96px -28px #000}
+.ai-x.ai-win svg{width:14px;height:14px;display:block}
+.ai-x.ai-win.on{color:var(--acc)}
+/* its own window: no page behind it, so it fills edge to edge */
+body.orbit-window{background:var(--bg);overflow:hidden}
+body.orbit-window #aiDock{position:static;width:100%;max-width:none;height:100vh;
+  height:100dvh}
+body.orbit-window #aiDock .ai-panel{height:100%;border-radius:0;border:0;
+  box-shadow:none;animation:none}
+body.orbit-window .ai-bar{cursor:default}
 .ai-bar b{font-family:"Staatliches",sans-serif;font-size:13px;letter-spacing:1.4px;font-weight:400}
 .ai-dot{width:7px;height:7px;border-radius:50%;background:var(--acc);flex-shrink:0;
   animation:pulse 2.6s ease-in-out infinite}
@@ -1136,6 +1148,9 @@ footer{margin-top:46px;border-top:1px solid var(--line);padding:18px 20px 44px}
       <span class="ai-dot"></span>
       <b>Ask Orbit</b>
       <span class="ai-model" id="aiModelName">gemini</span>
+      <button class="ai-x ai-win" id="aiWindow" title="put it in a window of its own">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.8" y="4.5" width="12.5" height="10" rx="2"/><path d="M8.7 18.4h10.9a1.6 1.6 0 0 0 1.6-1.6V8.2"/></svg>
+      </button>
       <button class="ai-x" id="aiClose" title="put it away">&times;</button>
     </div>
     <div id="aiLog" class="ai-log"></div>
@@ -1405,7 +1420,20 @@ var QUOTES=[
 /* ============================================================
    4. SMALL HELPERS
    ============================================================ */
-function $(id){return document.getElementById(id)}
+/* Once the assistant has been moved into its own window its controls live over
+   there, so a lookup that misses here checks that window before giving up.
+   Both documents belong to this file, so this is allowed. */
+function $(id){
+  var e=document.getElementById(id);
+  if(e)return e;
+  if(aiWin&&!aiWin.closed){
+    try{
+      var d=aiWin.document;
+      if(d&&d.body)return d.getElementById(id);
+    }catch(err){}
+  }
+  return null;
+}
 function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;")
   .replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
 function toast(msg,kind){
@@ -4744,41 +4772,30 @@ document.addEventListener("toggle",function(e){
 /* ============================================================
    8e. WHAT'S NEW
    ============================================================ */
+
 var NEWS=[
-  {when:"11 Oct 2026",what:"The camera actually works now",
-   body:"Picking a tab takes one picture of it, shrinks it to something sensible and hands it "+
-        "straight to Gemini. Nothing is recorded and nothing is saved to disk. Pick any tab or "+
-        "window in the chooser, then ask about what is on it."},
-  {when:"11 Oct 2026",what:"Shorts, on the left",
-   body:"A Shorts column that goes down instead of across. Scroll it, or use the up and down "+
-        "arrows, and it moves one at a time."},
+  {when:"12 Oct 2026",what:"New games added",
+   body:"Gang Beasts Web Port (WASM) and SuperFlight have been added."},
+  {when:"12 Oct 2026",what:"Vulpez added",
+   body:"Vulpez is a new movie site you can check out."},
+  {when:"12 Oct 2026",what:"Pop-out AI",
+   body:"You can now pop out the AI into its own window."},
+  {when:"12 Oct 2026",what:"Image AI is unavailable",
+   body:"Image AI unfortunately doesn't work right now, so you'll need to type your questions manually."},
+  {when:"11 Oct 2026",what:"AI camera",
+   body:"Capture a tab or window and ask the AI about it. Image AI may not work, so manual input is needed."},
+  {when:"11 Oct 2026",what:"YouTube improvements",
+   body:"Search videos, browse channels, watch videos, and scroll through Shorts."},
   {when:"11 Oct 2026",what:"Subscriptions and history",
-   body:"Subscribe to a channel from under a video or from a channel page. Both lists are kept "+
-        "on this machine, and History keeps the last forty."},
-  {when:"11 Oct 2026",what:"Load more",
-   body:"At the bottom of a search or the front page. It goes back out for more rather than "+
-        "repeating what is already there."},
-  {when:"11 Oct 2026",what:"YouTube is in here properly",
-   body:"Real search results, channels you can open and browse, sorting by most viewed "+
-        "or newest, and video pages that play in the window through youtube-nocookie."},
-  {when:"9 Oct 2026",what:"Games you add yourself",
-   body:"A table near the top of the app. A name, a raw link and an icon is all it takes - kind "+
-        "and tags are optional and become filters. Anything on the hide list is dropped from "+
-        "the grid and from the filters."},
-  {when:"9 Oct 2026",what:"Games fill the window",
-   body:"The game frame used to sit in a 300 pixel corner. It now fills the screen, and games "+
-        "drawn for a small window are put in the middle instead of stuck in the corner."},
-  {when:"9 Oct 2026",what:"Chat and Google take the whole screen",
-   body:"Less page around the thing you actually came to use."},
-  {when:"9 Oct 2026",what:"The link stops changing",
-   body:"Switching tabs no longer rewrites the address, and playing a game no longer tacks "+
-        "?id= onto the file."},
-  {when:"9 Oct 2026",what:"Twelve themes",
-   body:"Orbit, Ember, Nord, Dracula, Tokyo, Gruvbox, Rosé Pine, Ayu, Catppuccin, Matrix, Ice "+
-        "and Vermilion. Every colour on the page comes from the one you pick."},
-  {when:"9 Oct 2026",what:"The rebrand",
-   body:"Every zone still loads the way it always did - same loader, same viewer, same "+
-        "buttons. Only the look and the extras changed."}
+   body:"Subscribe to channels and keep track of your recent videos."},
+  {when:"9 Oct 2026",what:"Add your own games",
+   body:"Add games using a name, link, and optional icon."},
+  {when:"9 Oct 2026",what:"Bigger game window",
+   body:"Games now use the full screen for a better experience."},
+  {when:"9 Oct 2026",what:"Full-screen apps",
+   body:"Chat and Google now take up the whole screen."},
+  {when:"9 Oct 2026",what:"12 themes added",
+   body:"Choose from 12 different themes to customize the look."}
 ];
 var NEWS_SEEEN="orbitNewsSeen";
 function showNews(){
@@ -4835,16 +4852,177 @@ var aiBusy=false;
 var aiLog=$("aiLog");
 /* words that mean "look at what is on my screen" */
 var AI_LOOK=/\b(solve|fix|do|complete|finish|answer|help|what|whats|how|why|explain|debug|translate|convert|read)\b[^.?!]{0,40}\b(this|that|it|screen|here|my code|this code|error|problem|question|maths?|math|sum|homework|exercise)\b|\b(solve|fix|do)\s+(this|that|it)\b|\b(this|that)\s+(code|error|problem|equation|question)\b/i;
+/* ---------- the popout can be put anywhere and stays there ----------
+   It sits above everything else on the page, so once it is out it stays out
+   while you go from tab to tab, and it is only the cross that puts it away. */
+var AI_POS="orbitAiPos";
+function aiPlace(d,x,y,save){
+  var w=d.offsetWidth||390, h=d.offsetHeight||480;
+  /* never so far that it cannot be grabbed again, and never over the header */
+  x=Math.max(6,Math.min(x,Math.max(6,window.innerWidth-w-6)));
+  y=Math.max(56,Math.min(y,Math.max(56,window.innerHeight-h-6)));
+  d.style.left=Math.round(x)+"px";
+  d.style.top=Math.round(y)+"px";
+  d.style.right="auto";
+  d.style.bottom="auto";
+  if(save)lsSet(AI_POS,JSON.stringify({x:Math.round(x),y:Math.round(y)}));
+  return {x:Math.round(x),y:Math.round(y)};
+}
+function aiRestorePlace(d){
+  var raw=null;
+  try{raw=JSON.parse(lsGet(AI_POS,"null"))}catch(e){}
+  if(raw&&typeof raw.x==="number"&&typeof raw.y==="number")return aiPlace(d,raw.x,raw.y,false);
+  /* first time out: bottom right, as it has always been */
+  return aiPlace(d,window.innerWidth-(d.offsetWidth||390)-18,
+                   window.innerHeight-(d.offsetHeight||480)-18,false);
+}
+(function aiDraggable(){
+  var d=$("aiDock"),bar=document.querySelector("#aiDock .ai-bar");
+  if(!d||!bar)return;
+  var from=null;
+  var stop=function(){
+    if(!from)return;
+    from=null;
+    bar.classList.remove("dragging");
+    aiPlace(d,parseFloat(d.style.left)||0,parseFloat(d.style.top)||0,true);
+  };
+  bar.addEventListener("pointerdown",function(e){
+    /* the cross and any other button still do their own job */
+    if(e.target&&e.target.closest("button"))return;
+    if(e.button!==undefined&&e.button!==0)return;
+    var r=d.getBoundingClientRect();
+    /* pin it to a fixed spot on the first press so it can be dragged at all */
+    d.style.left=Math.round(r.left)+"px";
+    d.style.top=Math.round(r.top)+"px";
+    d.style.right="auto";
+    d.style.bottom="auto";
+    from={x:e.clientX,y:e.clientY,l:r.left,t:r.top};
+    bar.classList.add("dragging");
+    try{bar.setPointerCapture(e.pointerId)}catch(err){}
+    e.preventDefault();
+  });
+  bar.addEventListener("pointermove",function(e){
+    if(!from)return;
+    aiPlace(d,from.l+(e.clientX-from.x),from.t+(e.clientY-from.y),false);
+  });
+  bar.addEventListener("pointerup",stop);
+  bar.addEventListener("pointercancel",stop);
+  window.addEventListener("resize",function(){
+    if(d.hidden)return;
+    aiPlace(d,parseFloat(d.style.left)||0,parseFloat(d.style.top)||0,false);
+  });
+})();
+/* ---------- the assistant can live in a window of its own ----------
+   A real browser window, so it can be dragged onto another monitor or beside
+   another app. The panel itself is moved rather than rebuilt, which keeps every
+   handler, the scrollback and the typed question exactly as they were. */
+var aiWin=null;
+var aiWatch=null;
+function aiCopyStyles(win){
+  try{
+    var css="";
+    Array.prototype.forEach.call(document.querySelectorAll("style"),function(s){
+      css+=s.textContent+"\n";
+    });
+    /* the panel is the only thing over there, so the page rules it needs are
+       handed over wholesale rather than trimmed down */
+    var head=win.document.head||win.document.getElementsByTagName("head")[0];
+    if(!head)return;
+    var st=win.document.createElement("style");
+    st.textContent=css;
+    head.appendChild(st);
+    win.document.documentElement.setAttribute("data-orbit","1");
+    win.document.body.className="dark-mode orbit-window";
+  }catch(e){}
+}
+/* the move itself, kept apart from opening the window so it can be checked
+   without one */
+function aiAttach(win){
+  if(!win||!win.document)return false;
+  aiWin=win;
+  aiCopyStyles(win);
+  var d=document.getElementById("aiDock");
+  if(!d)return false;
+  d.hidden=false;
+  try{win.document.body.appendChild(d)}catch(e){return false}
+  aiPlaceInWindow(win);
+  return true;
+}
+function aiInWindow(){
+  var d=$("aiDock");
+  if(!d)return;
+  if(aiWin&&!aiWin.closed){
+    aiWin.focus();
+    aiPlaceInWindow(aiWin);
+    return;
+  }
+  var w=Math.min(430,Math.max(360,Math.round(screen.availWidth*0.3)));
+  var h=Math.min(680,Math.max(460,Math.round(screen.availHeight*0.55)));
+  var left=Math.max(0,Math.round((screen.availWidth-w)/2));
+  var top=Math.max(0,Math.round(screen.availHeight-h-40));
+  var win=window.open("about:blank","orbitAssistant",
+    "popup=yes,width="+w+",height="+h+",left="+left+",top="+top+",resizable=yes");
+  if(!win){toast("your browser blocked the window","bad");return}
+  if(!aiAttach(win)){toast("that window would not take it","bad");return}
+  if(aiWatch)clearInterval(aiWatch);
+  aiWatch=setInterval(function(){
+    if(!aiWin||aiWin.closed){
+      clearInterval(aiWatch);
+      aiWatch=null;
+      aiWin=null;
+      aiBackToTab();
+    }
+  },400);
+  toast("it is in its own window now - drag it wherever you like");
+}
+function aiPlaceInWindow(win){
+  var d=$("aiDock");
+  if(!d)return;
+  d.style.left="0px";
+  d.style.top="0px";
+  d.style.right="0px";
+  d.style.bottom="0px";
+  d.style.width="100%";
+  d.style.maxWidth="none";
+  var panel=d.querySelector(".ai-panel");
+  if(panel)panel.style.height="100%";
+  var bar=d.querySelector(".ai-bar");
+  if(bar)bar.style.cursor="default";
+}
+/* closing the window puts it back where it was in the page */
+function aiBackToTab(){
+  var d=$("aiDock");
+  if(!d||!document.body)return;
+  /* put it back where the page can see it, whether it came from a real window
+     or has only been parked somewhere else */
+  if(!document.body.contains(d)){
+    try{document.body.appendChild(d)}catch(e){return}
+  }
+  d.style.width="390px";
+  d.style.maxWidth="calc(100vw - 36px)";
+  d.style.right="18px";
+  d.style.left="auto";
+  d.style.bottom="18px";
+  d.style.top="auto";
+  var panel=d.querySelector(".ai-panel");
+  if(panel)panel.style.height="";
+  var bar=d.querySelector(".ai-bar");
+  if(bar)bar.style.cursor="";
+  aiPlace(d,window.innerWidth-390-18,Math.max(56,window.innerHeight-480-18),true);
+}
+$("aiWindow")&&($("aiWindow").onclick=aiInWindow);
 function aiOpen(){
   var d=$("aiDock");
   if(!d)return;
   d.hidden=false;
+  aiRestorePlace(d);
   $("aiModelName").textContent=String(settings.model||"").replace(/^openai\//,"");
   if(!aiLog.childElementCount){
     var w=document.createElement("div");
     w.className="ai-msg ai-ai";
     w.innerHTML="Ask me anything here. Say <b>solve this</b> and I will take a look at "+
-      "your screen first - the picture is never written to disk.";
+      "your screen first - the picture is never written to disk. "+
+      "Drag this bar to move me, and I stay out until you close me.";
     aiLog.appendChild(w);
   }
   $("aiInput").focus();
@@ -5241,6 +5419,11 @@ window.ORBIT={
   chatKey:function(){return apiKey}, pictureKey:function(){return gemKey},
   hidden:function(n){return isHiddenZone(n)}, hideList:function(){return HIDE_GAMES.slice()},
   aiOpen:aiOpen, aiAsk:function(t){$("aiInput").value=t;aiSend()},
+  aiInWindow:aiInWindow, aiBackToTab:aiBackToTab, aiAttach:aiAttach,
+  find:$,
+  aiWinOpen:function(){return !!(aiWin&&!aiWin.closed)},
+  aiPlace:aiPlace, aiDrag:aiRestorePlace,
+  aiOut:function(){var d=$("aiDock");return !!d&&!d.hidden},
   youtubeTaste:ytTaste, youtubeSeen:function(){return ytSeen.slice()},
   ytSearchWide:ytSearchWide, ytStop:ytStop, ytLeaving:ytLeaving,
   ytSubs:function(){return ytSubsList.slice()}, ytToggleSub:ytToggleSub,
